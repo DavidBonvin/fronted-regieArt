@@ -1,0 +1,24 @@
+{
+  "name": "regiart",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "dev:desktop": "turbo dev --filter=@regiart/desktop",
+    "dev:mobile": "turbo dev --filter=@regiart/mobile",
+    "build:desktop": "turbo build --filter=@regiart/desktop",
+    "build:packages": "turbo build --filter=@regiart/ui --filter=@regiart/types"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

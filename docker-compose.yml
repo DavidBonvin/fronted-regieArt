@@ -1,0 +1,62 @@
+services:
+  desktop:
+    build:
+      context: .
+      target: dev
+    container_name: regiart-desktop
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/desktop/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/types/node_modules
+      - /app/packages/config/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://host.docker.internal:3001}
+      - VITE_KEYCLOAK_URL=${VITE_KEYCLOAK_URL:-http://host.docker.internal:8090}
+      - VITE_KEYCLOAK_REALM=${VITE_KEYCLOAK_REALM:-regiart}
+      - VITE_KEYCLOAK_CLIENT_ID=${VITE_KEYCLOAK_CLIENT_ID:-regiart-desktop}
+      - VITE_CLOUDFLARE_R2_PUBLIC_URL=${VITE_CLOUDFLARE_R2_PUBLIC_URL:-https://pub.r2.dev}
+    networks:
+      - regiart
+    command: pnpm --filter @regiart/desktop dev
+
+  mobile:
+    build:
+      context: .
+      target: dev
+    container_name: regiart-mobile
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/mobile/node_modules
+      - /app/packages/ui/node_modules
+      - /app/packages/types/node_modules
+      - /app/packages/config/node_modules
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+    environment:
+      - NODE_ENV=development
+      - EXPO_PUBLIC_API_BASE_URL=${EXPO_PUBLIC_API_BASE_URL:-http://host.docker.internal:3001}
+      - EXPO_PUBLIC_KEYCLOAK_URL=${EXPO_PUBLIC_KEYCLOAK_URL:-http://host.docker.internal:8090}
+      - EXPO_PUBLIC_KEYCLOAK_REALM=${EXPO_PUBLIC_KEYCLOAK_REALM:-regiart}
+      - EXPO_PUBLIC_KEYCLOAK_CLIENT_ID=${EXPO_PUBLIC_KEYCLOAK_CLIENT_ID:-regiart-mobile}
+      - EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL=${EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL:-https://pub.r2.dev}
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - EXPO_NO_DOTENV=1
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - regiart
+    command: pnpm --filter @regiart/mobile dev
+
+networks:
+  regiart:
+    external: true
+    name: regiart

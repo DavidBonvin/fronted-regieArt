@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+dist
+**/dist
+build
+**/build
+.expo
+**/.expo
+.turbo
+**/.turbo
+coverage
+.git
+.gitignore
+*.log

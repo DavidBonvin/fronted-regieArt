@@ -1,0 +1,12 @@
+{
+  "name": "@regiart/types",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
