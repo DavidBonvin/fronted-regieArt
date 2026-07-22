@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @regiart/desktop build",
+  "outputDirectory": "apps/desktop/dist",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "framework": null
+}
