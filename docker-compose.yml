@@ -49,6 +49,8 @@ services:
       - EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL=${EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL:-https://pub.r2.dev}
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
       - EXPO_NO_DOTENV=1
+      - CI=1
+      - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-10.150.225.17}
     dns:
       - 8.8.8.8
       - 8.8.4.4
