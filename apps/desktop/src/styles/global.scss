@@ -1,0 +1,13 @@
+// Global entry — loaded ONCE in main.tsx.
+// After this, every .scss file in the app can freely use:
+//   · var(--color-brand-500)  — from the palette
+//   · font-family: 'Archivo'  — from @font-face declarations
+@use 'fonts';         // registers @font-face for Archivo (all weights)
+@use 'theme' as theme;
+
+:root {
+  @include theme.palette;
+  @include theme.theme-light;
+
+  font-family: 'Archivo', system-ui, sans-serif;
+}

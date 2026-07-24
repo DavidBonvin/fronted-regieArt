@@ -10,6 +10,7 @@ import { ConvoyPage, PassengersPage } from '../features/convoy';
 import { BacklinePage, ChecklistPage, QRScannerPage } from '../features/inventory';
 import { BandChatPage, DirectMessagePage, NotificationsPage } from '../features/messages';
 import { BandManagementPage, InvitationsPage } from '../features/organizations';
+import IconsPage from '../features/icons/pages/IconsPage';
 
 export const router = createBrowserRouter([
   { path: '/onboarding', element: <OnboardingPage /> },
@@ -36,4 +37,5 @@ export const router = createBrowserRouter([
   { path: '/notifications', element: <NotificationsPage /> },
   { path: '/organization', element: <BandManagementPage /> },
   { path: '/organization/:orgId/invitations', element: <InvitationsPage /> },
+  { path: '/icons', element: <IconsPage /> },
 ]);

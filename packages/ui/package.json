@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.scss",
+    "./theme/*": "./src/theme/*.scss",
+    "./fonts": "./src/fonts/index.scss",
+    "./fonts/native": "./src/fonts/native.ts"
   },
   "main": "./src/index.ts",
   "peerDependencies": {
