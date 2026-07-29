@@ -1,24 +1,48 @@
-export type SongKey =
-  | 'C' | 'C#' | 'Db' | 'D' | 'D#' | 'Eb'
-  | 'E' | 'F' | 'F#' | 'Gb' | 'G' | 'G#'
-  | 'Ab' | 'A' | 'A#' | 'Bb' | 'B'
-  | 'Cm' | 'C#m' | 'Dm' | 'D#m' | 'Ebm'
-  | 'Em' | 'Fm' | 'F#m' | 'Gm' | 'G#m'
-  | 'Am' | 'A#m' | 'Bbm' | 'Bm';
-
 export interface Song {
   id: string;
+  orgId: string;
   title: string;
-  artist: string;
-  key: SongKey;
-  bpm: number;
-  durationSeconds: number;
-  scoreFileUrl?: string;
-  scoreFileType?: 'pdf' | 'musicxml';
-  tags: string[];
-  organizationId: string;
-  uploadedBy: string;
+  composer?: string;
+  arranger?: string;
+  genre?: string;
+  musicalKey?: string;
+  tempo?: number;
+  durationSeconds?: number;
+  notes?: string;
+  isArchived: boolean;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSongDto {
+  orgId: string;
+  title: string;
+  composer?: string;
+  arranger?: string;
+  genre?: string;
+  musicalKey?: string;
+  tempo?: number;
+  durationSeconds?: number;
+  notes?: string;
+}
+
+export interface UpdateSongDto {
+  title?: string;
+  composer?: string;
+  arranger?: string;
+  genre?: string;
+  musicalKey?: string;
+  tempo?: number;
+  durationSeconds?: number;
+  notes?: string;
+}
+
+export interface SongListParams {
+  orgId?: string;
+  search?: string;
+  genre?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface Repertoire {
@@ -29,16 +53,6 @@ export interface Repertoire {
   organizationId: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface SongCreateRequest {
-  title: string;
-  artist: string;
-  key: SongKey;
-  bpm: number;
-  durationSeconds: number;
-  tags?: string[];
-  organizationId: string;
 }
 
 export interface ScoreUploadRequest {

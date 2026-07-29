@@ -6,6 +6,7 @@ RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 FROM base AS deps
 WORKDIR /app
 COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
 COPY package.json ./
 COPY turbo.json ./
 COPY .npmrc ./
@@ -14,7 +15,9 @@ COPY apps/desktop/package.json ./apps/desktop/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/types/package.json ./packages/types/
 COPY packages/config/package.json ./packages/config/
-RUN pnpm install --no-frozen-lockfile
+COPY packages/api/package.json ./packages/api/
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --no-frozen-lockfile
 
 FROM deps AS dev
 WORKDIR /app

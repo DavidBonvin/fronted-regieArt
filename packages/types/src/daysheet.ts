@@ -1,46 +1,52 @@
-export type ShowStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+import type { Event, EventRosterEntry } from './events';
+import type { Venue } from './venues';
+import type { EventScheduleItem, EventVehicle } from './convoy';
 
-export interface VenueContact {
-  name: string;
-  role: string;
-  phone: string;
-  email?: string;
+export interface EventFinanceSummary {
+  cacheTotal?: string;
+  perDiemAmount?: string;
+  currency?: string;
+  isPaid: boolean;
+  paidAt?: string;
+  paymentNotes?: string;
+  invoiceAssetId?: string;
 }
 
-export interface Venue {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  country: string;
-  capacity: number;
-  contacts: VenueContact[];
-  notes?: string;
+export interface UpsertEventFinanceDto {
+  cacheTotal?: string;
+  perDiemAmount?: string;
+  currency?: string;
+  isPaid?: boolean;
+  paymentNotes?: string;
+  invoiceAssetId?: string;
 }
 
-export interface TimelineEvent {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  responsibleIds: string[];
-  notes?: string;
+export interface WeatherForecast {
+  available: boolean;
+  temperature?: number;
+  feelsLike?: number;
+  description?: string;
+  humidity?: number;
+  windSpeed?: number;
+  icon?: string;
+  source?: string;
 }
 
-export interface Daysheet {
-  id: string;
-  showDate: string;
-  status: ShowStatus;
-  venue: Venue;
-  timeline: TimelineEvent[];
-  organizationId: string;
-  createdAt: string;
-  updatedAt: string;
+export interface DaySheetMeta {
+  totalScheduleItems: number;
+  completedItems: number;
+  confirmedAttendees: number;
+  totalVehicles: number;
+  isAdminView: boolean;
 }
 
-export interface DaysheetCreateRequest {
-  showDate: string;
-  venueId: string;
-  organizationId: string;
+export interface DaySheetMasterResponse {
+  event: Event;
+  venue?: Venue;
+  schedule: EventScheduleItem[];
+  roster: EventRosterEntry[];
+  vehicles: EventVehicle[];
+  finance?: EventFinanceSummary;
+  weather?: WeatherForecast | null;
+  meta: DaySheetMeta;
 }

@@ -1,8 +1,3 @@
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
-
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;
@@ -10,10 +5,6 @@ export interface TokenResponse {
   refresh_expires_in: number;
   token_type: string;
   scope: string;
-}
-
-export interface RefreshTokenRequest {
-  refresh_token: string;
 }
 
 export interface KeycloakUserInfo {

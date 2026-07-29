@@ -1,5 +1,5 @@
 {
-  "name": "@regiart/mobile",
+  "name": "@regieart/mobile",
   "version": "0.0.1",
   "private": true,
   "main": "src/entry/index.tsx",
@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@regiart/types": "workspace:*",
+    "@regieart/api": "workspace:*",
+    "@regieart/types": "workspace:*",
     "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
@@ -21,6 +22,7 @@
     "expo-document-picker": "~13.0.0",
     "expo-image-picker": "~16.0.0",
     "expo-location": "~18.0.0",
+    "expo-secure-store": "~14.0.0",
     "expo-status-bar": "~2.2.0",
     "react": "18.3.1",
     "react-native": "0.77.0",
@@ -28,7 +30,7 @@
     "react-native-screens": "~4.4.0"
   },
   "devDependencies": {
-    "@regiart/config": "workspace:*",
+    "@regieart/config": "workspace:*",
     "@babel/core": "^7.24.0",
     "@types/react": "~18.3.0",
     "typescript": "~5.3.3"

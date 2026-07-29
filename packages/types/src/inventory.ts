@@ -1,5 +1,81 @@
-export type ItemCondition = 'excellent' | 'good' | 'fair' | 'poor';
-export type ItemCategory = 'backline' | 'pa' | 'lighting' | 'cables' | 'accessories' | 'other';
+export type ItemCondition = 'NEW' | 'GOOD' | 'FAIR' | 'POOR' | 'DAMAGED';
+export type ItemCategory =
+  | 'INSTRUMENT'
+  | 'AUDIO_GEAR'
+  | 'LIGHTING'
+  | 'STAGING'
+  | 'TRANSPORT'
+  | 'OTHER';
+
+export type InstrumentType =
+  | 'BRASS'
+  | 'WOODWIND'
+  | 'STRING'
+  | 'KEYBOARD'
+  | 'PERCUSSION'
+  | 'AUDIO_GEAR'
+  | 'LIGHTING'
+  | 'OTHER';
+
+export type InstrumentStatus = 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'RETIRED';
+
+export interface Instrument {
+  id: string;
+  orgId: string;
+  name: string;
+  type: InstrumentType;
+  brand?: string;
+  model?: string;
+  serialNumber?: string;
+  status: InstrumentStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstrumentAssignment {
+  id: string;
+  instrumentId: string;
+  instrument: Instrument;
+  userId: string;
+  user: {
+    id: string;
+    displayName: string;
+  };
+  eventId?: string;
+  event?: {
+    id: string;
+    title: string;
+  };
+  notes?: string;
+  assignedAt: string;
+  returnedAt?: string;
+}
+
+export interface CreateInstrumentDto {
+  orgId: string;
+  name: string;
+  type: InstrumentType;
+  brand?: string;
+  model?: string;
+  serialNumber?: string;
+  notes?: string;
+}
+
+export interface UpdateInstrumentDto {
+  name?: string;
+  type?: InstrumentType;
+  brand?: string;
+  model?: string;
+  serialNumber?: string;
+  notes?: string;
+}
+
+export interface AssignInstrumentDto {
+  userId: string;
+  eventId?: string;
+  notes?: string;
+}
 
 export interface InventoryItem {
   id: string;

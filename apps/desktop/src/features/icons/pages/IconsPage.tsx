@@ -1,5 +1,5 @@
 import React from 'react';
-import { MuIcon } from '@regiart/ui';
+import { MuIcon } from '@regieart/ui';
 import styles from './IconsPage.module.scss';
 
 // ── Color swatches ──────────────────────────────────────────────────────────

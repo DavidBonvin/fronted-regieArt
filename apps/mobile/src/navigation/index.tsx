@@ -10,6 +10,9 @@ import { ConvoyScreen, PassengersScreen } from '../features/convoy';
 import { BacklineScreen, ChecklistScreen, QRScannerScreen } from '../features/inventory';
 import { BandChatScreen, DirectMessageScreen, NotificationsScreen } from '../features/messages';
 import { BandManagementScreen, InvitationsScreen } from '../features/organizations';
+import { WriteSuiteScreen } from '../features/dev';
+import { DevToolsScreen } from '../features/dev';
+import { StorageSuiteScreen } from '../features/dev';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -36,6 +39,9 @@ export type RootStackParamList = {
   Notifications: undefined;
   BandManagement: undefined;
   Invitations: { organizationId: string };
+  DevPlayground: undefined;
+  DevTools: undefined;
+  StorageSuite: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -67,6 +73,9 @@ export function RootNavigator() {
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="BandManagement" component={BandManagementScreen} />
       <Stack.Screen name="Invitations" component={InvitationsScreen} />
+      <Stack.Screen name="DevPlayground" component={WriteSuiteScreen} options={{ title: '🧪 Write Suite' }} />
+      <Stack.Screen name="DevTools" component={DevToolsScreen} options={{ title: '🛠️ DevTools — Request Log' }} />
+      <Stack.Screen name="StorageSuite" component={StorageSuiteScreen} options={{ title: '📦 Storage Suite' }} />
     </Stack.Navigator>
   );
 }

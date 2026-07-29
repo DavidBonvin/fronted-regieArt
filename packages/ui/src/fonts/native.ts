@@ -2,7 +2,7 @@
 // Usage in your app entry (e.g. src/app/index.tsx):
 //
 //   import { useFonts } from 'expo-font';
-//   import { archivoFonts } from '@regiart/ui/fonts/native';
+//   import { archivoFonts } from '@regieart/ui/fonts/native';
 //
 //   const [fontsLoaded] = useFonts(archivoFonts);
 
