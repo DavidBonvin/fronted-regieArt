@@ -11,7 +11,10 @@ import { BacklinePage, ChecklistPage, QRScannerPage } from '../features/inventor
 import { BandChatPage, DirectMessagePage, NotificationsPage } from '../features/messages';
 import { BandManagementPage, InvitationsPage } from '../features/organizations';
 import IconsPage from '../features/icons/pages/IconsPage';
-import ApiPlayground from '../features/dev/ApiPlayground';
+
+const ApiPlayground = import.meta.env.DEV
+  ? React.lazy(() => import('../features/dev/ApiPlayground'))
+  : null;
 
 export const router = createBrowserRouter([
   { path: '/onboarding', element: <OnboardingPage /> },
@@ -39,8 +42,8 @@ export const router = createBrowserRouter([
   { path: '/organization', element: <BandManagementPage /> },
   { path: '/organization/:orgId/invitations', element: <InvitationsPage /> },
   { path: '/icons', element: <IconsPage /> },
-  ...(import.meta.env.DEV
-    ? [{ path: '/dev/playground', element: <ApiPlayground /> }]
+  ...(import.meta.env.DEV && ApiPlayground
+    ? [{ path: '/dev/playground', element: <React.Suspense fallback={null}><ApiPlayground /></React.Suspense> }]
     : []),
   // Catch-all: redirect unknown routes to home instead of showing React Router's default 404
   { path: '*', element: <Navigate to="/" replace /> },
