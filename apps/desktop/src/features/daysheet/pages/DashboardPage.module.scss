@@ -1,0 +1,398 @@
+.statsRow {
+  margin-bottom: 20px;
+}
+
+.orgStatName {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--action-brand);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Main layout ──────────────────────────────── */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Card internals ───────────────────────────── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cardLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.viewLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--action-brand);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+/* ── Event card ───────────────────────────────── */
+.eventTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+}
+
+.eventMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.metaChip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface-raised);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+/* ── Schedule ─────────────────────────────────── */
+.schedule {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 14px;
+  margin-bottom: 18px;
+}
+
+.scheduleTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.scheduleItem {
+  display: grid;
+  grid-template-columns: 52px 100px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child { border-bottom: none; }
+}
+
+.scheduleTime {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.scheduleType {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--action-brand);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scheduleLabel {
+  font-size: 13px;
+  color: var(--text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Upcoming events ──────────────────────────── */
+.upcomingCard {
+  padding-bottom: 8px;
+}
+
+.upcomingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child { border-bottom: none; }
+}
+
+.upcomingDate {
+  width: 48px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--action-brand);
+  flex-shrink: 0;
+}
+
+.upcomingInfo { flex: 1; min-width: 0; }
+
+.upcomingTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Conversations ────────────────────────────── */
+.rightEmpty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 16px 0;
+  text-align: center;
+}
+
+.convoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+
+  &:last-child { border-bottom: none; }
+  &:hover .convoAvatar { border-color: var(--action-brand); }
+}
+
+.convoAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 17px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--action-brand);
+  flex-shrink: 0;
+  transition: border-color 120ms;
+}
+
+.convoInfo { flex: 1; min-width: 0; }
+
+.convoName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.convoPreview {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unreadBadge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--action-brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+/* ── Notifications ────────────────────────────── */
+.notifsCard { margin-top: 0; }
+
+.notifRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child { border-bottom: none; }
+}
+
+.notifDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--action-brand);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.notifContent { flex: 1; }
+
+.notifTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 2px;
+}
+
+.notifBody {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ── Rich event cards ─────────────────────────── */
+
+.richEventRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: background 0.12s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--surface-raised); }
+}
+
+.richEventIcon {
+  font-size: 26px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.richEventContent { flex: 1; min-width: 0; }
+
+.richEventBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.richTypeBadge {
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.richStatusBadge {
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.richEventTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.2px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.richEventMeta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.richEventDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.richEventArrow {
+  font-size: 22px;
+  color: var(--text-muted);
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+/* ── Inline schedule preview ──────────────────── */
+
+.scheduleInline {
+  margin-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scheduleInlineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scheduleInlineTime {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--action-brand);
+  width: 44px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.scheduleInlineLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scheduleInlineDone {
+  font-size: 12px;
+  color: var(--action-brand);
+  font-weight: 700;
+}

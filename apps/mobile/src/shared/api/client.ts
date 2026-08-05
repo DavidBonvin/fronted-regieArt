@@ -1,4 +1,4 @@
-import { initApiClient } from '@regieart/api';
+﻿import { initApiClient } from '@regieart/api';
 import type { TokenStorageAdapter, StoredTokens, FileReaderAdapter } from '@regieart/api';
 import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -49,16 +49,10 @@ const fileReaderAdapter: FileReaderAdapter = {
   },
   async getSize(fileOrUri: File | Blob | string): Promise<number> {
     if (typeof fileOrUri !== 'string') throw new Error('Mobile adapter requires a file URI string');
-    const info = await FileSystem.getInfoAsync(fileOrUri, { size: true });
+    const info = await FileSystem.getInfoAsync(fileOrUri);
     if (!info.exists) throw new Error(`File not found: ${fileOrUri}`);
     return (info as unknown as { size: number }).size;
   },
-  /**
-   * Native streaming PUT — avoids loading the file into memory.
-   * Uses expo-file-system's uploadAsync which streams the file directly via the native
-   * HTTP stack.  This prevents OOM errors for large files (e.g. 50 MB+ videos) that
-   * would otherwise crash when Base64-encoded via readAsStringAsync.
-   */
   async streamUploadToPresignedUrl(fileOrUri: string, url: string, contentType: string, sizeBytes: number): Promise<void> {
     const result = await FileSystem.uploadAsync(url, fileOrUri, {
       httpMethod: 'PUT',
@@ -85,7 +79,10 @@ initApiClient({
   onSessionExpired: () => {},
 });
 
-/** Store tokens from an ROPC login so that getHttpClient() can use them immediately. */
+export async function getStoredTokens() {
+  return tokenAdapter.getTokens();
+}
+
 export async function storeUserTokens(
   accessToken: string,
   refreshToken: string,
@@ -99,63 +96,3 @@ export async function storeUserTokens(
     refreshExpiresAt: Date.now() + refreshExpiresIn * 1000,
   });
 }
-
-let accessToken: string | null = null;
-
-export function setAccessToken(token: string | null): void {
-  accessToken = token;
-}
-
-export function getAccessToken(): string | null {
-  return accessToken;
-}
-
-async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      ...options?.headers,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
-}
-
-export const apiClient = {
-  get: <T>(endpoint: string, options?: RequestInit) =>
-    request<T>(endpoint, { ...options, method: 'GET' }),
-
-  post: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
-    request<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      body: JSON.stringify(body),
-    }),
-
-  put: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
-    request<T>(endpoint, {
-      ...options,
-      method: 'PUT',
-      body: JSON.stringify(body),
-    }),
-
-  patch: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
-    request<T>(endpoint, {
-      ...options,
-      method: 'PATCH',
-      body: JSON.stringify(body),
-    }),
-
-  delete: <T>(endpoint: string, options?: RequestInit) =>
-    request<T>(endpoint, { ...options, method: 'DELETE' }),
-};

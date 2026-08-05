@@ -44,7 +44,6 @@ export interface PresignedUploadResponse {
 export interface ConfirmUploadDto {
   key: string;
   assetType: AssetType;
-  /** Technical metadata — only these fields are accepted by POST /storage/confirm-upload */
   durationSeconds?: number | null;
   bitrate?:         number | null;
   width?:           number | null;
@@ -55,7 +54,6 @@ export interface ConfirmUploadDto {
 export interface CreatePresignedUploadDto {
   assetType: AssetType;
   contentType: string;
-  /** Backend field name — was incorrectly 'sizeBytes' in frontend types */
   fileSizeBytes: number;
   orgId?: string;
   songId?: string;

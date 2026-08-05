@@ -4,6 +4,7 @@ build
 .expo
 .turbo
 coverage
+.pnpm-store
 .env
 .env.local
 .env.*.local
@@ -17,3 +18,12 @@ Thumbs.db
 
 # Test media files
 MediasTest/
+
+# Internal docs and wireframes
+docs/
+wireframes/
+
+# AI agent configs
+.claude/
+.agents/
+skills-lock.json

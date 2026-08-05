@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface FetchLog {
   id: string;
@@ -13,7 +13,6 @@ export interface FetchLog {
 export interface FetchInterceptorResult {
   logs: FetchLog[];
   keycloakRefreshCount: number;
-  /** Ref for synchronous reads during async tests (avoids stale state closure) */
   refreshCountRef: React.MutableRefObject<number>;
   clearLogs: () => void;
 }

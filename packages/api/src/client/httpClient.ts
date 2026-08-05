@@ -19,7 +19,6 @@ function processQueue(error: unknown): void {
 
 let _client: KyInstance | null = null;
 
-/** Call this when re-initializing the API client for a different environment. */
 export function resetHttpClient(): void {
   _client = null;
 }
@@ -42,9 +41,7 @@ export function getHttpClient(): KyInstance {
 
           if (isRefreshing) {
             await new Promise<void>((resolve, reject) => {
-              // 16 s safety net: if the in-flight refresh never settles (e.g. Keycloak timeout),
-              // don't leave this request hanging in the queue indefinitely.
-              const timer = setTimeout(() => reject(new Error('Token refresh queue timeout')), 16_000);
+            const timer = setTimeout(() => reject(new Error('Token refresh queue timeout')), 16_000);
               failedQueue.push({
                 resolve: () => { clearTimeout(timer); resolve(); },
                 reject:  (err) => { clearTimeout(timer); reject(err); },

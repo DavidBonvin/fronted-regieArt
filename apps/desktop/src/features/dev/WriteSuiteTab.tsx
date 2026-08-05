@@ -1,7 +1,6 @@
-import React, { useCallback, useState } from 'react';
+﻿import React, { useCallback, useState } from 'react';
 import { getConfig, getHttpClient } from '@regieart/api';
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const colors = {
   bg:      '#0f172a',
@@ -28,7 +27,6 @@ const s: Record<string, React.CSSProperties> = {
   pill:     { display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600 },
 };
 
-// ─── ROPC helper ─────────────────────────────────────────────────────────────
 
 async function loginWithROPC(username: string, password: string): Promise<string> {
   const cfg = getConfig();
@@ -46,7 +44,6 @@ async function loginWithROPC(username: string, password: string): Promise<string
   return access_token;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function WriteSuiteTab(): React.ReactElement {
   const [user2Email,    setUser2Email]    = useState('testuserinvitado1@gmail.com');
@@ -69,7 +66,6 @@ export function WriteSuiteTab(): React.ReactElement {
     const client   = getHttpClient();
     const apiBase  = getConfig().apiBaseUrl.replace(/\/$/, '');
 
-    // ── User 2 fetch helper ────────────────────────────────────────────────
     let user2Token = '';
     const u2 = async (method: string, path: string, body?: unknown): Promise<unknown> => {
       const res = await fetch(`${apiBase}/${path}`, {
@@ -90,14 +86,12 @@ export function WriteSuiteTab(): React.ReactElement {
       return json.data;
     };
 
-    // ── Soft-fail wrapper ──────────────────────────────────────────────────
     const soft = async (label: string, fn: () => Promise<void>): Promise<void> => {
       try { await fn(); } catch (err) {
         log(`  ⚠️ ${label}: ${err instanceof Error ? err.message : String(err)}`);
       }
     };
 
-    // ── Cleanup IDs ────────────────────────────────────────────────────────
     let orgId:             string | null = null;
     let songId:            string | null = null;
     let eventId:           string | null = null;
@@ -113,7 +107,6 @@ export function WriteSuiteTab(): React.ReactElement {
     let perDiemId:         string | null = null;
     let userSkillId:       string | null = null;
 
-    // ── Type helpers ───────────────────────────────────────────────────────
     type R  = { success: boolean; data: Record<string, unknown> };
     type RL = { success: boolean; data: unknown[] };
     const id = (d: unknown, label: string): string => {
@@ -127,9 +120,6 @@ export function WriteSuiteTab(): React.ReactElement {
     };
 
     try {
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 1 — Login ambos usuarios
-      // ════════════════════════════════════════════════════════════════════
       log('━━━ PHASE 1 — Login usuarios ━━━');
 
       user2Token = await loginWithROPC(user2Email, user2Password);
@@ -141,12 +131,8 @@ export function WriteSuiteTab(): React.ReactElement {
       user1Id = id(u1meRes.data, 'User 1 ID');
       log(`  ✅ User 1: ${u1meRes.data.displayName ?? u1meRes.data.email}  (${user1Id})`);
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 2 — Organizations
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 2 — Organizations ━━━');
 
-      // Create
       log('⏳ POST /organizations…');
       const orgRes = await client.post('organizations', {
         json: { name: `[DEV Write Suite] ${Date.now()}`, description: 'Org de test automatizado' },
@@ -154,7 +140,6 @@ export function WriteSuiteTab(): React.ReactElement {
       orgId = id(orgRes.data, 'orgId');
       log(`  ✅ Org creada: ${orgId}`);
 
-      // Update
       log('⏳ PATCH /organizations/:id…');
       await soft('PATCH org', async () => {
         await client.patch(`organizations/${orgId}`, {
@@ -163,7 +148,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Org actualizada (description + website)');
       });
 
-      // Invite link
       log('⏳ POST /organizations/:id/invite-links (rol MEMBER)…');
       const inviteRes = await client.post(`organizations/${orgId}/invite-links`, {
         json: { role: 'MEMBER' },
@@ -173,14 +157,10 @@ export function WriteSuiteTab(): React.ReactElement {
       if (!token2) throw new Error('Invite link no devolvió token');
       log(`  ✅ Invite link: ${token2}  (role MEMBER)`);
 
-      // User 2 joins
       log('⏳ POST /organizations/join/:token (como usuario 2)…');
       await u2('POST', `organizations/join/${token2}`);
       log('  ✅ Usuario 2 se unió a la org');
 
-      // Verify members and extract User 2's OrganizationMember record ID
-      // NOTE: PATCH /members/:memberId/role uses the OrganizationMember record ID
-      // (the join-table ID), NOT the user.id — different from DELETE which uses userId.
       const membersRes = await client.get(`organizations/${orgId}/members`).json<RL>();
       log(`  ✅ Miembros en la org: ${membersRes.data.length}`);
       const user2MemberRecord = membersRes.data.find(
@@ -189,7 +169,6 @@ export function WriteSuiteTab(): React.ReactElement {
       const user2MemberId = user2MemberRecord?.id as string | null ?? null;
       log(`  ℹ️ memberId de usuario 2: ${user2MemberId ?? '(no encontrado)'}`);
 
-      // Verify INVITE_ACCEPTED notification for User 1
       await soft('verificar INVITE_ACCEPTED', async () => {
         const n1 = await client.get('notifications', { searchParams: { limit: '10' } }).json<R>();
         const types = notifTypes(n1.data);
@@ -198,7 +177,6 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⚠️ INVITE_ACCEPTED aún no visible (puede haber delay)');
       });
 
-      // Change User 2 role → ADMIN  (uses OrganizationMember record ID, not userId)
       log('⏳ PATCH /organizations/:orgId/members/:memberId/role → ADMIN…');
       await soft('change role to ADMIN', async () => {
         if (!user2MemberId) {
@@ -211,7 +189,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Rol de usuario 2 → ADMIN');
       });
 
-      // Verify ROLE_CHANGED for User 2
       await soft('verificar ROLE_CHANGED', async () => {
         const n2 = await u2('GET', 'notifications?limit=10') as Record<string, unknown>;
         const types = notifTypes(n2);
@@ -220,24 +197,18 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⚠️ ROLE_CHANGED no encontrado en usuario 2');
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 3 — Perfil y Habilidades
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 3 — Perfil y Habilidades ━━━');
 
-      // PATCH /users/me
       log('⏳ PATCH /users/me (bio + city)…');
       await soft('PATCH users/me', async () => {
         const pRes = await client.patch('users/me', {
           json: { bio: '[DEV Write Suite] Bio temporal', city: 'Montreal', country: 'CA' },
         }).json<R>();
         log(`  ✅ Perfil actualizado: bio="${String(pRes.data?.bio ?? '').slice(0, 35)}…"`);
-        // Restore
         await client.patch('users/me', { json: { bio: null } }).json<R>();
         log('  ✅ Bio restaurada a null');
       });
 
-      // GET /skill-categories
       log('⏳ GET /skill-categories…');
       let firstSkillCatId: string | null = null;
       let firstSkillCatName = '';
@@ -252,7 +223,6 @@ export function WriteSuiteTab(): React.ReactElement {
         }
       });
 
-      // POST + GET + DELETE skill
       if (firstSkillCatId) {
         log(`⏳ POST /users/me/skills (${firstSkillCatName})…`);
         await soft('POST skill', async () => {
@@ -277,9 +247,6 @@ export function WriteSuiteTab(): React.ReactElement {
         }
       }
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 4 — Venues
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 4 — Venues ━━━');
 
       log('⏳ POST /venues…');
@@ -302,9 +269,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Venue actualizado (parkingNotes)');
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 5 — Songs
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 5 — Canciones ━━━');
 
       log('⏳ POST /songs…');
@@ -329,17 +293,12 @@ export function WriteSuiteTab(): React.ReactElement {
         log(`  ✅ Detalle OK — ${assets.length} asset(s) vinculado(s)`);
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 6 — Events + DaySheet completo
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 6 — Events + DaySheet + Roster + Vehículos ━━━');
 
-      // Create event
       log('⏳ POST /events (CONCERT, vinculado al venue)…');
       const evRes = await client.post('events', {
         json: {
           orgId, title: '[DEV] Write Suite Concert', type: 'CONCERT',
-          // Date within the next 7 days so WeatherAPI can return a real forecast
           startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
           endTime:   new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
           venueId, isPublic: false,
@@ -349,14 +308,12 @@ export function WriteSuiteTab(): React.ReactElement {
       eventId = id(evRes.data, 'eventId');
       log(`  ✅ Evento creado: ${eventId}  status=${evRes.data.status ?? 'DRAFT'}`);
 
-      // Status → CONFIRMED
       log('⏳ PATCH /events/:id status → CONFIRMED…');
       await soft('PATCH event status', async () => {
         await client.patch(`events/${eventId}`, { json: { status: 'CONFIRMED' } }).json<R>();
         log('  ✅ Evento confirmado');
       });
 
-      // DaySheet notes
       log('⏳ PATCH /events/:id/daysheet…');
       await soft('PATCH daysheet', async () => {
         await client.patch(`events/${eventId}/daysheet`, {
@@ -365,14 +322,12 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ DaySheet notes actualizadas');
       });
 
-      // Add User 2 to roster
       log('⏳ POST /events/:id/roster (agregar usuario 2)…');
       await client.post(`events/${eventId}/roster`, {
         json: { userId: user2Id, role: '[DEV] Músico test', notes: '[DEV]' },
       }).json<R>();
       log('  ✅ Usuario 2 añadido al roster');
 
-      // Verify EVENT_ASSIGNED for User 2
       await soft('verificar EVENT_ASSIGNED', async () => {
         const n2 = await u2('GET', 'notifications?limit=15') as Record<string, unknown>;
         const types = notifTypes(n2);
@@ -381,18 +336,15 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⚠️ EVENT_ASSIGNED no encontrado en usuario 2');
       });
 
-      // User 2 confirms attendance
       log('⏳ PATCH /events/:id/roster/:userId (usuario 2 confirma)…');
       await soft('User 2 confirm attendance', async () => {
         await u2('PATCH', `events/${eventId}/roster/${user2Id}`, { status: 'CONFIRMED' });
         log('  ✅ Usuario 2 confirmó asistencia (CONFIRMED)');
       });
 
-      // GET roster
       const rosterRes = await client.get(`events/${eventId}/roster`).json<RL>();
       log(`  ✅ GET /roster → ${rosterRes.data.length} participante(s)`);
 
-      // Schedule item — SOUNDCHECK
       log('⏳ POST /events/:id/schedule (SOUNDCHECK)…');
       const schedRes = await client.post(`events/${eventId}/schedule`, {
         json: {
@@ -405,7 +357,6 @@ export function WriteSuiteTab(): React.ReactElement {
       scheduleItemId = id(schedRes.data, 'scheduleItemId');
       log(`  ✅ Schedule item: ${scheduleItemId}`);
 
-      // Toggle complete (tracking en vivo)
       log('⏳ PATCH .../schedule/:itemId/complete (toggle)…');
       await soft('toggle complete', async () => {
         const cRes = await client.patch(`events/${eventId}/schedule/${scheduleItemId}/complete`).json<R>();
@@ -413,7 +364,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log(`  ✅ isCompleted: ${completed} — tracking en vivo ✓`);
       });
 
-      // Vehicle
       log('⏳ POST /events/:id/vehicles…');
       const vehRes = await client.post(`events/${eventId}/vehicles`, {
         json: { name: '[DEV] Furgoneta', driverName: 'Test Driver', plateNumber: 'QC-DEV-001', capacity: 8 },
@@ -421,7 +371,6 @@ export function WriteSuiteTab(): React.ReactElement {
       vehicleId = id(vehRes.data, 'vehicleId');
       log(`  ✅ Vehículo: ${vehicleId}`);
 
-      // Passenger — User 1
       log('⏳ POST .../vehicles/:id/passengers (usuario 1)…');
       await soft('add passenger', async () => {
         await client.post(`events/${eventId}/vehicles/${vehicleId}/passengers`, {
@@ -430,7 +379,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Usuario 1 añadido como pasajero');
       });
 
-      // Pickup GPS
       log('⏳ POST .../vehicles/:id/pickups (con GPS)…');
       await soft('add pickup', async () => {
         await client.post(`events/${eventId}/vehicles/${vehicleId}/pickups`, {
@@ -439,7 +387,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Pickup point con GPS añadido');
       });
 
-      // Master DaySheet
       log('⏳ GET /events/:id/daysheet (endpoint maestro)…');
       await soft('master daysheet', async () => {
         const dsRes = await client.get(`events/${eventId}/daysheet`).json<R>();
@@ -460,7 +407,6 @@ export function WriteSuiteTab(): React.ReactElement {
         }
       });
 
-      // Weather standalone
       log('⏳ GET /events/:id/weather…');
       await soft('weather', async () => {
         const wRes = await client.get(`events/${eventId}/weather`).json<R>();
@@ -468,12 +414,8 @@ export function WriteSuiteTab(): React.ReactElement {
         log(`  ✅ Weather: ${w.conditionText ?? 'N/A'}  max:${w.maxTempC}°C`);
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 7 — Finance
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 7 — Finance ━━━');
 
-      // PUT event finance (upsert)
       log('⏳ PUT /events/:id/finance…');
       await soft('PUT event finance', async () => {
         await client.put(`events/${eventId}/finance`, {
@@ -482,14 +424,12 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Resumen financiero del evento guardado');
       });
 
-      // GET event finance
       log('⏳ GET /events/:id/finance…');
       await soft('GET event finance', async () => {
         const efRes = await client.get(`events/${eventId}/finance`).json<R>();
         log(`  ✅ Finance: caché=${efRes.data?.cacheTotal}  ${efRes.data?.currency}`);
       });
 
-      // Finance category
       log('⏳ POST /finance/categories…');
       const catRes = await client.post('finance/categories', {
         json: { orgId, name: '[DEV] Transporte test', type: 'EXPENSE', icon: '🚌' },
@@ -497,7 +437,6 @@ export function WriteSuiteTab(): React.ReactElement {
       financeCategoryId = id(catRes.data, 'financeCategoryId');
       log(`  ✅ Categoría: ${financeCategoryId}  "${catRes.data.name}"`);
 
-      // Finance entry
       log('⏳ POST /finance/entries (EXPENSE, amount "250.00")…');
       const entRes = await client.post('finance/entries', {
         json: {
@@ -509,14 +448,12 @@ export function WriteSuiteTab(): React.ReactElement {
       financeEntryId = id(entRes.data, 'financeEntryId');
       log(`  ✅ Entrada: ${financeEntryId}  status=PENDING`);
 
-      // Approve entry
       log('⏳ PATCH /finance/entries/:id/approve…');
       await soft('approve entry', async () => {
         await client.patch(`finance/entries/${financeEntryId}/approve`).json<R>();
         log('  ✅ Gasto aprobado (APPROVED) → dispara EXPENSE_APPROVED');
       });
 
-      // Verify EXPENSE_APPROVED for User 1 (self-approve, still generates notif)
       await soft('verificar EXPENSE_APPROVED', async () => {
         const n1 = await client.get('notifications', { searchParams: { limit: '15' } }).json<R>();
         const types = notifTypes(n1.data);
@@ -525,7 +462,6 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⏸️ EXPENSE_APPROVED no encontrado (puede que no se genere si el aprobador es el mismo que registró el gasto)');
       });
 
-      // GET finance report
       log('⏳ GET /finance/reports…');
       await soft('finance report', async () => {
         const repRes = await client.get('finance/reports', { searchParams: { orgId: orgId! } }).json<R>();
@@ -533,8 +469,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log(`  ✅ Reporte: totalExpense=${sum?.totalExpense}  balance=${sum?.balance}`);
       });
 
-      // Per diem for User 2
-      // Backend DTO uses 'userId' (confirmed — recipientId is not accepted)
       log('⏳ POST /finance/per-diem (para usuario 2)…');
       await soft('POST per-diem', async () => {
         const pdRes = await client.post('finance/per-diem', {
@@ -551,7 +485,6 @@ export function WriteSuiteTab(): React.ReactElement {
           log('  ✅ Per diem marcado como pagado (paidAt registrado)');
         });
 
-        // GET per-diem list
         log('⏳ GET /finance/per-diem?orgId=…');
         await soft('GET per-diem', async () => {
           const pdListRes = await client.get('finance/per-diem', { searchParams: { orgId: orgId!, eventId: eventId! } }).json<RL>();
@@ -559,9 +492,6 @@ export function WriteSuiteTab(): React.ReactElement {
         });
       }
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 8 — Inventory
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 8 — Inventario ━━━');
 
       log('⏳ POST /instruments…');
@@ -574,7 +504,6 @@ export function WriteSuiteTab(): React.ReactElement {
       instrumentId = id(instrRes.data, 'instrumentId');
       log(`  ✅ Instrumento: ${instrumentId}  status=AVAILABLE`);
 
-      // Assign to User 2
       log('⏳ POST /instruments/:id/assign (a usuario 2)…');
       await soft('assign instrument', async () => {
         await client.post(`instruments/${instrumentId}/assign`, {
@@ -583,7 +512,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Instrumento asignado → status=IN_USE');
       });
 
-      // Verify INSTRUMENT_ASSIGNED for User 2
       await soft('verificar INSTRUMENT_ASSIGNED', async () => {
         const n2 = await u2('GET', 'notifications?limit=15') as Record<string, unknown>;
         const types = notifTypes(n2);
@@ -592,33 +520,26 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⚠️ INSTRUMENT_ASSIGNED no encontrado en usuario 2');
       });
 
-      // Equipment list for the event
       log('⏳ GET /instruments/assignments?orgId=&eventId=…');
       await soft('GET assignments', async () => {
         const aRes = await client.get('instruments/assignments', { searchParams: { orgId: orgId!, eventId: eventId! } }).json<RL>();
         log(`  ✅ Equipaje del evento: ${aRes.data.length} instrumento(s) asignado(s)`);
       });
 
-      // Return instrument
       log('⏳ PATCH /instruments/:id/return…');
       await soft('return instrument', async () => {
         await client.patch(`instruments/${instrumentId}/return`).json<R>();
         log('  ✅ Instrumento devuelto → status=AVAILABLE');
       });
 
-      // Retire instrument
       log('⏳ PATCH /instruments/:id/retire…');
       await soft('retire instrument', async () => {
         await client.patch(`instruments/${instrumentId}/retire`).json<R>();
         log('  ✅ Instrumento retirado → status=RETIRED');
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 9 — Messages (flujo real 2 usuarios)
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 9 — Mensajería directa ━━━');
 
-      // User 1 → User 2
       log('⏳ POST /messages (usuario 1 → usuario 2)…');
       await soft('send message U1→U2', async () => {
         await client.post('messages', {
@@ -627,14 +548,12 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Mensaje enviado');
       });
 
-      // User 2 → User 1 (reply)
       log('⏳ POST /messages (usuario 2 → usuario 1)…');
       await soft('send message U2→U1', async () => {
         await u2('POST', 'messages', { recipientId: user1Id, body: '[DEV] Respuesta de prueba', orgId });
         log('  ✅ Respuesta enviada (usuario 2 → usuario 1)');
       });
 
-      // Verify MESSAGE_RECEIVED for User 2 (from U1 message)
       await soft('verificar MESSAGE_RECEIVED', async () => {
         const n2 = await u2('GET', 'notifications?limit=15') as Record<string, unknown>;
         const types = notifTypes(n2);
@@ -643,14 +562,12 @@ export function WriteSuiteTab(): React.ReactElement {
           : '  ⚠️ MESSAGE_RECEIVED no encontrado en usuario 2');
       });
 
-      // GET conversations (User 1)
       log('⏳ GET /messages/conversations (usuario 1)…');
       await soft('GET conversations U1', async () => {
         const convRes = await client.get('messages/conversations').json<RL>();
         log(`  ✅ Conversaciones de usuario 1: ${convRes.data.length}`);
       });
 
-      // User 2 opens thread (marks messages as read automatically)
       log(`⏳ GET /messages/conversations/${user1Id} (usuario 2 lee el hilo)…`);
       await soft('GET conversation thread U2', async () => {
         const threadData = await u2('GET', `messages/conversations/${user1Id}`) as unknown;
@@ -660,9 +577,6 @@ export function WriteSuiteTab(): React.ReactElement {
         log(`  ✅ Hilo leído: ${msgs.length} mensaje(s) (marcados como leídos al abrir)`);
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 10 — Notificaciones: resumen y limpieza
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 10 — Notificaciones: resumen ━━━');
 
       log('⏳ GET /notifications usuario 1 (resumen final)…');
@@ -687,18 +601,12 @@ export function WriteSuiteTab(): React.ReactElement {
         log('  ✅ Todas leídas — usuario 2');
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // PHASE 11 — Remover usuario 2 de la org
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 11 — Remover usuario 2 de la org ━━━');
       await soft('DELETE member user2', async () => {
         await client.delete(`organizations/${orgId}/members/${user2Id}`).json<R>();
         log('  ✅ Usuario 2 removido de la organización');
       });
 
-      // ════════════════════════════════════════════════════════════════════
-      // DONE
-      // ════════════════════════════════════════════════════════════════════
       log('\n── ✅ WRITE SUITE COMPLETADO ──');
       setResult({ status: 'ok', detail: lines.join('\n') });
 
@@ -708,9 +616,6 @@ export function WriteSuiteTab(): React.ReactElement {
       setResult({ status: 'fail', detail: lines.join('\n') });
 
     } finally {
-      // ════════════════════════════════════════════════════════════════════
-      // CLEANUP — siempre se ejecuta
-      // ════════════════════════════════════════════════════════════════════
       log('\n━━━ CLEANUP ━━━');
       const del = async (path: string, label: string) => {
         try {
@@ -721,7 +626,6 @@ export function WriteSuiteTab(): React.ReactElement {
         }
       };
 
-      // Order matters: delete child resources before parents
       if (userSkillId) await del(`users/me/skills/${userSkillId}`, `Skill ${userSkillId}`);
       if (financeEntryId) await del(`finance/entries/${financeEntryId}`, `FinanceEntry`);
       if (financeCategoryId) await del(`finance/categories/${financeCategoryId}`, `FinanceCategory`);
@@ -731,15 +635,11 @@ export function WriteSuiteTab(): React.ReactElement {
       if (songId) await del(`songs/${songId}`, `Song ${songId}`);
       if (inviteLinkId && orgId) await del(`organizations/${orgId}/invite-links/${inviteLinkId}`, `InviteLink`);
       if (orgId) await del(`organizations/${orgId}`, `Org ${orgId} (soft-delete)`);
-      // Note: venues have no DELETE endpoint — stays in production (marked as DEV in name)
-      // Note: instruments have no DELETE — was retired via PATCH /retire
-      // Note: per-diem has no DELETE endpoint
       log('  🏁 Limpieza completa');
       setIsRunning(false);
     }
   }, [user2Email, user2Password]);
 
-  // ─── Render ────────────────────────────────────────────────────────────────
 
   const statusColor = result.status === 'ok' ? colors.ok
     : result.status === 'fail' ? colors.fail
@@ -753,7 +653,6 @@ export function WriteSuiteTab(): React.ReactElement {
 
   return (
     <div>
-      {/* Header info */}
       <div style={s.section}>
         <h2 style={s.h2}>✍️ Write Suite — Operaciones CUD</h2>
         <p style={s.desc}>
@@ -766,7 +665,6 @@ export function WriteSuiteTab(): React.ReactElement {
         </p>
       </div>
 
-      {/* User 2 credentials */}
       <div style={s.section}>
         <h2 style={s.h2}>👤 Credenciales — Usuario 2</h2>
         <p style={s.desc}>
@@ -795,7 +693,6 @@ export function WriteSuiteTab(): React.ReactElement {
         </div>
       </div>
 
-      {/* Phases summary */}
       <div style={s.section}>
         <h2 style={s.h2}>📋 Fases del Write Suite</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 20px', fontSize: 12, color: colors.muted }}>
@@ -821,7 +718,6 @@ export function WriteSuiteTab(): React.ReactElement {
         </div>
       </div>
 
-      {/* Run button */}
       <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
         <button
           style={{ ...s.btn, opacity: isRunning ? 0.6 : 1 }}
@@ -837,7 +733,6 @@ export function WriteSuiteTab(): React.ReactElement {
         )}
       </div>
 
-      {/* Log output */}
       {result.detail && (
         <div style={s.log}>
           {result.detail}

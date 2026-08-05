@@ -89,6 +89,62 @@ export interface CreateVehicleDto {
   notes?: string;
 }
 
+// ─── Geo & Route API (v2) ─────────────────────────────────────────────────────
+
+export type SupportedCountry = 'FR' | 'BE' | 'IT' | 'DE' | 'ES' | 'CA';
+
+export interface ConvoySummaryPickup {
+  address: string;
+  time: string; // ISO 8601
+  order: number;
+}
+
+export interface ConvoySummaryItem {
+  vehicleId: string;
+  name: string;
+  driverName: string | null;
+  passengersCount: number;
+  originAddress: string | null;
+  routeDistanceKm: number | null;
+  routeDurationMin: number | null;
+  suggestedDepartureAt: string | null;
+  routeCalculated: boolean;
+  pickups: ConvoySummaryPickup[];
+}
+
+export interface RouteLeg {
+  from: string;
+  distanceKm: number;
+  durationMin: number;
+}
+
+export interface RouteResult {
+  vehicleId: string;
+  originAddress: string;
+  venueAddress: string;
+  waypointsCount: number;
+  totalDistanceKm: number;
+  totalDurationMin: number;
+  suggestedDepartureAt: string;
+  legs: RouteLeg[];
+  cached: boolean;
+  venueLat?: number;
+  venueLng?: number;
+}
+
+export interface AutocompleteResult {
+  label: string;
+  lat: number;
+  lng: number;
+}
+
+export interface GeocodeResult {
+  lat: number;
+  lng: number;
+  displayAddress: string;
+  source: 'BAN' | 'nominatim';
+}
+
 export interface CreatePickupDto {
   time: string;
   address: string;

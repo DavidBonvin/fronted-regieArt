@@ -16,12 +16,15 @@ COPY packages/ui/package.json ./packages/ui/
 COPY packages/types/package.json ./packages/types/
 COPY packages/config/package.json ./packages/config/
 COPY packages/api/package.json ./packages/api/
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+COPY packages/i18n/package.json ./packages/i18n/
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --no-frozen-lockfile
 
 FROM deps AS dev
 WORKDIR /app
 COPY . .
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --no-frozen-lockfile
 EXPOSE 5173 8081
 CMD ["pnpm", "dev"]
 

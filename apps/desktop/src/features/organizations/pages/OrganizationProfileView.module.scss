@@ -1,0 +1,398 @@
+/* ── Banner ────────────────────────────────────── */
+.banner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #2a4a48 0%, #4A827E 60%, #3a6a66 100%);
+  background-size: cover;
+  background-position: center;
+  transition: filter 0.2s;
+}
+
+.bannerEditBtn {
+  position: absolute;
+  bottom: 14px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.48);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.2s, background 0.15s;
+  z-index: 3;
+
+  &:hover { background: rgba(0, 0, 0, 0.62); }
+}
+
+.bannerWrapper {
+  position: relative;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 0;
+  cursor: pointer;
+
+  &:hover .bannerEditBtn { opacity: 1; }
+}
+
+.bannerOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 24px 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.orgLogoBox {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: var(--action-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--surface-app);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  &:hover .logoEditOverlay { opacity: 1; }
+}
+
+.orgLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.logoEditOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s;
+  font-size: 18px;
+}
+
+.orgLogoInitials {
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.orgHeading { flex: 1; }
+
+.orgName {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+  margin: 0 0 3px;
+}
+
+.orgTagline {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  margin: 0 0 8px;
+}
+
+.orgMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+
+  a { color: inherit; text-decoration: none; &:hover { text-decoration: underline; } }
+}
+
+/* ── Action bar ────────────────────────────────── */
+.actionBar {
+  display: flex;
+  gap: 10px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0;
+}
+
+.btnPrimary {
+  background: var(--action-brand);
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 150ms;
+
+  &:hover { opacity: 0.88; }
+}
+
+.btnSecondary {
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 150ms;
+
+  &:hover { border-color: var(--text-body); }
+}
+
+/* ── Tabs ──────────────────────────────────────── */
+.tabBar {
+  display: flex;
+  gap: 4px;
+  padding: 12px 0 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 24px;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 150ms;
+
+  &:hover { color: var(--text-body); }
+}
+
+.tabBtnActive {
+  color: var(--action-brand);
+  font-weight: 700;
+  border-bottom-color: var(--action-brand);
+}
+
+/* ── 2-column layout ───────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.main { display: flex; flex-direction: column; gap: 0; }
+.mt { margin-top: 16px; }
+
+.sidebar { display: flex; flex-direction: column; }
+
+/* ── Section titles ────────────────────────────── */
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+.bodyText {
+  font-size: 14px;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ── Member row ────────────────────────────────── */
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child { border-bottom: none; }
+}
+
+.memberAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 21px;
+  background: var(--surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarImg { width: 100%; height: 100%; object-fit: cover; }
+
+.avatarInitials {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--action-brand);
+}
+
+.memberInfo { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.memberName { font-size: 14px; font-weight: 600; color: var(--text-heading); }
+.memberSub { font-size: 12px; color: var(--text-muted); }
+
+.roleBadge {
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ── Sidebar ───────────────────────────────────── */
+.sidebarTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.adminActions { display: flex; flex-direction: column; gap: 8px; }
+
+.adminBtn {
+  background: var(--surface-raised, var(--surface-app));
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms;
+
+  &:hover { border-color: var(--action-brand); color: var(--action-brand); }
+}
+
+/* ── Invite link cards ─────────────────────────── */
+.linkCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &:last-child { border-bottom: none; }
+}
+
+.linkInfo { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.linkToken { font-size: 12px; color: var(--text-body); font-family: monospace; }
+.linkMeta { font-size: 11px; color: var(--text-muted); }
+
+.revokeBtn {
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--action-danger, #E05252);
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: var(--action-danger, #E05252); color: #fff; border-color: transparent; }
+}
+
+/* ── Resources ─────────────────────────────────── */
+.resourceList { display: flex; flex-direction: column; gap: 8px; }
+
+.resourceItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ── Dashboard stats row ───────────────────────── */
+.dashStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 0 4px;
+}
+
+/* ── Messages preview ──────────────────────────── */
+.viewAllLink {
+  background: none;
+  border: none;
+  color: var(--action-brand);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.convoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 8px;
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--surface-raised); }
+}
+
+.convoAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 17px;
+  background: rgba(74,130,126,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--action-brand);
+  flex-shrink: 0;
+}
+
+.convoMeta { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.convoName { font-size: 13px; font-weight: 600; color: var(--text-heading); }
+.convoLast { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.unreadBadge {
+  background: var(--action-brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}

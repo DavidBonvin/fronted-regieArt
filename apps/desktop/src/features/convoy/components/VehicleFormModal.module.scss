@@ -1,0 +1,244 @@
+$teal: #4a827e;
+$bg-deep: #1a1a1a;
+$bg-card: #2e2e2e;
+$bg-input: #1a1a1a;
+$border: #3e3e3e;
+$text: #f0f0f0;
+$text-sub: #a0a0a0;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.modal {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $text;
+}
+
+.headerSub {
+  font-size: 0.82rem;
+  color: $text-sub;
+  margin-top: 2px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: $text-sub;
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.15s;
+
+  &:hover { color: $text; }
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: $teal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid $border;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $text-sub;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input {
+  width: 100%;
+  background: $bg-input;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text;
+  font-size: 0.875rem;
+  padding: 9px 12px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $teal; }
+  &::placeholder { color: #5a5a5a; }
+}
+
+.select {
+  @extend .input;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.pickupRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pickupNum {
+  font-size: 0.75rem;
+  color: $text-sub;
+  white-space: nowrap;
+  padding-bottom: 10px;
+  min-width: 40px;
+}
+
+.timeInput {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.removePickupBtn {
+  background: none;
+  border: 1px solid #4a3030;
+  border-radius: 6px;
+  color: #cc5555;
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:hover { background: #3a2020; }
+}
+
+.addPickupBtn {
+  background: none;
+  border: 1px dashed $border;
+  border-radius: 6px;
+  color: $teal;
+  font-size: 0.82rem;
+  padding: 8px 14px;
+  cursor: pointer;
+  width: fit-content;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: $teal;
+    background: rgba(74, 130, 126, 0.08);
+  }
+}
+
+.venueBox {
+  background: #252525;
+  border: 1px solid $border;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: $text-sub;
+}
+
+.errorBanner {
+  background: rgba(200, 60, 60, 0.15);
+  border: 1px solid rgba(200, 60, 60, 0.4);
+  border-radius: 6px;
+  color: #e07070;
+  font-size: 0.84rem;
+  padding: 10px 14px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid $border;
+  flex-shrink: 0;
+  background: $bg-card;
+}
+
+.cancelBtn {
+  background: none;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $text-sub;
+  font-size: 0.875rem;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: #666;
+    color: $text;
+  }
+}
+
+.saveBtn {
+  background: $teal;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 9px 22px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: #3d6e6a; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

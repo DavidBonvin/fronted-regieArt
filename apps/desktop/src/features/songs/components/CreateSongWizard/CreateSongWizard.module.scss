@@ -1,0 +1,483 @@
+/* ── Backdrop ─────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+}
+
+/* ── Modal ────────────────────────────────────── */
+.modal {
+  width: min(900px, 100%);
+  height: min(640px, 100%);
+  background: var(--surface-app);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Left sidebar ─────────────────────────────── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--nav-background);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.sidebarTop {
+  margin-bottom: 28px;
+}
+
+.sidebarTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.sidebarSub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* Steps indicator */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 28px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: default;
+  transition: background 120ms;
+}
+
+.stepActive {
+  background: color-mix(in srgb, var(--action-brand) 12%, transparent);
+}
+
+.stepDone {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-raised);
+  }
+}
+
+.stepNum {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 200ms, color 200ms;
+
+  .stepActive & {
+    background: var(--action-brand);
+    border-color: var(--action-brand);
+    color: #fff;
+  }
+
+  .stepDone & {
+    background: var(--action-brand);
+    border-color: var(--action-brand);
+    color: #fff;
+    font-size: 10px;
+  }
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+
+  .stepActive & {
+    color: var(--text-heading);
+  }
+}
+
+.stepSub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Live preview card */
+.preview {
+  margin-top: auto;
+  padding: 14px;
+  background: var(--surface-raised);
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  text-align: center;
+}
+
+.previewIcon {
+  font-size: 28px;
+  opacity: 0.5;
+  margin-bottom: 6px;
+}
+
+.previewTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.previewSub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.previewChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(74, 130, 126, 0.15);
+  color: var(--action-brand);
+  border: 1px solid rgba(74, 130, 126, 0.25);
+  font-weight: 600;
+}
+
+/* ── Right content ────────────────────────────── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 120ms, color 120ms;
+
+  &:hover {
+    background: var(--border-default);
+    color: var(--text-heading);
+  }
+}
+
+.formArea {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
+/* ── Step form ────────────────────────────────── */
+.stepForm {
+  padding: 32px 32px 20px;
+}
+
+.stepHeading {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin: 0 0 6px;
+}
+
+.stepDesc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .field {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+
+.input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-raised);
+  color: var(--text-heading);
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 120ms;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:focus {
+    border-color: var(--action-brand);
+  }
+}
+
+.select {
+  @extend .input;
+  cursor: pointer;
+}
+
+.textarea {
+  @extend .input;
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* ── Dropzone ─────────────────────────────────── */
+.dropzoneLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+
+.dropzone {
+  border: 1.5px dashed var(--border-default);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms;
+  text-align: center;
+
+  &:hover {
+    border-color: var(--action-brand);
+    background: rgba(74, 130, 126, 0.05);
+  }
+}
+
+.dropzoneHasFile {
+  border-color: var(--action-brand);
+  background: rgba(74, 130, 126, 0.05);
+}
+
+.dropzoneHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dropzoneIcon {
+  font-size: 28px;
+  opacity: 0.5;
+}
+
+.dropzoneSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.fileChosen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-heading);
+}
+
+.removeBtn {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+
+  &:hover {
+    color: var(--text-heading);
+    background: var(--border-subtle);
+  }
+}
+
+.progressBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--action-brand);
+  border-radius: 2px;
+  transition: width 200ms linear;
+}
+
+/* ── Summary (Step 3) ─────────────────────────── */
+.summary {
+  background: var(--surface-raised);
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  margin-top: 20px;
+}
+
+.summaryTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  row-gap: 8px;
+  column-gap: 12px;
+}
+
+.summaryKey {
+  font-size: 12px;
+  color: var(--text-muted);
+  align-self: center;
+}
+
+.summaryVal {
+  font-size: 13px;
+  color: var(--text-heading);
+  font-weight: 500;
+  align-self: center;
+}
+
+.errorMsg {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(220, 60, 60, 0.12);
+  border: 1px solid rgba(220, 60, 60, 0.25);
+  font-size: 13px;
+  color: #e06060;
+}
+
+.savingMsg {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── Nav buttons ──────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.btnBack {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 120ms;
+
+  &:hover {
+    background: var(--surface-raised);
+  }
+}
+
+.btnNext {
+  height: 36px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--action-brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 120ms;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.btnSave {
+  @extend .btnNext;
+  background: var(--action-brand);
+  min-width: 160px;
+}

@@ -1,0 +1,85 @@
+:root {
+  --surface-app:        var(--color-neutral-50);
+  --surface-card:       var(--color-base-white);
+  --surface-raised:     var(--color-neutral-100);
+  --surface-overlay:    rgba(246, 248, 249, 0.88);
+  --surface-highlight:  var(--color-neutral-100);
+
+  --text-heading:       var(--color-neutral-950);
+  --text-body:          var(--color-neutral-900);
+  --text-secondary:     var(--color-neutral-600);
+  --text-muted:         var(--color-neutral-400);
+  --text-on-action:     var(--color-base-white);
+
+  --action-brand:       var(--color-brand-500);
+  --action-brand-dim:   var(--color-brand-600);
+  --action-secondary:   var(--color-neutral-100);
+  --action-danger:      var(--color-tertiary-600);
+
+  --border-default:     var(--color-neutral-200);
+  --border-subtle:      var(--color-neutral-100);
+  --border-focus:       var(--color-brand-500);
+  --border-danger:      var(--color-tertiary-600);
+
+  --status-ok:          var(--color-brand-600);
+  --status-ok-surface:  var(--color-brand-100);
+  --status-pending:     #D97706;
+  --status-pending-surface: #FEF3C7;
+  --status-error:       var(--color-tertiary-600);
+  --status-error-surface: var(--color-tertiary-100);
+
+  --nav-background:     var(--color-base-white);
+  --nav-icon-active:    var(--color-brand-500);
+  --nav-icon-rest:      var(--color-neutral-400);
+  --nav-border:         var(--color-neutral-100);
+  --nav-fab:            var(--color-brand-500);
+
+  --input-background:   var(--color-base-white);
+  --input-text:         var(--color-neutral-950);
+  --input-placeholder:  var(--color-neutral-400);
+  --input-border:       var(--color-neutral-200);
+  --input-border-focus: var(--color-brand-500);
+}
+
+[data-theme="dark"] {
+  --surface-app:        var(--color-neutral-950);
+  --surface-card:       var(--color-neutral-900);
+  --surface-raised:     var(--color-neutral-800);
+  --surface-overlay:    rgba(24, 27, 30, 0.88);
+  --surface-highlight:  var(--color-neutral-800);
+
+  --text-heading:       var(--color-neutral-50);
+  --text-body:          var(--color-neutral-100);
+  --text-secondary:     var(--color-neutral-400);
+  --text-muted:         var(--color-neutral-600);
+  --text-on-action:     var(--color-base-white);
+
+  --action-brand:       var(--color-brand-500);
+  --action-brand-dim:   var(--color-brand-600);
+  --action-secondary:   var(--color-neutral-800);
+  --action-danger:      var(--color-tertiary-500);
+
+  --border-default:     var(--color-neutral-700);
+  --border-subtle:      var(--color-neutral-800);
+  --border-focus:       var(--color-brand-400);
+  --border-danger:      var(--color-tertiary-500);
+
+  --status-ok:          var(--color-brand-500);
+  --status-ok-surface:  #1A2E2D;
+  --status-pending:     #F59E0B;
+  --status-pending-surface: #2A1F00;
+  --status-error:       var(--color-tertiary-500);
+  --status-error-surface: #3D1515;
+
+  --nav-background:     var(--color-neutral-900);
+  --nav-icon-active:    var(--color-brand-400);
+  --nav-icon-rest:      var(--color-neutral-600);
+  --nav-border:         var(--color-neutral-700);
+  --nav-fab:            var(--color-brand-500);
+
+  --input-background:   var(--color-neutral-800);
+  --input-text:         var(--color-neutral-50);
+  --input-placeholder:  var(--color-neutral-600);
+  --input-border:       var(--color-neutral-700);
+  --input-border-focus: var(--color-brand-400);
+}

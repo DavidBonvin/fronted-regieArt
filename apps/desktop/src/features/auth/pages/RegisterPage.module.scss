@@ -1,0 +1,370 @@
+/* ─────────────────────────────────────────────────────
+   RegisterPage — identical split-screen as LoginPage
+   Left : brand hero (dark teal)
+   Right: registration form
+───────────────────────────────────────────────────── */
+
+.root {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Hero (left) ─────────────────────────────────── */
+.hero {
+  position: relative;
+  flex: 1;
+  display: none;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      145deg,
+      #1a2e2d 0%,
+      #263b3a 40%,
+      #181b1e 100%
+    );
+
+  @media (min-width: 900px) { display: flex; }
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 30% 60%,
+    rgba(74, 130, 126, 0.18) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 56px;
+  max-width: 520px;
+}
+
+.heroLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.heroLogoMark {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: #4A827E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(74, 130, 126, 0.45);
+}
+
+.heroLogoName {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e9edf0;
+  letter-spacing: -0.2px;
+}
+
+.heroTagline {
+  font-size: 26px;
+  font-weight: 700;
+  color: #f6f8f9;
+  line-height: 1.35;
+  letter-spacing: -0.4px;
+  margin: 0 0 40px;
+}
+
+.heroFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heroFeatureItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  color: #8fc0b7;
+}
+
+.heroFeatureCheck {
+  color: #4A827E;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 22px;
+}
+
+/* ── Panel (right) ───────────────────────────────── */
+.panel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-app);
+  padding: 48px 24px;
+
+  @media (min-width: 900px) {
+    width: 520px;
+    flex-shrink: 0;
+  }
+}
+
+.panelInner {
+  width: 100%;
+  max-width: 440px;
+}
+
+.panelHeader {
+  margin-bottom: 24px;
+}
+
+.panelTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.3px;
+  margin: 0 0 8px;
+}
+
+.panelSubtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Google social ───────────────────────────────── */
+.socialBtn {
+  width: 100%;
+  height: 48px;
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-default);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  transition: background 120ms;
+
+  &:hover { background: var(--surface-raised); }
+}
+
+.socialBtnG { font-size: 17px; font-weight: 800; color: var(--text-heading); }
+
+/* ── Divider ─────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.dividerLine { flex: 1; height: 1px; background: var(--border-subtle); }
+
+.dividerLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* ── Form ─────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Two-column first/last name row */
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  background: var(--input-background);
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  padding: 11px 42px 11px 14px;
+  font-size: 14px;
+  color: var(--input-text);
+  transition: border-color 120ms;
+  box-sizing: border-box;
+
+  &::placeholder { color: var(--input-placeholder); }
+
+  &:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(74, 130, 126, 0.12);
+  }
+}
+
+/* Plain input (no icon wrap) */
+.field > .input {
+  padding-right: 14px;
+}
+
+.inputIcon {
+  position: absolute;
+  right: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: color 120ms;
+
+  &:hover { color: var(--text-body); }
+}
+
+.error {
+  font-size: 13px;
+  color: var(--action-danger);
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(211, 47, 47, 0.07);
+  border-radius: 8px;
+  border-left: 3px solid var(--action-danger);
+}
+
+/* ── Terms ───────────────────────────────────────── */
+.termsLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.check {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--action-brand);
+  cursor: pointer;
+}
+
+/* ── Primary button ───────────────────────────────── */
+.primaryBtn {
+  height: 50px;
+  background: var(--action-brand);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms, box-shadow 120ms;
+  box-shadow: 0 4px 14px rgba(74, 130, 126, 0.3);
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background: var(--action-brand-dim);
+    box-shadow: 0 4px 14px rgba(74, 130, 126, 0.45);
+  }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ── Login link ──────────────────────────────────── */
+.loginLink {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+.loginAnchor {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--action-brand);
+  font-weight: 500;
+  padding: 0;
+  transition: opacity 120ms;
+
+  &:hover { opacity: 0.75; }
+}
+
+/* ── Panel footer ────────────────────────────────── */
+.panelFooter {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}

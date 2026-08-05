@@ -1,7 +1,3 @@
-// Color tokens — synced with packages/ui/src/theme/colors.scss
-// Web/Desktop: use CSS custom properties via var(--color-brand-500) (global after global.scss import)
-// Mobile (React Native): use these JS values directly in StyleSheet objects
-
 export const colors = {
   base: {
     white: '#FFFFFF',

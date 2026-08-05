@@ -1,0 +1,29 @@
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+
+  &:last-child { border-bottom: none; }
+}
+
+.unread { background: color-mix(in srgb, var(--action-brand) 6%, transparent); border-radius: 8px; padding: 11px 10px; margin: 0 -10px; }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--action-brand);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.body { flex: 1; }
+
+.title { font-size: 14px; font-weight: 600; color: var(--text-heading); margin-bottom: 3px; }
+.text { font-size: 13px; color: var(--text-secondary); }
+.time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }

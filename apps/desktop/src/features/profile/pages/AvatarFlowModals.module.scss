@@ -1,0 +1,651 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared overlay + modal shell
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  width: 500px;
+  max-width: 96vw;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+.modalWide {
+  @extend .modal;
+  width: 860px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.2px;
+}
+
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-app);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+
+  &:hover { background: var(--border-default); color: var(--text-body); }
+}
+
+.modalSub {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 10px 24px 0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.footerRight {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.cancelBtn {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: var(--text-muted); }
+}
+
+.primaryBtn {
+  padding: 9px 22px;
+  border-radius: 10px;
+  border: none;
+  background: var(--action-brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: filter 0.15s;
+
+  &:hover { filter: brightness(1.12); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   WF2 — AvatarSourceModal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 24px;
+}
+
+.optionCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-app);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: var(--action-brand);
+    background: rgba(74, 130, 126, 0.06);
+  }
+}
+
+.optionIcon {
+  font-size: 26px;
+  width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.optionInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.optionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.optionSub {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.optionArrow {
+  font-size: 22px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   WF3 — AvatarCropModal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cropBody {
+  display: flex;
+  gap: 20px;
+  padding: 20px 24px;
+  align-items: flex-start;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cropCanvasWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cropCanvas {
+  border-radius: 10px;
+  background: #0a0c0e;
+  display: block;
+  max-width: 100%;
+}
+
+.cropHint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.cropPreviewCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.previewLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.previewCircleWrap {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--action-brand);
+  box-shadow: 0 0 0 4px rgba(74, 130, 126, 0.18);
+}
+
+.previewCanvas {
+  display: block;
+  border-radius: 50%;
+}
+
+.previewName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  text-align: center;
+}
+
+.previewRole {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.previewHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 200px;
+}
+
+.cropControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.controlLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.controlBtn {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-app);
+  color: var(--text-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s;
+
+  &:hover { border-color: var(--action-brand); }
+}
+
+.zoomSlider {
+  flex: 1;
+  min-width: 80px;
+  max-width: 160px;
+  accent-color: var(--action-brand);
+  cursor: pointer;
+}
+
+.controlSep {
+  width: 1px;
+  height: 20px;
+  background: var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.changeImgBtn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: var(--text-muted); color: var(--text-body); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   WF4 — WebcamCaptureModal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.webcamWrap {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.webcamVideoWrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 10;
+}
+
+.webcamVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* circular guide overlay on webcam */
+.webcamCircleGuide {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    // cut circle via mask
+    mask-image: radial-gradient(circle 42% at center, transparent 100%, black 100%);
+    -webkit-mask-image: radial-gradient(circle 42% at center, transparent 100%, black 100%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 84%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid rgba(74, 130, 126, 0.8);
+  }
+}
+
+.webcamError {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #E05252;
+  background: rgba(224, 82, 82, 0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(224, 82, 82, 0.25);
+}
+
+.webcamDeviceRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.webcamDeviceLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.webcamDeviceSelect {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-app);
+  color: var(--text-body);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   WF5 — R2GalleryModal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.r2TabBar {
+  display: flex;
+  gap: 0;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.r2Tab {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: var(--text-body); }
+}
+
+.r2TabActive {
+  color: var(--action-brand);
+  border-bottom-color: var(--action-brand);
+}
+
+.r2Grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px 24px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 220px;
+  max-height: 420px;
+}
+
+.r2Loading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.r2Empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 40px 16px;
+  line-height: 1.6;
+}
+
+.r2Cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--surface-app);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { border-color: var(--border-default); }
+}
+
+.r2CellSelected {
+  border-color: var(--action-brand);
+  box-shadow: 0 0 0 3px rgba(74, 130, 126, 0.22);
+}
+
+.r2CellImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.r2CellIcon {
+  font-size: 28px;
+}
+
+.r2CellCheck {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--action-brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   WF6 — AvatarUploadingModal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.uploadingBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 32px 28px;
+}
+
+.uploadSpinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-default);
+  border-top-color: var(--action-brand);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+.uploadingLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+.progressTrack {
+  width: 100%;
+  max-width: 360px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--action-brand);
+  transition: width 0.35s ease;
+}
+
+.progressPct {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--action-brand);
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.stepDone { color: var(--action-brand); }
+.stepActive { color: var(--text-body); }
+
+.stepIcon {
+  width: 20px;
+  text-align: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* shared spinner element (R2 loading) */
+.spinnerEl {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--action-brand);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Banner crop modal
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.bannerCropBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 0;
+  overflow: hidden;
+}
+
+.bannerCanvas {
+  border-radius: 10px;
+  background: #0a0c0e;
+  display: block;
+  max-width: 100%;
+}
+
+.bannerPreviewWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.bannerPreviewCanvas {
+  display: block;
+  border-radius: 8px;
+  border: 2px solid var(--action-brand);
+  box-shadow: 0 0 0 3px rgba(74, 130, 126, 0.15);
+  max-width: 100%;
+}

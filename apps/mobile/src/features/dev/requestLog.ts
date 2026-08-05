@@ -1,9 +1,4 @@
-/**
- * Lightweight request log & fetch interceptor for DEV builds.
- * Call installFetchInterceptor() once at app startup (entry/index.tsx).
- * DevToolsScreen subscribes to updates via subscribe().
- */
-
+﻿
 export interface RequestLogEntry {
   id: string;
   timeLabel: string;
@@ -44,10 +39,10 @@ export function installFetchInterceptor(): void {
   _installed = true;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const _orig = (global as any).fetch as typeof fetch;
+  const _orig = (globalThis as any).fetch as typeof fetch;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (global as any).fetch = async (
+  (globalThis as any).fetch = async (
     input: Parameters<typeof fetch>[0],
     init?: Parameters<typeof fetch>[1],
   ): Promise<Response> => {
@@ -63,7 +58,6 @@ export function installFetchInterceptor(): void {
         : 'GET')
     ).toUpperCase();
 
-    // Check for Authorization header in various formats
     const headers = init?.headers;
     let hasAuth = false;
     if (headers) {

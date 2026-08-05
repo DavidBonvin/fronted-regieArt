@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+﻿import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -13,7 +13,6 @@ import {
 import { getConfig, getHttpClient, resetHttpClient } from '@regieart/api';
 import { storeUserTokens } from '../../shared/api/client';
 
-// ─── ROPC helper ─────────────────────────────────────────────────────────────
 
 interface TokenResponse {
   access_token: string;
@@ -42,11 +41,9 @@ async function loginWithROPC(username: string, password: string): Promise<TokenR
   return res.json() as Promise<TokenResponse>;
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Status = 'idle' | 'running' | 'ok' | 'fail';
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function WriteSuiteScreen() {
   const [user1Email,    setUser1Email]    = useState('teststorage@gmail.com');
@@ -72,12 +69,10 @@ export function WriteSuiteScreen() {
     const lines: string[] = [];
     const log = (msg: string) => appendLog(lines, msg);
 
-    // Reset http client so it picks up fresh tokens (no stale state from prev run)
     resetHttpClient();
     const client  = getHttpClient();
     const apiBase = getConfig().apiBaseUrl.replace(/\/$/, '');
 
-    // ── User 2 fetch helper ────────────────────────────────────────────────
     let user2Token = '';
     const u2 = async (method: string, path: string, body?: unknown): Promise<unknown> => {
       const res = await fetch(`${apiBase}/${path}`, {
@@ -98,14 +93,12 @@ export function WriteSuiteScreen() {
       return json.data;
     };
 
-    // ── Soft-fail wrapper ──────────────────────────────────────────────────
     const soft = async (label: string, fn: () => Promise<void>): Promise<void> => {
       try { await fn(); } catch (err) {
         log(`  ⚠️ ${label}: ${err instanceof Error ? err.message : String(err)}`);
       }
     };
 
-    // ── Cleanup IDs ────────────────────────────────────────────────────────
     let orgId:             string | null = null;
     let songId:            string | null = null;
     let eventId:           string | null = null;
@@ -121,7 +114,6 @@ export function WriteSuiteScreen() {
     let perDiemId:         string | null = null;
     let userSkillId:       string | null = null;
 
-    // ── Type helpers ───────────────────────────────────────────────────────
     type R  = { success: boolean; data: Record<string, unknown> };
     type RL = { success: boolean; data: unknown[] };
     const id = (d: unknown, label: string): string => {
@@ -135,19 +127,14 @@ export function WriteSuiteScreen() {
     };
 
     try {
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 1 — Login
-      // ══════════════════════════════════════════════════════════════════
       log('━━━ PHASE 1 — Login usuarios ━━━');
 
-      // Login User 2 (raw fetch, tokens not stored in tokenAdapter)
       const u2Tokens = await loginWithROPC(user2Email, user2Password);
       user2Token = u2Tokens.access_token;
       const u2meData = await u2('GET', 'users/me') as Record<string, unknown>;
       user2Id = id(u2meData, 'User 2 ID');
       log(`  ✅ User 2: ${String(u2meData.displayName ?? u2meData.email)}  (${user2Id})`);
 
-      // Login User 1 and store tokens so getHttpClient() uses them
       const u1Tokens = await loginWithROPC(user1Email, user1Password);
       await storeUserTokens(
         u1Tokens.access_token,
@@ -155,15 +142,11 @@ export function WriteSuiteScreen() {
         u1Tokens.expires_in,
         u1Tokens.refresh_expires_in,
       );
-      // Reset client so it picks up the newly stored tokens
       resetHttpClient();
       const u1meRes = await getHttpClient().get('users/me').json<R>();
       user1Id = id(u1meRes.data, 'User 1 ID');
       log(`  ✅ User 1: ${String(u1meRes.data.displayName ?? u1meRes.data.email)}  (${user1Id})`);
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 2 — Organizations
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 2 — Organizations ━━━');
 
       log('⏳ POST /organizations…');
@@ -221,9 +204,6 @@ export function WriteSuiteScreen() {
         log(types.includes('ROLE_CHANGED') ? '  ✅ ROLE_CHANGED en U2' : '  ⚠️ ROLE_CHANGED no encontrado');
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 3 — Perfil y Habilidades
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 3 — Perfil y Habilidades ━━━');
 
       await soft('PATCH users/me', async () => {
@@ -264,9 +244,6 @@ export function WriteSuiteScreen() {
         }
       }
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 4 — Venues
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 4 — Venues ━━━');
 
       const venRes = await client.post('venues', {
@@ -287,9 +264,6 @@ export function WriteSuiteScreen() {
         log('  ✅ Venue actualizado');
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 5 — Songs
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 5 — Canciones ━━━');
 
       const sngRes = await client.post('songs', {
@@ -309,9 +283,6 @@ export function WriteSuiteScreen() {
         log(`  ✅ Song detail — ${assets.length} asset(s)`);
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 6 — Events + DaySheet + Roster + Vehículos
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 6 — Events + DaySheet + Roster ━━━');
 
       const evRes = await client.post('events', {
@@ -414,9 +385,6 @@ export function WriteSuiteScreen() {
         log(`  ✅ Weather: ${String(w.conditionText ?? 'N/A')}  max:${String(w.maxTempC)}°C`);
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 7 — Finance
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 7 — Finance ━━━');
 
       await soft('PUT event finance', async () => {
@@ -478,9 +446,6 @@ export function WriteSuiteScreen() {
         });
       }
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 8 — Inventory
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 8 — Inventario ━━━');
 
       const instrRes = await client.post('instruments', {
@@ -520,9 +485,6 @@ export function WriteSuiteScreen() {
         log('  ✅ Retirado → RETIRED');
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 9 — Messages
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 9 — Mensajería ━━━');
 
       await soft('U1→U2 mensaje', async () => {
@@ -556,9 +518,6 @@ export function WriteSuiteScreen() {
         log(`  ✅ Hilo leído: ${msgs.length} mensaje(s)`);
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 10 — Notificaciones
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 10 — Notificaciones ━━━');
 
       await soft('notifs U1', async () => {
@@ -575,9 +534,6 @@ export function WriteSuiteScreen() {
         log('  ✅ Todas leídas — U2');
       });
 
-      // ══════════════════════════════════════════════════════════════════
-      // PHASE 11 — Remover U2
-      // ══════════════════════════════════════════════════════════════════
       log('\n━━━ PHASE 11 — Remover U2 de la org ━━━');
       await soft('DELETE member U2', async () => {
         await client.delete(`organizations/${orgId}/members/${user2Id}`).json<R>();
@@ -634,7 +590,6 @@ export function WriteSuiteScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.root} keyboardShouldPersistTaps="handled">
-        {/* Header */}
         <View style={styles.section}>
           <Text style={styles.h1}>✍️ Write Suite</Text>
           <Text style={styles.desc}>
@@ -643,7 +598,6 @@ export function WriteSuiteScreen() {
           </Text>
         </View>
 
-        {/* User 1 credentials */}
         <View style={styles.section}>
           <Text style={styles.h2}>👤 Usuario 1 — Credenciales</Text>
           <Text style={styles.fieldLabel}>Email</Text>
@@ -667,7 +621,6 @@ export function WriteSuiteScreen() {
           />
         </View>
 
-        {/* User 2 credentials */}
         <View style={styles.section}>
           <Text style={styles.h2}>👤 Usuario 2 — Credenciales</Text>
           <Text style={styles.fieldLabel}>Email</Text>
@@ -691,7 +644,6 @@ export function WriteSuiteScreen() {
           />
         </View>
 
-        {/* Run button */}
         <Pressable
           style={[styles.btn, isRunning && styles.btnDisabled]}
           onPress={runSuite}
@@ -703,7 +655,6 @@ export function WriteSuiteScreen() {
           }
         </Pressable>
 
-        {/* Status + copy */}
         {statusLabel ? (
           <View style={styles.statusRow}>
             <Text style={[styles.statusLabel, { color: statusColor }]}>{statusLabel}</Text>
@@ -715,7 +666,6 @@ export function WriteSuiteScreen() {
           </View>
         ) : null}
 
-        {/* Log output */}
         {logText ? (
           <View style={styles.logContainer}>
             <ScrollView ref={scrollRef} style={styles.logScroll} nestedScrollEnabled>
@@ -730,7 +680,6 @@ export function WriteSuiteScreen() {
   );
 }
 
-// ─── Colors & Styles ─────────────────────────────────────────────────────────
 
 const COLORS = {
   bg:      '#0f172a',

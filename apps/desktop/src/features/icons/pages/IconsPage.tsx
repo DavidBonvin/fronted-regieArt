@@ -1,8 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { MuIcon } from '@regieart/ui';
 import styles from './IconsPage.module.scss';
 
-// ── Color swatches ──────────────────────────────────────────────────────────
 type Swatch = { step: string; cssVar: string; hex: string };
 
 const PALETTE: { name: string; color: string; swatches: Swatch[] }[] = [
@@ -76,7 +75,6 @@ const PALETTE: { name: string; color: string; swatches: Swatch[] }[] = [
   },
 ];
 
-// ── Font weights demo ────────────────────────────────────────────────────────
 type FontRow = { label: string; cssWeight: number; italic?: boolean };
 
 const FONT_ROWS: FontRow[] = [
@@ -98,14 +96,12 @@ const FONT_ROWS: FontRow[] = [
   { label: 'ExtraBold',   cssWeight: 800, italic: true },
 ];
 
-// ── Icons demo ───────────────────────────────────────────────────────────────
 const DEMO_ICONS = [
   'Activity', 'Add', 'AddCircle', 'AddSquare', 'Alarm',
   'Airplane', 'AlignLeft', 'AlignRight', 'Archive', 'ArchiveAdd',
   'Arrow2', 'ArrowBottom',
 ] as const;
 
-// ── Component ────────────────────────────────────────────────────────────────
 const IconsPage: React.FC = () => (
   <div className={styles.page}>
     <h1 className={styles.title}>Design System</h1>
@@ -147,7 +143,7 @@ const IconsPage: React.FC = () => (
               </span>
             </div>
             <span
-              className={`${styles.fontSample}${italic ? ` ${styles.italic}` : ''}`}
+              className={`${styles.fontSample}${italic ? ' ' + styles.italic : ''}`}
               style={{ fontWeight: cssWeight }}
             >
               The quick brown fox jumps over the lazy dog

@@ -13,6 +13,7 @@
     "build:packages": "turbo build --filter=@regiart/ui --filter=@regiart/types"
   },
   "devDependencies": {
+    "eslint": "^8",
     "turbo": "^2.0.0",
     "typescript": "^5.4.5"
   },

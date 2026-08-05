@@ -1,24 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerRootComponent } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { RootNavigator } from '../navigation';
-// Initializes the API client (tokenAdapter, fileReaderAdapter, keycloak config)
+import { ThemeProvider } from '../shared/theme';
+import { PlayerProvider } from '../shared/player/PlayerContext';
+import { initI18n } from '../shared/i18n';
 import '../shared/api/client';
-// Intercepts all fetch calls for the DEV request log
 import { installFetchInterceptor } from '../features/dev/requestLog';
 
 if (__DEV__) installFetchInterceptor();
 
 function App() {
+  const [i18nReady, setI18nReady] = useState(false);
+
+  useEffect(() => {
+    initI18n().then(() => setI18nReady(true));
+  }, []);
+
+  if (!i18nReady) return null;
+
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <RootNavigator />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={StyleSheet.absoluteFill}>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <PlayerProvider>
+            <NavigationContainer>
+              <StatusBar style="auto" />
+              <RootNavigator />
+            </NavigationContainer>
+          </PlayerProvider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 

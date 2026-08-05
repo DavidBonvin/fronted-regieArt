@@ -19,7 +19,6 @@ export interface UploadOptions {
   songId?: string;
   eventId?: string;
   displayName?: string;
-  /** Original filename as stored in the backend metadata (auto-detected from File.name if omitted). */
   originalName?: string;
   description?: string;
   tags?: string[];
@@ -42,7 +41,6 @@ export async function uploadFile(
 
   const sizeBytes = await config.fileReaderAdapter.getSize(fileOrUri);
 
-  // Auto-detect originalName from File.name if caller doesn't supply it
   const originalName =
     options?.originalName ??
     (fileOrUri instanceof File ? fileOrUri.name : undefined);
@@ -70,9 +68,6 @@ export async function uploadFile(
     .json<ApiRes<PresignedUploadResponse>>()
     .then((r) => r.data);
 
-  // Guard: detect backend error sentinels (e.g. 'pending-db-error') that are returned
-  // with HTTP 200 but represent a failed DB write.  A valid asset ID is a CUID (starts
-  // with 'c', alphanumeric, 20+ chars); anything else means the upload was not recorded.
   if (!assetId || !/^c[a-z0-9]{19,}$/.test(assetId)) {
     throw new Error(
       `presigned-upload returned an invalid asset ID: "${assetId}". ` +
@@ -80,15 +75,11 @@ export async function uploadFile(
     );
   }
 
-  // Streaming path: skip readAsBinary entirely — safe for large files on memory-constrained
-  // platforms (e.g. React Native / Android) where loading a 50 MB video as Base64 causes OOM.
   if (config.fileReaderAdapter.streamUploadToPresignedUrl && typeof fileOrUri === 'string') {
     await config.fileReaderAdapter.streamUploadToPresignedUrl(fileOrUri, uploadUrl, contentType, sizeBytes);
   } else {
     const binary = await config.fileReaderAdapter.readAsBinary(fileOrUri);
 
-    // Platform hook: use adapter's PUT if provided (e.g. browser routes through Vite proxy).
-    // Falls back to direct fetch — works in Node / React Native where CORS isn't an issue.
     if (config.fileReaderAdapter.putToPresignedUrl) {
       await config.fileReaderAdapter.putToPresignedUrl(uploadUrl, binary, contentType);
     } else {
@@ -110,12 +101,9 @@ export async function uploadFile(
   const confirmDto: ConfirmUploadDto = {
     key,
     assetType,
-    // Only technical metadata is accepted by confirm-upload (backend: forbidNonWhitelisted)
-    // Metadata fields (displayName, description, tags…) are set in presigned-upload only
     durationSeconds: options?.durationSeconds ?? null,
     bitrate:         options?.bitrate         ?? null,
     pageCount:       options?.pageCount        ?? null,
-    // width / height: not in UploadOptions yet — leave undefined unless the caller needs them
   };
 
   await client.post('storage/confirm-upload', { json: confirmDto });

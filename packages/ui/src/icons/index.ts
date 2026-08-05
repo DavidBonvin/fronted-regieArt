@@ -1,4 +1,3 @@
-// index.ts - Parte 1
 export { default as Icon24Support } from './24-support.svg?react';
 export { default as Icon3dCubeScan } from './3d-cube-scan.svg?react';
 export { default as Icon3dRotate } from './3d-rotate.svg?react';

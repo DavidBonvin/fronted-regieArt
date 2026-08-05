@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+﻿import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -17,7 +17,6 @@ import { createSong, deleteAsset, getAsset, getConfig, getHttpClient, getMyOrgan
 import type { AssetType } from '@regieart/types';
 import { storeUserTokens } from '../../shared/api/client';
 
-// ─── Colors ──────────────────────────────────────────────────────────────────
 
 const C = {
   bg:      '#0f172a',
@@ -32,7 +31,6 @@ const C = {
   info:    '#3b82f6',
 };
 
-// ─── ROPC login helper ────────────────────────────────────────────────────────
 
 async function loginROPC(username: string, password: string): Promise<void> {
   const cfg = getConfig();
@@ -51,15 +49,10 @@ async function loginROPC(username: string, password: string): Promise<void> {
   resetHttpClient(); // force new client to pick up fresh tokens
 }
 
-// ─── Minimal 1×1 transparent PNG (Base64) ────────────────────────────────────
-// Used for the automated synthesized-file test (no user interaction needed).
 const TINY_PNG_B64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// ─── Asset type definitions ─────────────────────────────────────────────────
-// Mirrors ASSET_TYPE_META from ApiSuiteTab.tsx (desktop playground).
 
 interface AssetDef {
   type: AssetType;
@@ -84,13 +77,11 @@ const MIME_TO_ASSET: Record<string, AssetDef> = {
   'application/pdf': { type: 'legal-document',  needsOrgId: true,  needsSongId: false, needsEventId: false },
 };
 
-/** MIME → AssetDef.  Falls back to legal-document (orgId required) for unknowns. */
 function getAssetDef(mime: string): AssetDef {
   return MIME_TO_ASSET[mime.toLowerCase()]
     ?? { type: 'legal-document', needsOrgId: true, needsSongId: false, needsEventId: false };
 }
 
-// ─── Temp resource factories ──────────────────────────────────────────────────
 
 async function createTempSong(orgId: string): Promise<string> {
   const song = await createSong({
@@ -116,14 +107,12 @@ async function createTempEvent(orgId: string): Promise<string> {
   return evRes.data.id as string;
 }
 
-/** Format bytes → human readable. */
 function fmtBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-// ─── Per-test state ───────────────────────────────────────────────────────────
 
 type TestStatus = 'idle' | 'running' | 'ok' | 'fail';
 
@@ -134,7 +123,6 @@ interface TestState {
 
 const INIT: TestState = { status: 'idle', detail: '' };
 
-// ─── Full upload → verify → delete cycle ─────────────────────────────────────
 
 async function runUploadCycle(
   log: (msg: string) => void,
@@ -144,7 +132,7 @@ async function runUploadCycle(
   displayName: string,
   options: { orgId?: string; songId?: string; eventId?: string } = {},
 ): Promise<void> {
-  const sizeInfo = await FileSystem.getInfoAsync(fileUri, { size: true });
+  const sizeInfo = await FileSystem.getInfoAsync(fileUri);
   const bytes = (sizeInfo as unknown as { size?: number }).size ?? 0;
   log(`  📂 Archivo: ${displayName}  ${fmtBytes(bytes)}  (${contentType})`);
   const idInfo = [options.orgId && `orgId:…${options.orgId.slice(-8)}`, options.songId && `songId:…${options.songId.slice(-8)}`, options.eventId && `eventId:…${options.eventId.slice(-8)}`].filter(Boolean).join('  ');
@@ -167,7 +155,6 @@ async function runUploadCycle(
   log('  ✅ Asset eliminado');
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function StorageSuiteScreen() {
   const [email,    setEmail]    = useState('teststorage@gmail.com');
@@ -181,7 +168,6 @@ export function StorageSuiteScreen() {
   const [galleryTest,setGalleryTest]= useState<TestState>(INIT);
   const [docTest,    setDocTest]    = useState<TestState>(INIT);
 
-  // Global log (all tests write here)
   const [globalLog, setGlobalLog] = useState('');
   const logLinesRef = useRef<string[]>([]);
   const scrollRef   = useRef<ScrollView>(null);
@@ -197,7 +183,6 @@ export function StorageSuiteScreen() {
     await Share.share({ message: globalLog });
   }, [globalLog]);
 
-  // ── LOGIN ────────────────────────────────────────────────────────────────────
   const handleLogin = useCallback(async () => {
     setLoginState('running');
     appendGlobal('⏳ Login ROPC…');
@@ -205,7 +190,6 @@ export function StorageSuiteScreen() {
       await loginROPC(email, password);
       appendGlobal('  ✅ Tokens guardados en SecureStore');
 
-      // Auto-fetch the user's first organisation so tests can pass orgId.
       const orgs = await getMyOrganizations();
       if (orgs.length > 0) {
         orgIdRef.current = orgs[0].id;
@@ -223,7 +207,6 @@ export function StorageSuiteScreen() {
     }
   }, [email, password, appendGlobal]);
 
-  // ── TEST 1: Auto — Synthesized 1×1 PNG ─────────────────────────────────────
   const runAutoTest = useCallback(async () => {
     setAutoTest({ status: 'running', detail: '' });
     const lines: string[] = [];
@@ -237,7 +220,6 @@ export function StorageSuiteScreen() {
     try {
       log('━━━ TEST AUTO — PNG sintetizado (1×1 px) ━━━');
 
-      // Write the tiny PNG to disk
       log('  ⏳ Escribiendo archivo PNG de prueba en disco…');
       await FileSystem.writeAsStringAsync(tempUri, TINY_PNG_B64, {
         encoding: FileSystem.EncodingType.Base64,
@@ -257,12 +239,10 @@ export function StorageSuiteScreen() {
       log(`  ❌ ERROR: ${msg}\n`);
       setAutoTest({ status: 'fail', detail: lines.join('\n') });
     } finally {
-      // Clean up temp file
       await FileSystem.deleteAsync(tempUri, { idempotent: true });
     }
   }, [appendGlobal]);
 
-  // ── TEST 2: Camera ──────────────────────────────────────────────────────────
   const runCameraTest = useCallback(async () => {
     setCameraTest({ status: 'running', detail: '' });
     const lines: string[] = [];
@@ -275,7 +255,6 @@ export function StorageSuiteScreen() {
     try {
       log('━━━ TEST CÁMARA — Foto en vivo ━━━');
 
-      // Request permission
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         log('  ❌ Permiso de cámara denegado');
@@ -284,7 +263,6 @@ export function StorageSuiteScreen() {
       }
       log('  ✅ Permiso de cámara concedido');
 
-      // Launch camera
       log('  📷 Abriendo cámara…');
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],
@@ -317,7 +295,6 @@ export function StorageSuiteScreen() {
     }
   }, [appendGlobal]);
 
-  // ── TEST 3: Gallery ─────────────────────────────────────────────────────────
   const runGalleryTest = useCallback(async () => {
     setGalleryTest({ status: 'running', detail: '' });
     const lines: string[] = [];
@@ -356,14 +333,12 @@ export function StorageSuiteScreen() {
       const media = result.assets[0];
       const mimeType = media.mimeType ?? (media.type === 'video' ? 'video/mp4' : 'image/jpeg');
       const def = getAssetDef(mimeType);
-      // For gallery images use user-banner specifically (to test a different type)
       const assetType: AssetType = media.type === 'video' ? def.type : 'user-banner';
       log(`  ✅ Seleccionado: ${mimeType}  (${media.type})  → assetType: ${assetType}`);
 
       const opts: { orgId?: string; songId?: string; eventId?: string } = {};
 
       if (media.type === 'video') {
-        // reference-video needs orgId + eventId
         if (!orgIdRef.current) {
           log('  ❌ Video requiere orgId — haz login primero');
           setGalleryTest({ status: 'fail', detail: lines.join('\n') });
@@ -404,7 +379,6 @@ export function StorageSuiteScreen() {
     }
   }, [appendGlobal]);
 
-  // ── TEST 4: Document Picker ──────────────────────────────────────────────────
   const runDocTest = useCallback(async () => {
     setDocTest({ status: 'running', detail: '' });
     const lines: string[] = [];
@@ -496,13 +470,11 @@ export function StorageSuiteScreen() {
     }
   }, [appendGlobal]);
 
-  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <SafeAreaView style={s.safe}>
       <ScrollView style={s.root} keyboardShouldPersistTaps="handled">
 
-        {/* Header */}
         <View style={s.section}>
           <Text style={s.h1}>📦 Storage Suite</Text>
           <Text style={s.desc}>
@@ -511,7 +483,6 @@ export function StorageSuiteScreen() {
           </Text>
         </View>
 
-        {/* Login */}
         <View style={s.section}>
           <Text style={s.h2}>🔑 Login — paso previo obligatorio</Text>
           <Text style={s.fieldLabel}>Email</Text>
@@ -551,7 +522,6 @@ export function StorageSuiteScreen() {
           {orgLabel ? <Text style={s.orgLabel}>{orgLabel}</Text> : null}
         </View>
 
-        {/* Test 1 — Auto */}
         <TestCard
           title="🤖 Auto — PNG sintetizado"
           desc="Crea un PNG 1×1 px en código y lo sube como user-avatar. Completamente automatizado."
@@ -560,7 +530,6 @@ export function StorageSuiteScreen() {
           btnLabel="Correr prueba automática"
         />
 
-        {/* Test 2 — Camera */}
         <TestCard
           title="📷 Cámara — Foto en vivo"
           desc="Abre la cámara, toma una foto y la sube como user-avatar. Actualizará tu avatarUrl."
@@ -569,7 +538,6 @@ export function StorageSuiteScreen() {
           btnLabel="Abrir cámara y subir"
         />
 
-        {/* Test 3 — Gallery */}
         <TestCard
           title="🖼️ Galería — Imagen o Video"
           desc="Selecciona desde la galería. Imagen → user-banner / Video → reference-video."
@@ -578,7 +546,6 @@ export function StorageSuiteScreen() {
           btnLabel="Abrir galería y subir"
         />
 
-        {/* Test 4 — Document */}
         <TestCard
           title="📄 Documento — Cualquier archivo"
           desc="Picker nativo de archivos. PDF→legal-document (orgId), audio→audio-track (orgId+canción temp), video→reference-video (orgId+evento temp), imagen→user-avatar."
@@ -587,7 +554,6 @@ export function StorageSuiteScreen() {
           btnLabel="Seleccionar archivo y subir"
         />
 
-        {/* Global log */}
         {globalLog ? (
           <View style={s.section}>
             <View style={s.logHeader}>
@@ -608,7 +574,6 @@ export function StorageSuiteScreen() {
   );
 }
 
-// ─── TestCard sub-component ───────────────────────────────────────────────────
 
 function statusColor(st: TestStatus): string {
   return st === 'ok' ? C.ok : st === 'fail' ? C.fail : st === 'running' ? C.warn : C.muted;
@@ -655,7 +620,6 @@ function TestCard({ title, desc, state, onRun, btnLabel }: TestCardProps) {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
   safe:       { flex: 1, backgroundColor: C.bg },

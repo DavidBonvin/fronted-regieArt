@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useState } from 'react';
 import { getConfig } from '@regieart/api';
 import type { StoredTokens } from '@regieart/api';
 import type { FetchInterceptorResult, FetchLog } from './useFetchInterceptor';
@@ -14,7 +14,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
   const [consoleLog, setConsoleLog] = useState<Array<{ level: 'INFO' | 'WARN' | 'ERROR'; msg: string; ts: Date }>>([]);
   const [storageView, setStorageView] = useState<{ session: [string, string][]; local: [string, string][] }>({ session: [], local: [] });
 
-  // ── Token polling (for live countdown) ──────────────────────────────────
   useEffect(() => {
     const doRefresh = () => {
       try {
@@ -23,16 +22,14 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
           .then(setTokens)
           .catch(() => null);
       } catch {
-        // initApiClient not yet called — skip silently
+        /* ignore */
       }
     };
     doRefresh();
-    // Plain interval — no tick state needed, avoids recreating the interval every second
     const id = setInterval(doRefresh, 1000);
     return () => clearInterval(id);
   }, []);
 
-  // ── Storage snapshot ────────────────────────────────────────────────────
   const refreshStorage = useCallback(() => {
     const session: [string, string][] = [];
     const local: [string, string][] = [];
@@ -49,12 +46,10 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
 
   useEffect(() => { refreshStorage(); }, [refreshStorage]);
 
-  // ── Console log helper ──────────────────────────────────────────────────
   const log = useCallback((level: 'INFO' | 'WARN' | 'ERROR', msg: string) => {
     setConsoleLog(prev => [{ level, msg, ts: new Date() }, ...prev].slice(0, 200));
   }, []);
 
-  // ── Actions ─────────────────────────────────────────────────────────────
   const clearTokens = async () => {
     await getConfig().tokenAdapter.clearTokens().catch(() => null);
     setTokens(null);
@@ -83,7 +78,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
     navigator.clipboard.writeText(text).then(() => log('INFO', 'Logs copied to clipboard.'));
   };
 
-  // ── JWT decode ──────────────────────────────────────────────────────────
   const accessPayload = tokens?.accessToken ? decodeJwtPayload(tokens.accessToken) : null;
   const timeInfo = accessPayload?.exp ? getTokenTimeInfo(accessPayload.exp, accessPayload.iat) : null;
 
@@ -92,11 +86,9 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
     timeInfo?.status === 'expiring' ? colors.warn :
     colors.fail;
 
-  // ─── Render ─────────────────────────────────────────────────────────────
   return (
     <div style={s.container}>
 
-      {/* ── Request Log ── */}
       <section style={s.section}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={s.title}>Request Log</h3>
@@ -150,14 +142,12 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
         </div>
       </section>
 
-      {/* ── JWT Decoder ── */}
       <section style={s.section}>
         <h3 style={s.title}>JWT Decoder</h3>
         {!tokens ? (
           <p style={s.note}>No tokens in storage.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* Token status */}
             <div style={{ ...s.card, gridColumn: '1 / -1' }}>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
                 <span style={{ color: tokenStatusColor, fontWeight: 700, fontSize: 15 }}>
@@ -175,7 +165,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
               </div>
             </div>
 
-            {/* Access Token payload */}
             <div>
               <p style={{ color: colors.muted, fontSize: 12, marginBottom: 6 }}>Access Token Claims</p>
               <pre style={s.pre}>
@@ -183,7 +172,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
               </pre>
             </div>
 
-            {/* Refresh Token payload */}
             <div>
               <p style={{ color: colors.muted, fontSize: 12, marginBottom: 6 }}>Refresh Token Claims</p>
               <pre style={s.pre}>
@@ -194,7 +182,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
         )}
       </section>
 
-      {/* ── Storage Inspector ── */}
       <section style={s.section}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={s.title}>Storage Inspector</h3>
@@ -233,7 +220,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
         ))}
       </section>
 
-      {/* ── Console ── */}
       <section style={s.section}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={s.title}>Console</h3>
@@ -265,7 +251,6 @@ export function DevToolsTab({ interceptor }: Props): React.ReactElement {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const colors = {
   bg:      '#0f172a',

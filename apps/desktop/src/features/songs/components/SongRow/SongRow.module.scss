@@ -1,0 +1,127 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 120ms;
+  border-left: 3px solid transparent;
+  user-select: none;
+
+  &:hover {
+    background: var(--surface-raised);
+  }
+
+  &.selected {
+    background: var(--surface-raised);
+    border-left-color: var(--action-brand);
+  }
+
+  &.dragging {
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.drag {
+  cursor: grab;
+  color: var(--text-muted);
+  opacity: 0.35;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 4px 2px;
+  border: none;
+  background: none;
+  line-height: 0;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.num {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.playBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 120ms, color 120ms;
+
+  &:hover {
+    background: var(--action-brand);
+    color: #fff;
+  }
+
+  &.playing {
+    background: var(--action-brand);
+    color: #fff;
+  }
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chips {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chip {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.dur {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 36px;
+  text-align: right;
+}

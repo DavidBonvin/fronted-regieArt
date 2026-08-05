@@ -16,3 +16,5 @@ export { MuSvg } from './components/MuSvg';
 
 export * as tokens from './tokens';
 export * as Icons from './icons';
+export { darkTheme, lightTheme, themes } from './tokens/semantic';
+export type { ThemeColors, ThemeMode } from './tokens/semantic';

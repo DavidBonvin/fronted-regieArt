@@ -2,10 +2,12 @@ export { initApiClient, getConfig } from './config';
 export type { ApiClientConfig } from './config';
 
 export type { TokenStorageAdapter, StoredTokens } from './auth/tokenStorage';
-export { logout, refreshAccessToken } from './auth/keycloak';
+export { loginWithPassword, logout, refreshAccessToken, registerUser } from './auth/keycloak';
+export type { RegisterPayload } from './auth/keycloak';
 
 export type { FileReaderAdapter } from './storage/fileReader';
 export { resetHttpClient, getHttpClient } from './client/httpClient';
+export { resolveImageUrl, resolveImageUrls, clearImageCache } from './storage/imageCache';
 
 export * from './services/users.service';
 export * from './services/orgs.service';
@@ -16,4 +18,5 @@ export * from './services/finance.service';
 export * from './services/inventory.service';
 export * from './services/notifications.service';
 export * from './services/messages.service';
+export * from './services/convoy.service';
 export * from './storage/storage.service';

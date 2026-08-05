@@ -1,0 +1,4 @@
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.statsRow { margin-bottom: 20px; }
+.income { color: var(--status-ok); }
+.expense { color: var(--status-error); }

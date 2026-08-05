@@ -7,21 +7,19 @@ import { WriteSuiteTab } from './WriteSuiteTab';
 type Tab = 'suite' | 'write' | 'devtools';
 
 export default function ApiPlayground(): React.ReactElement | null {
-  if (!import.meta.env.DEV) return null;
-
   const interceptor = useFetchInterceptor();
   const [activeTab, setActiveTab] = useState<Tab>('suite');
 
+  if (!import.meta.env.DEV) return null;
+
   return (
     <div style={s.root}>
-      {/* Header */}
       <div style={s.header}>
         <span style={s.badge}>DEV</span>
         <h1 style={s.heading}>RégieArt API Playground</h1>
         <span style={s.url}>{import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3005/api/v1'}</span>
       </div>
 
-      {/* Tabs */}
       <div style={s.tabs}>
         {(['suite', 'write', 'devtools'] as Tab[]).map(tab => (
           <button
@@ -34,7 +32,6 @@ export default function ApiPlayground(): React.ReactElement | null {
         ))}
       </div>
 
-      {/* Content */}
       <div style={s.content}>
         {activeTab === 'suite'    ? <ApiSuiteTab interceptor={interceptor} />
          : activeTab === 'write' ? <WriteSuiteTab />

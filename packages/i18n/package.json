@@ -1,0 +1,20 @@
+{
+  "name": "@regieart/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./locales/en": "./src/locales/en.json",
+    "./locales/fr": "./src/locales/fr.json",
+    "./locales/es": "./src/locales/es.json"
+  },
+  "scripts": {
+    "translate:fr": "i18n-auto-translation -p GoogleCloud -s src/locales/en.json -l fr --output src/locales/fr.json",
+    "translate:es": "i18n-auto-translation -p GoogleCloud -s src/locales/en.json -l es --output src/locales/es.json"
+  },
+  "devDependencies": {
+    "i18n-auto-translation": "^2.2.1",
+    "typescript": "~5.3.3"
+  }
+}

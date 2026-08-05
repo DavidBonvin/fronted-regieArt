@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Pressable,
   SafeAreaView,
@@ -16,7 +16,6 @@ import {
   type RequestLogEntry,
 } from './requestLog';
 
-// ─── Colors ──────────────────────────────────────────────────────────────────
 
 const C = {
   bg:      '#0f172a',
@@ -30,7 +29,6 @@ const C = {
   info:    '#3b82f6',
 };
 
-// ─── Status badge color ───────────────────────────────────────────────────────
 
 function statusColor(status: number | null): string {
   if (status === null) return C.fail;
@@ -40,20 +38,17 @@ function statusColor(status: number | null): string {
   return C.muted;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function DevToolsScreen() {
   const [entries,        setEntries]        = useState<readonly RequestLogEntry[]>(getLogEntries());
   const [refreshCount,   setRefreshCount]   = useState(getKeycloakRefreshCount());
   const scrollRef = useRef<ScrollView>(null);
 
-  // Subscribe to log updates
   useEffect(() => {
-    const unsub = subscribeToLog(() => {
+    return subscribeToLog(() => {
       setEntries([...getLogEntries()]);
       setRefreshCount(getKeycloakRefreshCount());
     });
-    return unsub;
   }, []);
 
   const handleClear = useCallback(() => {
@@ -76,7 +71,6 @@ export function DevToolsScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      {/* Header */}
       <View style={s.header}>
         <View style={s.headerLeft}>
           <Text style={s.title}>🛠️ DevTools</Text>
@@ -94,14 +88,12 @@ export function DevToolsScreen() {
         </View>
       </View>
 
-      {/* Legend */}
       <View style={s.legend}>
         <Text style={s.legendText}>
           <Text style={{ color: C.muted }}>ℹ️ X-Request-ID y Accept-Language no están configurados en httpClient.ts</Text>
         </Text>
       </View>
 
-      {/* Log table header */}
       <View style={s.tableHeader}>
         <Text style={[s.col, s.colTime]}>Hora</Text>
         <Text style={[s.col, s.colMethod]}>Method</Text>
@@ -110,7 +102,6 @@ export function DevToolsScreen() {
         <Text style={[s.col, s.colUrl]}>URL</Text>
       </View>
 
-      {/* Log entries */}
       {entries.length === 0 ? (
         <View style={s.empty}>
           <Text style={s.emptyText}>Sin entradas aún. Corre el Write Suite para ver requests.</Text>
@@ -141,7 +132,6 @@ export function DevToolsScreen() {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
   safe: {

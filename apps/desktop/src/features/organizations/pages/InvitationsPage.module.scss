@@ -1,0 +1,21 @@
+.select {
+  background: var(--input-background);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 14px;
+  color: var(--input-text);
+  font-family: inherit;
+
+  &:focus { outline: none; border-color: var(--border-focus); }
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface-raised);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}

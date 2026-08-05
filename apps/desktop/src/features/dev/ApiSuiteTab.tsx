@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   getConfig,
   getHttpClient,
@@ -25,7 +25,6 @@ import {
 import type { StoredTokens } from '@regieart/api';
 import type { FetchInterceptorResult } from './useFetchInterceptor';
 
-// ─── Environment config ───────────────────────────────────────────────────────
 
 type Env = 'local' | 'production';
 
@@ -36,8 +35,6 @@ const ENV_CONFIG: Record<Env, { apiBaseUrl: string; keycloakUrl: string; label: 
     label: '🏠 Local',
   },
   production: {
-    // /api-prod is a Vite dev-server proxy → https://regieart-backend-production.up.railway.app/api/v1
-    // This avoids CORS issues when calling Railway from localhost:5173
     apiBaseUrl:  '/api-prod',
     keycloakUrl: 'https://keycloak-production-b2ce.up.railway.app',
     label: '🚀 Producción',
@@ -52,7 +49,6 @@ function detectEnv(): Env {
   }
 }
 
-// ─── Types ───────────────────────────────────────────────────────────────────
 
 type StepStatus = 'idle' | 'running' | 'ok' | 'fail' | 'skip';
 
@@ -83,7 +79,6 @@ interface StorageTestResult {
   detail: string;
 }
 
-// ─── Constants ───────────────────────────────────────────────────────────────
 
 const SUITE_STEPS: SuiteStep[] = [
   { id: 'getMe',                  module: 'Users',         fn: 'getMe()' },
@@ -108,7 +103,6 @@ const INITIAL_SUITE_STATE: SuiteState = Object.fromEntries(
   SUITE_STEPS.map(s => [s.id, { status: 'idle' as StepStatus }]),
 );
 
-// ─── Asset-type metadata for storage tests ─────────────────────────────────
 
 type AssetTypeMeta = {
   type:                 import('@regieart/types').AssetType;
@@ -145,7 +139,6 @@ function detectContentType(file: File): string {
   return map[ext] ?? 'application/octet-stream';
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function validateShape(
   actual: unknown,
@@ -168,13 +161,11 @@ function statusIcon(status: StepStatus | QueueTestResult['status'] | StorageTest
   }
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 interface Props {
   interceptor: FetchInterceptorResult;
 }
 
-// ─── ROPC Login ──────────────────────────────────────────────────────────────
 
 async function loginWithROPC(
   username: string,
@@ -215,7 +206,6 @@ async function loginWithROPC(
   });
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   const [currentEnv, setCurrentEnv] = useState<Env>(detectEnv);
@@ -227,7 +217,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   const [loginError, setLoginError] = useState('');
   const [suiteState, setSuiteState] = useState<SuiteState>(INITIAL_SUITE_STATE);
   const [queueTest, setQueueTest] = useState<QueueTestResult>({ status: 'idle', detail: '' });
-  // ── Storage / Media test state ───────────────────────────────────────────
   const [mediaFile, setMediaFile]               = useState<File | null>(null);
   const [mediaAssetType, setMediaAssetType]     = useState<import('@regieart/types').AssetType>('org-banner');
   const [mediaContentType, setMediaContentType] = useState<string>('image/jpeg');
@@ -236,7 +225,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   const [mediaTest, setMediaTest]               = useState<StorageTestResult>({ status: 'idle', detail: '' });
   const [isRunning, setIsRunning]               = useState(false);
 
-  // ── Full Storage Suite (mirrors docs/test-production.mjs) ─────────────
   const [fsFiles, setFsFiles] = useState<{
     svg:      File | null;
     mp3:      File | null;
@@ -247,10 +235,8 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   const [fsResult, setFsResult]   = useState<StorageTestResult>({ status: 'idle', detail: '' });
   const [isFsRunning, setIsFsRunning] = useState(false);
 
-  // Shared context extracted during the suite run
   const chainRef = useRef<{ firstOrgId?: string; firstEventId?: string }>({});
 
-  // ── Auth check on mount ──────────────────────────────────────────────────
   const recheckAuth = useCallback(() => {
     try {
       getConfig()
@@ -265,7 +251,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
 
   useEffect(() => { recheckAuth(); }, [recheckAuth]);
 
-  // ── Login handler ────────────────────────────────────────────────────────
   const handleLogin = useCallback(async () => {
     setLoginLoading(true);
     setLoginError('');
@@ -279,19 +264,16 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     }
   }, [loginUsername, loginPassword, recheckAuth]);
 
-  // ── Logout handler ───────────────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
     try { await getConfig().tokenAdapter.clearTokens(); } catch { /* ignore */ }
     setIsAuthenticated(false);
     setSuiteState(INITIAL_SUITE_STATE);
     chainRef.current = {};
   }, []);
-  // ── Environment switcher ─────────────────────────────────────────────────
   const switchEnv = useCallback(async (env: Env) => {
     const envCfg = ENV_CONFIG[env];
     try {
       const current = getConfig();
-      // Reset cached ky instance BEFORE reinitializing so next request picks up new URL
       resetHttpClient();
       initApiClient({
         ...current,
@@ -299,17 +281,15 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         keycloakUrl: envCfg.keycloakUrl,
       });
     } catch {
-      // getConfig threw (not yet initialized) — ignore
+      /* ignore */
     }
     setCurrentEnv(env);
     setIsAuthenticated(false);
     setLoginError('');
     setSuiteState(INITIAL_SUITE_STATE);
     chainRef.current = {};
-    // Clear stored tokens so the user must re-login with the new env
     try { await getConfig().tokenAdapter.clearTokens(); } catch { /* ignore */ }
   }, []);
-  // ── Step state helpers ───────────────────────────────────────────────────
   const setStep = useCallback((id: string, patch: Partial<StepState>) => {
     setSuiteState(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   }, []);
@@ -319,7 +299,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     chainRef.current = {};
   }, []);
 
-  // ── Generic step runner ──────────────────────────────────────────────────
   const runStep = useCallback(
     async (
       id: string,
@@ -366,7 +345,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     [setStep],
   );
 
-  // ── 401 Queue Coalescing Test ────────────────────────────────────────────
   const run401Test = useCallback(async () => {
     if (!isAuthenticated) return;
     setQueueTest({ status: 'running', detail: 'Forcing token expiry…' });
@@ -381,7 +359,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         return;
       }
 
-      // Force expiry so beforeRequest hook triggers a refresh
       await cfg.tokenAdapter.setTokens({ ...originalTokens, expiresAt: Date.now() - 1000 });
 
       const countBefore = interceptor.refreshCountRef.current;
@@ -410,33 +387,28 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     } catch (err: unknown) {
       setQueueTest({ status: 'fail', detail: err instanceof Error ? err.message : String(err) });
     } finally {
-      // Always restore original tokens regardless of test outcome
       if (originalTokens) {
         await getConfig().tokenAdapter.setTokens(originalTokens).catch(() => null);
       }
     }
   }, [isAuthenticated, interceptor.refreshCountRef]);
 
-  // ── Full Suite Runner ────────────────────────────────────────────────────
   const runFullSuite = useCallback(async () => {
     if (!isAuthenticated || isRunning) return;
     setIsRunning(true);
     resetSuite();
     chainRef.current = {};
 
-    // Step 1: getMe
-    const meRes = await runStep('getMe', async () => {
+    await runStep('getMe', async () => {
       const user = await getMe();
       return { data: user, requiredKeys: ['id', 'email', 'firstName', 'lastName'] };
     });
 
-    // Step 2: searchUsers
     await runStep('searchUsers', async () => {
       const result = await searchUsers({ q: 'a', limit: 5 });
       return { data: result, requiredKeys: ['users', 'total'] };
     });
 
-    // Step 3: getMyOrganizations — extracts firstOrgId
     const orgsRes = await runStep('getMyOrganizations', async () => {
       const orgs = await getMyOrganizations();
       if (orgs.length > 0) chainRef.current.firstOrgId = orgs[0].id;
@@ -449,13 +421,11 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
       const reason = orgsRes.ok ? 'No organizations found — skipping org-dependent steps.' : 'getMyOrganizations failed.';
       ['getOrganization', 'getOrganizationMembers', 'listSongs', 'listEvents', 'getDaySheetMaster', 'listCategories', 'listEntries', 'listInstruments'].forEach(id => skipStep(id, reason));
     } else {
-      // Step 4: getOrganization
       await runStep('getOrganization', async () => {
         const org = await getOrganization(firstOrgId);
         return { data: org, requiredKeys: ['id', 'name'] };
       });
 
-      // Step 5: getOrganizationMembers — validate roles
       await runStep('getOrganizationMembers', async () => {
         const members = await getOrganizationMembers(firstOrgId);
         const invalidRoles = (members as Array<{ role?: string }>)
@@ -467,13 +437,11 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         return { data: members, requiredKeys: ['userId', 'role'], detail };
       });
 
-      // Step 6: listSongs
       await runStep('listSongs', async () => {
         const result = await listSongs({ orgId: firstOrgId, limit: 10 });
         return { data: result.songs, requiredKeys: ['id', 'title', 'orgId'] };
       });
 
-      // Step 8: listEvents — extracts firstEventId
       const eventsRes = await runStep('listEvents', async () => {
         const result = await listEvents({ orgId: firstOrgId, limit: 10 });
         if (result.events.length > 0) chainRef.current.firstEventId = result.events[0].id;
@@ -482,7 +450,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
 
       const { firstEventId } = chainRef.current;
 
-      // Step 9: getDaySheetMaster
       if (!eventsRes.ok || !firstEventId) {
         skipStep('getDaySheetMaster', eventsRes.ok ? 'No events found — skipping daysheet.' : 'listEvents failed.');
       } else {
@@ -492,38 +459,32 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         });
       }
 
-      // Step 10: listCategories
       await runStep('listCategories', async () => {
         const cats = await listCategories(firstOrgId);
         return { data: cats, requiredKeys: ['id', 'name', 'type'] };
       });
 
-      // Step 11: listEntries
       await runStep('listEntries', async () => {
         const result = await listEntries({ orgId: firstOrgId, limit: 10 });
         return { data: result.entries, requiredKeys: ['id', 'amount', 'status'] };
       });
 
-      // Step 12: listInstruments
       await runStep('listInstruments', async () => {
         const instruments = await listInstruments({ orgId: firstOrgId });
         return { data: instruments, requiredKeys: ['id', 'name', 'type', 'status'] };
       });
     }
 
-    // Step 7: listVenues (no orgId needed)
     await runStep('listVenues', async () => {
       const venues = await listVenues();
       return { data: venues, requiredKeys: ['id', 'name', 'city'] };
     });
 
-    // Step 13: listNotifications
     await runStep('listNotifications', async () => {
       const result = await listNotifications();
       return { data: result.notifications, requiredKeys: ['id', 'type', 'isRead'] };
     });
 
-    // Step 14: listConversations
     await runStep('listConversations', async () => {
       const convs = await listConversations();
       return { data: convs, requiredKeys: ['userId', 'lastMessage'] };
@@ -532,7 +493,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     setIsRunning(false);
   }, [isAuthenticated, isRunning, resetSuite, runStep, skipStep]);
 
-  // ── Storage / Media Upload Test ──────────────────────────────────────────
   const runMediaTest = useCallback(async () => {
     if (!mediaFile) {
       setMediaTest({ status: 'fail', detail: 'Select a file first.' });
@@ -551,7 +511,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     const fileSizeKB = (mediaFile.size / 1024).toFixed(1);
     let assetId: string | null = null;
 
-    // Temporary resources auto-created when the user leaves the ID fields empty
     let tempSongId:  string | null = null;
     let tempEventId: string | null = null;
 
@@ -559,7 +518,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     const client = getHttpClient();
 
     try {
-      // ── Auto-create temp song if needed ────────────────────────────
       let resolvedSongId: string | undefined = meta.needsSongId
         ? (mediaSongId.trim() || undefined)
         : undefined;
@@ -574,7 +532,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         resolvedSongId = tempSongId;
       }
 
-      // ── Auto-create temp event if needed ────────────────────────────
       let resolvedEventId: string | undefined = meta.needsEventId
         ? (mediaEventId.trim() || firstEventId || undefined)
         : undefined;
@@ -594,7 +551,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         resolvedEventId = tempEventId;
       }
 
-      // ── Upload ──────────────────────────────────────────────────────
       setMediaTest({
         status: 'running',
         detail: [
@@ -633,7 +589,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
       });
     } catch (err: unknown) {
       let detail = err instanceof Error ? err.message : String(err);
-      // Extract backend JSON body for richer diagnostics
       const response = (err as Record<string, unknown>)?.response as Response | undefined;
       if (response) {
         try {
@@ -644,7 +599,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
       }
       setMediaTest({ status: 'fail', detail });
     } finally {
-      // Clean up asset
       if (assetId) {
         await deleteAsset(assetId).catch(() => null);
         setMediaTest(prev =>
@@ -653,13 +607,11 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
             : prev,
         );
       }
-      // Clean up temp song/event (fire-and-forget, best effort)
       if (tempSongId)  await client.delete(`songs/${tempSongId}`).catch(() => null);
       if (tempEventId) await client.delete(`events/${tempEventId}`).catch(() => null);
     }
   }, [mediaFile, mediaAssetType, mediaContentType, mediaSongId, mediaEventId]);
 
-  // ── Full Storage Suite (mirrors docs/test-production.mjs) ─────────────
   const runFullStorageSuite = useCallback(async () => {
     const { firstOrgId } = chainRef.current;
     if (!firstOrgId) {
@@ -683,7 +635,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     type AnyApiRes = { success: boolean; data: Record<string, unknown> };
 
     try {
-      // ── SETUP: create temp song ──────────────────────────────────────
       log('⏳ SETUP 1/2 — POST /songs (recurso temporal)…');
       const songRes = await client.post('songs', {
         json: { orgId: firstOrgId, title: `[DEV test] Storage ${Date.now()}` },
@@ -692,7 +643,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
       if (!songId) throw new Error('Song creation failed — no id in response');
       log(`  ✅ Song creado: ${songId}`);
 
-      // ── SETUP: create temp event ─────────────────────────────────────
       log('⏳ SETUP 2/2 — POST /events (recurso temporal)…');
       const evRes = await client.post('events', {
         json: {
@@ -706,7 +656,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
       if (!eventId) throw new Error('Event creation failed — no id in response');
       log(`  ✅ Event creado: ${eventId}`);
 
-      // ── TEST 1: SVG → music-score ────────────────────────────────────
       if (fsFiles.svg) {
         log(`\n⏳ TEST 1 — ${fsFiles.svg.name}  (${(fsFiles.svg.size / 1024).toFixed(1)} KB)  →  music-score`);
         const id = await uploadFile(fsFiles.svg, 'music-score', 'image/svg+xml', {
@@ -720,7 +669,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log('  ⏸️ TEST 1 — SVG no seleccionado, saltado');
       }
 
-      // ── TEST 2: MP3 → audio-track ────────────────────────────────────
       if (fsFiles.mp3) {
         const mb = (fsFiles.mp3.size / 1024 / 1024).toFixed(2);
         log(`\n⏳ TEST 2 — ${fsFiles.mp3.name}  (${mb} MB)  →  audio-track`);
@@ -735,7 +683,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log('  ⏸️ TEST 2 — MP3 no seleccionado, saltado');
       }
 
-      // ── TEST 3: Short MP4 → reference-video ─────────────────────────
       if (fsFiles.mp4Short) {
         const mb = (fsFiles.mp4Short.size / 1024 / 1024).toFixed(2);
         log(`\n⏳ TEST 3 — ${fsFiles.mp4Short.name}  (${mb} MB)  →  reference-video`);
@@ -750,7 +697,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log('  ⏸️ TEST 3 — MP4 corto no seleccionado, saltado');
       }
 
-      // ── TEST 4: Large MP4 → reference-video (optional, ~270 MB) ──────
       if (fsFiles.mp4Long) {
         const mb = (fsFiles.mp4Long.size / 1024 / 1024).toFixed(2);
         log(`\n⏳ TEST 4 — ${fsFiles.mp4Long.name}  (${mb} MB)  →  reference-video  ⚠️ archivo grande, puede tardar`);
@@ -765,7 +711,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log('  ⏸️ TEST 4 — MP4 grande no seleccionado (opcional), saltado');
       }
 
-      // ── TEST 5: .mscz → expects HTTP 400 (formato no soportado) ──────
       if (fsFiles.mscz) {
         log(`\n⏳ TEST 5 — ${fsFiles.mscz.name}  →  music-score  (espera HTTP 400 — formato no soportado)`);
         try {
@@ -785,7 +730,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log('  ⏸️ TEST 5 — .mscz no seleccionado, saltado');
       }
 
-      // ── TEST 6: Search assets ────────────────────────────────────────
       log('\n⏳ TEST 6 — GET /storage/assets (búsqueda)');
       const searchRes = await client.get('storage/assets', {
         searchParams: { orgId: firstOrgId, limit: '20', orderBy: 'createdAt', order: 'desc' },
@@ -797,7 +741,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         log(`    [${a.status}] ${a.displayName ?? a.originalName ?? a.key}  (${a.assetType})`);
       });
 
-      // ── TEST 7: Download URLs ────────────────────────────────────────
       if (assetIds.length > 0) {
         log('\n⏳ TEST 7 — GET /storage/assets/:id/download');
         for (const assetId of assetIds) {
@@ -857,7 +800,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     }
   }, [fsFiles]);
 
-  // ─── Render ──────────────────────────────────────────────────────────────
 
   if (isAuthenticated === null) {
     return <p style={s.muted}>Checking authentication…</p>;
@@ -888,7 +830,7 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
     return (
       <div style={s.authError}>
         [CONFIG ERROR] initApiClient() was never called. Verify that{' '}
-        <code>import './shared/api/client'</code> exists in main.tsx.
+        <code>{'import \'./shared/api/client\''}</code> exists in main.tsx.
       </div>
     );
   }
@@ -946,10 +888,8 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   return (
     <div style={s.container}>
 
-      {/* ── Env toggle ── */}
       {envBar}
 
-      {/* ── Auth bar ── */}
       <div style={s.authBar}>
         <span style={{ color: colors.ok }}>🟢 Autenticado</span>
         <span style={{ color: colors.muted, fontSize: 12 }}>{loginUsername}</span>
@@ -958,7 +898,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         </button>
       </div>
 
-      {/* ── 401 Queue Test ── */}
       <section style={s.section}>
         <h3 style={s.sectionTitle}>401 Queue Coalescing Test</h3>
         <p style={s.muted}>
@@ -974,7 +913,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         )}
       </section>
 
-      {/* ── Endpoint Suite ── */}
       <section style={s.section}>
         <h3 style={s.sectionTitle}>Endpoint Suite</h3>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -1028,7 +966,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         </div>
       </section>
 
-      {/* ── Storage Media Test ── */}
       <section style={s.section}>
         <h3 style={s.sectionTitle}>Storage R2 — Media File Test</h3>
         <p style={s.muted}>
@@ -1036,7 +973,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
           presigned-upload → PUT to R2 → confirm → get → delete.
         </p>
 
-        {/* Asset type selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ color: colors.muted, fontSize: 12, minWidth: 88 }}>Asset type:</span>
@@ -1045,7 +981,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
               onChange={e => {
                 const next = e.target.value as import('@regieart/types').AssetType;
                 setMediaAssetType(next);
-                // Auto-set content type to first accepted value for the new type
                 const nextMeta = ASSET_TYPE_META.find(m => m.type === next);
                 if (nextMeta) setMediaContentType(nextMeta.acceptedContentTypes[0]);
               }}
@@ -1061,7 +996,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
             </select>
           </div>
 
-          {/* Content-type — editable, backend-validated */}
           {(() => {
             const meta = ASSET_TYPE_META.find(m => m.type === mediaAssetType)!;
             return (
@@ -1087,7 +1021,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
                   </span>
                 </div>
 
-                {/* File picker */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ color: colors.muted, fontSize: 12, minWidth: 88 }}>File:</span>
                   <input
@@ -1096,7 +1029,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
                     onChange={e => {
                       const f = e.target.files?.[0] ?? null;
                       setMediaFile(f);
-                      // Auto-detect content type but cap to accepted list
                       if (f) {
                         const detected = detectContentType(f);
                         setMediaContentType(
@@ -1113,7 +1045,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
                   📌 MediasTest suggestion: <strong>{meta.suggestedFile}</strong>
                 </p>
 
-                {/* Extra IDs when required */}
                 {meta.needsSongId && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: colors.warn, fontSize: 12, minWidth: 88 }}>Song ID:</span>
@@ -1178,7 +1109,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
         )}
       </section>
 
-      {/* ── Full Storage Suite ── */}
       <section style={s.section}>
         <h3 style={s.sectionTitle}>Storage Suite — Todos los formatos</h3>
         <p style={s.muted}>
@@ -1187,7 +1117,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
           Requiere que el API Suite haya corrido primero (necesita orgId del paso 3).
         </p>
 
-        {/* File pickers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           {([
             { key: 'svg'     , label: '📄 TEST 1 — SVG → music-score',                      accept: '.svg,image/svg+xml'  },
@@ -1241,7 +1170,6 @@ export function ApiSuiteTab({ interceptor }: Props): React.ReactElement {
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 
 const colors = {
   bg:      '#0f172a',

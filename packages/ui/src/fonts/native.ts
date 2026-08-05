@@ -1,10 +1,4 @@
-// Archivo font map for React Native / Expo
-// Usage in your app entry (e.g. src/app/index.tsx):
-//
-//   import { useFonts } from 'expo-font';
-//   import { archivoFonts } from '@regieart/ui/fonts/native';
-//
-//   const [fontsLoaded] = useFonts(archivoFonts);
+declare function require(module: string): any;
 
 export const archivoFonts = {
   'Archivo-Thin':               require('./Archivo-Thin.ttf'),
