@@ -3,15 +3,15 @@ import type { TokenStorageAdapter, StoredTokens, FileReaderAdapter } from '@regi
 
 const tokenAdapter: TokenStorageAdapter = {
   async getTokens(): Promise<StoredTokens | null> {
-    const raw = sessionStorage.getItem('regieart_tokens');
+    const raw = localStorage.getItem('regieart_tokens');
     if (!raw) return null;
     return JSON.parse(raw) as StoredTokens;
   },
   async setTokens(tokens: StoredTokens): Promise<void> {
-    sessionStorage.setItem('regieart_tokens', JSON.stringify(tokens));
+    localStorage.setItem('regieart_tokens', JSON.stringify(tokens));
   },
   async clearTokens(): Promise<void> {
-    sessionStorage.removeItem('regieart_tokens');
+    localStorage.removeItem('regieart_tokens');
   },
 };
 
