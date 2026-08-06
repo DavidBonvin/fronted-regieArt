@@ -1,5 +1,4 @@
-﻿import type { TokenResponse } from '@regieart/types';
-import { getConfig } from '../config';
+﻿import { getConfig } from '../config';
 import type { StoredTokens } from './tokenStorage';
 
 export async function loginWithPassword(email: string, password: string): Promise<StoredTokens> {
@@ -45,25 +44,25 @@ export async function loginWithPassword(email: string, password: string): Promis
   return tokens;
 }
 
-export async function refreshAccessToken(currentRefreshToken: string): Promise<TokenResponse> {
-  const { keycloakUrl, realm, clientId } = getConfig();
-  const tokenUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/token`;
+export interface BackendTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
+}
 
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id: clientId,
-    refresh_token: currentRefreshToken,
-  });
+export async function refreshAccessToken(currentRefreshToken: string): Promise<BackendTokens> {
+  const { apiBaseUrl } = getConfig();
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(new Error('Token refresh timed out after 15 s')), 15_000);
 
   let response: Response;
   try {
-    response = await fetch(tokenUrl, {
+    response = await fetch(`${apiBaseUrl}auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: currentRefreshToken }),
       signal: controller.signal,
     });
   } finally {
@@ -74,7 +73,8 @@ export async function refreshAccessToken(currentRefreshToken: string): Promise<T
     throw new Error(`Token refresh failed with status ${response.status}`);
   }
 
-  return response.json() as Promise<TokenResponse>;
+  const body = await response.json() as { success: boolean; data: BackendTokens };
+  return body.data;
 }
 
 export async function logout(refreshToken: string): Promise<void> {

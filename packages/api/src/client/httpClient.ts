@@ -64,10 +64,10 @@ export function getHttpClient(): KyInstance {
           try {
             const refreshed = await refreshAccessToken(tokens.refreshToken);
             const newTokens: StoredTokens = {
-              accessToken: refreshed.access_token,
-              refreshToken: refreshed.refresh_token,
-              expiresAt: Date.now() + refreshed.expires_in * 1000,
-              refreshExpiresAt: Date.now() + refreshed.refresh_expires_in * 1000,
+              accessToken: refreshed.accessToken,
+              refreshToken: refreshed.refreshToken,
+              expiresAt: Date.now() + refreshed.expiresIn * 1000,
+              refreshExpiresAt: Date.now() + refreshed.refreshExpiresIn * 1000,
             };
             await config.tokenAdapter.setTokens(newTokens);
             processQueue(null);
@@ -83,10 +83,12 @@ export function getHttpClient(): KyInstance {
         },
       ],
       afterResponse: [
-        async (_request, _options, response) => {
+        async (request, _options, response) => {
           if (response.status === 401) {
             const config = getConfig();
             await config.tokenAdapter.clearTokens();
+            // Log to identify which endpoint is returning 401
+            console.warn('[auth] 401 on', request.method, request.url, '— tokens cleared');
             config.onSessionExpired?.();
           }
           return response;
