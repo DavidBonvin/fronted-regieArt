@@ -1,10 +1,8 @@
 import React, { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { registerUser, loginWithPassword, getMe, updateMe } from '@regieart/api';
+import { registerUser, loginWithPassword, updateMe } from '@regieart/api';
 import s from './RegisterPage.module.scss';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const HERO_FEATURES = [
   { icon: '✔', label: 'Acceso a DaySheets y cronogramas' },
@@ -34,26 +32,21 @@ export function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!displayName || !email || !password) { setError(t('errors.required_fields')); return; }
+    if (!firstName || !lastName || !email || !password) { setError(t('errors.required_fields')); return; }
     if (!acceptTerms) { setError('Debes aceptar los Términos de Servicio para continuar.'); return; }
-    if (!EMAIL_RE.test(email)) { setError(t('errors.invalid_email')); return; }
-    if (password.length < 8) { setError(t('errors.password_too_short')); return; }
 
     setLoading(true);
     setError('');
     try {
-      await registerUser({ email, password, firstName: firstName || undefined, lastName: lastName || undefined });
+      await registerUser({ email, password, firstName, lastName });
       await loginWithPassword(email, password);
-      await getMe();
-      await updateMe({
-        displayName,
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
-      });
+      if (displayName) {
+        await updateMe({ displayName, firstName, lastName });
+      }
       navigate('/');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError(msg.includes('Registration failed') ? t('errors.registration_failed') : msg);
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -61,6 +54,7 @@ export function RegisterPage() {
 
   return (
     <div className={s.root}>
+      {/* ── Left hero ── */}
       <div className={s.hero}>
         <div className={s.heroContent}>
           <div className={s.heroLogo}>
@@ -82,6 +76,7 @@ export function RegisterPage() {
         <div className={s.heroOverlay} aria-hidden />
       </div>
 
+      {/* ── Right panel ── */}
       <div className={s.panel}>
         <div className={s.panelInner}>
           <div className={s.panelHeader}>
@@ -89,6 +84,7 @@ export function RegisterPage() {
             <p className={s.panelSubtitle}>{t('auth.register_subtitle_desktop')}</p>
           </div>
 
+          {/* Google */}
           <button type="button" className={s.socialBtn}>
             <span className={s.socialBtnG}>G</span>
             <span>{t('auth.register_google')}</span>
@@ -101,6 +97,7 @@ export function RegisterPage() {
           </div>
 
           <form className={s.form} onSubmit={handleSubmit} noValidate>
+            {/* First + Last name row */}
             <div className={s.fieldRow}>
               <div className={s.field}>
                 <label className={s.label} htmlFor={firstNameId}>{t('auth.first_name')}</label>
@@ -129,6 +126,7 @@ export function RegisterPage() {
               </div>
             </div>
 
+            {/* Display name */}
             <div className={s.field}>
               <label className={s.label} htmlFor={displayNameId}>{t('auth.display_name')}</label>
               <div className={s.inputWrap}>
@@ -145,6 +143,7 @@ export function RegisterPage() {
               </div>
             </div>
 
+            {/* Email */}
             <div className={s.field}>
               <label className={s.label} htmlFor={emailId}>{t('auth.email_label')}</label>
               <div className={s.inputWrap}>
@@ -161,6 +160,7 @@ export function RegisterPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div className={s.field}>
               <label className={s.label} htmlFor={passwordId}>{t('auth.password_label')}</label>
               <div className={s.inputWrap}>
@@ -186,6 +186,7 @@ export function RegisterPage() {
 
             {error && <p className={s.error} role="alert">{error}</p>}
 
+            {/* Terms */}
             <label className={s.termsLabel}>
               <input
                 type="checkbox"

@@ -71,7 +71,8 @@ export function Layout() {
   }
 
   function handleSignOut() {
-    navigate('/login');
+    localStorage.removeItem('regieart_tokens');
+    navigate('/login', { replace: true });
   }
 
   const initials = user?.displayName

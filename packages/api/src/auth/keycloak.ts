@@ -98,8 +98,8 @@ export async function logout(refreshToken: string): Promise<void> {
 export interface RegisterPayload {
   email: string;
   password: string;
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
 }
 
 export async function registerUser(payload: RegisterPayload): Promise<void> {
