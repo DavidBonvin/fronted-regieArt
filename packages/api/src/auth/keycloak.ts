@@ -26,12 +26,13 @@ export async function loginWithPassword(email: string, password: string): Promis
     throw new Error(msg);
   }
 
-  const data = await response.json() as {
+  const body = await response.json() as { success: boolean; data: {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
     refreshExpiresIn: number;
-  };
+  } };
+  const data = body.data;
 
   const tokens: StoredTokens = {
     accessToken: data.accessToken,
@@ -122,7 +123,8 @@ export async function registerUser(payload: RegisterPayload): Promise<void> {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({})) as Record<string, unknown>;
-    const msg = (body?.error as { message?: string })?.message ?? `Registration failed: ${response.status}`;
+    const err = body?.error as { message?: string; details?: string[] } | undefined;
+    const msg = err?.details?.length ? err.details.join(', ') : (err?.message ?? `Registration failed: ${response.status}`);
     throw new Error(msg);
   }
 }
