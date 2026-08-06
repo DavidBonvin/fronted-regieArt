@@ -3,26 +3,17 @@ import { getConfig } from '../config';
 import type { StoredTokens } from './tokenStorage';
 
 export async function loginWithPassword(email: string, password: string): Promise<StoredTokens> {
-  const { keycloakUrl, realm, clientId, tokenAdapter } = getConfig();
-  const tokenUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/token`;
-
-  const body = new URLSearchParams({
-    grant_type: 'password',
-    client_id: clientId,
-    username: email,
-    password,
-    scope: 'openid offline_access',
-  });
+  const { apiBaseUrl, tokenAdapter } = getConfig();
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(new Error('Login timed out after 15 s')), 15_000);
 
   let response: Response;
   try {
-    response = await fetch(tokenUrl, {
+    response = await fetch(`${apiBaseUrl}auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
       signal: controller.signal,
     });
   } finally {
@@ -30,17 +21,23 @@ export async function loginWithPassword(email: string, password: string): Promis
   }
 
   if (!response.ok) {
-    const detail = await response.text().catch(() => '');
-    throw new Error(`Login failed (${response.status}): ${detail.slice(0, 200)}`);
+    const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+    const msg = (body?.error as { message?: string })?.message ?? 'Email o contraseña incorrectos';
+    throw new Error(msg);
   }
 
-  const tokenResponse = (await response.json()) as TokenResponse;
+  const data = await response.json() as {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    refreshExpiresIn: number;
+  };
 
   const tokens: StoredTokens = {
-    accessToken: tokenResponse.access_token,
-    refreshToken: tokenResponse.refresh_token,
-    expiresAt: Date.now() + tokenResponse.expires_in * 1000,
-    refreshExpiresAt: Date.now() + tokenResponse.refresh_expires_in * 1000,
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    expiresAt: Date.now() + data.expiresIn * 1000,
+    refreshExpiresAt: Date.now() + data.refreshExpiresIn * 1000,
   };
 
   await tokenAdapter.setTokens(tokens);

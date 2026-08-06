@@ -43,8 +43,8 @@ export function LoginPage() {
     try {
       await loginWithPassword(email, password);
       navigate('/');
-    } catch {
-      setError(t('errors.invalid_credentials'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.invalid_credentials'));
     } finally {
       setLoading(false);
     }

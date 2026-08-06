@@ -61,13 +61,13 @@ const fileReaderAdapter: FileReaderAdapter = {
 
 const apiBaseUrl = import.meta.env.DEV
   ? '/api-prod'
-  : (import.meta.env.VITE_API_BASE_URL ?? 'https://regieart-backend-production.up.railway.app/api/v1');
+  : 'https://regieart-backend-production.up.railway.app/api/v1';
 
 initApiClient({
   apiBaseUrl,
-  keycloakUrl: import.meta.env.VITE_KEYCLOAK_URL ?? 'https://keycloak-production-b2ce.up.railway.app',
-  realm: import.meta.env.VITE_KEYCLOAK_REALM ?? 'regieart',
-  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? 'regieart-mobile',
+  keycloakUrl: 'https://keycloak-production-b2ce.up.railway.app',
+  realm: 'regieart',
+  clientId: 'regieart-mobile',
   tokenAdapter,
   fileReaderAdapter,
   onSessionExpired: () => {
