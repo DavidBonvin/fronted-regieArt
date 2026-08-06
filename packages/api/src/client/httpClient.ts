@@ -75,6 +75,7 @@ export function getHttpClient(): KyInstance {
           } catch (error) {
             processQueue(error);
             await config.tokenAdapter.clearTokens();
+            try { localStorage.setItem('__auth_debug', JSON.stringify({ when: new Date().toISOString(), cause: 'refresh_failed', error: String(error) })); } catch {}
             config.onSessionExpired?.();
             throw error;
           } finally {
@@ -87,7 +88,7 @@ export function getHttpClient(): KyInstance {
           if (response.status === 401) {
             const config = getConfig();
             await config.tokenAdapter.clearTokens();
-            // Log to identify which endpoint is returning 401
+            try { localStorage.setItem('__auth_debug', JSON.stringify({ when: new Date().toISOString(), cause: '401', url: request.url, method: request.method })); } catch {}
             console.warn('[auth] 401 on', request.method, request.url, '— tokens cleared');
             config.onSessionExpired?.();
           }

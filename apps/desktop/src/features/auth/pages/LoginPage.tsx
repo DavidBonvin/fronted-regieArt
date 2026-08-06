@@ -28,6 +28,14 @@ export function LoginPage() {
   const [showForgot, setShowForgot] = useState(false);
 
   useEffect(() => {
+    const debug = localStorage.getItem('__auth_debug');
+    if (debug) {
+      try {
+        const d = JSON.parse(debug) as { when: string; cause: string; url?: string };
+        setError(`[debug] ${d.cause}${d.url ? ' — ' + d.url : ''} (${d.when})`);
+      } catch { /* ignore */ }
+      localStorage.removeItem('__auth_debug');
+    }
     if (localStorage.getItem('regieart_tokens')) {
       navigate('/', { replace: true });
     }
