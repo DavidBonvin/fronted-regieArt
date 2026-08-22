@@ -61,20 +61,17 @@ const fileReaderAdapter: FileReaderAdapter = {
 
 const apiBaseUrl = (() => {
   if (!import.meta.env.DEV) {
-    // Production: VITE_API_BASE_URL is set in Vercel (may be domain-only or full path)
-    const base = (import.meta.env.VITE_API_BASE_URL as string | undefined)
+    // Production: VITE_PROD_API_URL in Vercel overrides; defaults to Railway.
+    // VITE_API_BASE_URL is intentionally ignored here — it's only for the local Docker proxy.
+    const prod = (import.meta.env.VITE_PROD_API_URL as string | undefined)
       ?? 'https://regieart-backend-production.up.railway.app/api/v1';
     try {
-      const u = new URL(base);
-      if (u.pathname === '/' || u.pathname === '') {
-        u.pathname = '/api/v1';
-        return u.toString();
-      }
+      const u = new URL(prod);
+      if (u.pathname === '/' || u.pathname === '') { u.pathname = '/api/v1'; return u.toString(); }
     } catch { /* keep as-is */ }
-    return base;
+    return prod;
   }
-  // Local dev: always route through the Vite /api-local proxy.
-  // Proxy target is configured in vite.config.ts via process.env — not needed here.
+  // Local dev: route through the Vite /api-local proxy (target set in vite.config.ts).
   return '/api-local/api/v1';
 })();
 
