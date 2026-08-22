@@ -59,18 +59,23 @@ const fileReaderAdapter: FileReaderAdapter = {
   },
 };
 
-const envApiUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
-
 const apiBaseUrl = (() => {
   if (!import.meta.env.DEV) {
-    return envApiUrl ?? 'https://regieart-backend-production.up.railway.app/api/v1';
-  }
-  if (envApiUrl?.startsWith('http')) {
+    // Production: VITE_API_BASE_URL is set in Vercel (may be domain-only or full path)
+    const base = (import.meta.env.VITE_API_BASE_URL as string | undefined)
+      ?? 'https://regieart-backend-production.up.railway.app/api/v1';
     try {
-      return `/api-local${new URL(envApiUrl).pathname}`;
-    } catch { /* fallthrough */ }
+      const u = new URL(base);
+      if (u.pathname === '/' || u.pathname === '') {
+        u.pathname = '/api/v1';
+        return u.toString();
+      }
+    } catch { /* keep as-is */ }
+    return base;
   }
-  return envApiUrl ?? '/api-prod';
+  // Local dev: always route through the Vite /api-local proxy.
+  // Proxy target is configured in vite.config.ts via process.env — not needed here.
+  return '/api-local/api/v1';
 })();
 
 const keycloakUrl = (import.meta.env.VITE_KEYCLOAK_URL as string | undefined)
