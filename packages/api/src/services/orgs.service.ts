@@ -6,6 +6,9 @@ import type {
   CreateOrganizationDto,
   CreateInviteLinkDto,
   MemberRole,
+  EmailInvitation,
+  InviteByEmailDto,
+  InvitationPublic,
 } from '@regieart/types';
 import { getHttpClient } from '../client/httpClient';
 import type { ApiRes } from '../client/types';
@@ -77,6 +80,46 @@ export async function getInviteLinks(orgId: string): Promise<InviteLink[]> {
 
 export async function revokeInviteLink(orgId: string, linkId: string): Promise<void> {
   await getHttpClient().delete(`organizations/${orgId}/invite-links/${linkId}`);
+}
+
+export async function inviteByEmail(orgId: string, dto: InviteByEmailDto): Promise<EmailInvitation> {
+  const res = await getHttpClient()
+    .post(`organizations/${orgId}/invitations`, { json: dto })
+    .json<ApiRes<EmailInvitation>>();
+  return res.data;
+}
+
+export async function listEmailInvitations(orgId: string): Promise<EmailInvitation[]> {
+  const res = await getHttpClient()
+    .get(`organizations/${orgId}/invitations`)
+    .json<ApiRes<EmailInvitation[]>>();
+  return res.data;
+}
+
+export async function revokeEmailInvitation(orgId: string, invitationId: string): Promise<void> {
+  await getHttpClient().delete(`organizations/${orgId}/invitations/${invitationId}`);
+}
+
+export async function resendEmailInvitation(orgId: string, invitationId: string): Promise<void> {
+  await getHttpClient().post(`organizations/${orgId}/invitations/${invitationId}/resend`);
+}
+
+export async function getPublicInvitation(token: string): Promise<InvitationPublic> {
+  const res = await getHttpClient()
+    .get(`invitations/${token}`)
+    .json<ApiRes<InvitationPublic>>();
+  return res.data;
+}
+
+export async function acceptInvitation(token: string): Promise<{ orgId: string }> {
+  const res = await getHttpClient()
+    .post(`invitations/${token}/accept`)
+    .json<ApiRes<{ orgId: string }>>();
+  return res.data;
+}
+
+export async function rejectInvitation(token: string): Promise<void> {
+  await getHttpClient().post(`invitations/${token}/reject`);
 }
 
 export async function joinOrganization(token: string): Promise<OrganizationMember> {

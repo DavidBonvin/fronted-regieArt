@@ -36,8 +36,20 @@ export function LoginPage() {
       } catch { /* ignore */ }
       localStorage.removeItem('__auth_debug');
     }
-    if (localStorage.getItem('regieart_tokens')) {
-      navigate('/', { replace: true });
+    const raw = localStorage.getItem('regieart_tokens');
+    if (raw) {
+      try {
+        const t = JSON.parse(raw) as { expiresAt?: number; refreshExpiresAt?: number };
+        const now = Date.now();
+        if ((t.refreshExpiresAt ?? 0) > now) {
+          navigate('/', { replace: true });
+        } else {
+          // Both tokens are expired — clear them so ProtectedRoute doesn't loop
+          localStorage.removeItem('regieart_tokens');
+        }
+      } catch {
+        localStorage.removeItem('regieart_tokens');
+      }
     }
   }, [navigate]);
 

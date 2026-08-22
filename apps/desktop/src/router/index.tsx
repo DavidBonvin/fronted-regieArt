@@ -10,7 +10,7 @@ import { FinancePage, ExpensesPage, ReceiptCapturePage } from '../features/finan
 import { ConvoyPage, PassengersPage } from '../features/convoy';
 import { BacklinePage, ChecklistPage, QRScannerPage } from '../features/inventory';
 import { BandChatPage, DirectMessagePage, NotificationsPage } from '../features/messages';
-import { BandManagementPage, InvitationsPage, OrganizationProfileView } from '../features/organizations';
+import { BandManagementPage, InvitationsPage, OrganizationProfileView, MembersPage, InvitationPublicPage } from '../features/organizations';
 import { EventDetailPage } from '../features/events';
 import { IconsPage } from '../features/icons';
 
@@ -19,8 +19,18 @@ const ApiPlayground = import.meta.env.DEV
   : null;
 
 function ProtectedRoute() {
-  const tokens = localStorage.getItem('regieart_tokens');
-  if (!tokens) return <Navigate to="/login" replace />;
+  const raw = localStorage.getItem('regieart_tokens');
+  if (!raw) return <Navigate to="/login" replace />;
+  try {
+    const t = JSON.parse(raw) as { refreshExpiresAt?: number };
+    if ((t.refreshExpiresAt ?? 0) <= Date.now()) {
+      localStorage.removeItem('regieart_tokens');
+      return <Navigate to="/login" replace />;
+    }
+  } catch {
+    localStorage.removeItem('regieart_tokens');
+    return <Navigate to="/login" replace />;
+  }
   return <Outlet />;
 }
 
@@ -28,6 +38,7 @@ export const router = createBrowserRouter([
   { path: '/onboarding', element: <OnboardingPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/invitations/:token', element: <InvitationPublicPage /> },
   {
     element: <ProtectedRoute />,
     children: [
@@ -57,6 +68,7 @@ export const router = createBrowserRouter([
           { path: '/notifications', element: <NotificationsPage /> },
           { path: '/band', element: <BandManagementPage /> },
           { path: '/organization/:orgId', element: <OrganizationProfileView /> },
+          { path: '/organization/:orgId/members', element: <MembersPage /> },
           { path: '/organization/:orgId/invitations', element: <InvitationsPage /> },
           { path: '/events/:eventId', element: <EventDetailPage /> },
           ...(import.meta.env.DEV ? [{ path: '/icons', element: <IconsPage /> }] : []),

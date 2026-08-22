@@ -53,3 +53,43 @@ export interface CreateInviteLinkDto {
   role: MemberRole;
   expiresAt?: string;
 }
+
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
+
+export interface EmailInvitationInviter {
+  id: string;
+  displayName: string;
+}
+
+export interface EmailInvitation {
+  id: string;
+  orgId: string;
+  email: string;
+  role: MemberRole;
+  instrument?: string;
+  message?: string;
+  status: InvitationStatus;
+  expiresAt: string;
+  createdAt: string;
+  invitedBy?: EmailInvitationInviter;
+}
+
+export interface InvitationPublic {
+  id: string;
+  email: string;
+  role: MemberRole;
+  instrument?: string;
+  message?: string;
+  status: InvitationStatus;
+  expiresAt: string;
+  organization: { id: string; name: string; description?: string };
+  invitedBy: { displayName: string };
+}
+
+export interface InviteByEmailDto {
+  email: string;
+  role: MemberRole;
+  instrument?: string;
+  message?: string;
+  validityDays?: number;
+}
