@@ -1,10 +1,23 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import { resolve } from 'path';
 
-export default defineConfig({
-  plugins: [
+export default defineConfig(({ mode }) => {
+  // process.env wins for proxy target: docker-compose always injects local dev URLs.
+  // Fallback to loadEnv for bare `vite dev` outside Docker (reads .env.local).
+  const fileEnv = loadEnv(mode, process.cwd(), '');
+  const apiUrl = process.env.VITE_API_BASE_URL ?? fileEnv.VITE_API_BASE_URL;
+
+  const localBackendTarget = (() => {
+    if (apiUrl?.startsWith('http')) {
+      try { return new URL(apiUrl).origin; } catch { /* fallthrough */ }
+    }
+    return 'http://localhost:3001';
+  })();
+
+  return {
+    plugins: [
     react(),
     svgr(),
   ],
@@ -29,6 +42,13 @@ export default defineConfig({
     // usePolling fixes inotify file-watching on Windows + Docker Desktop (WSL2 volume mounts)
     watch: { usePolling: true, interval: 300 },
     proxy: {
+      // Proxies /api-local/* → local backend containers, bypassing CORS
+      '/api-local': {
+        target: localBackendTarget,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api-local/, ''),
+      },
       // Proxies /api-prod/* → Railway backend, bypassing CORS in local dev
       '/api-prod': {
         target: 'https://regieart-backend-production.up.railway.app',
@@ -55,4 +75,5 @@ export default defineConfig({
     port: 4173,
     host: true,
   },
+};
 });

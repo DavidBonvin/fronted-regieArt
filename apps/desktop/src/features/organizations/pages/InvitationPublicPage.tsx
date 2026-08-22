@@ -140,7 +140,7 @@ export function InvitationPublicPage() {
 
           <div className={s.body}>
             <p className={s.greeting}>
-              👋 <strong>{inv.invitedBy.displayName}</strong> te ha invitado a unirte a la organización.
+              👋 <strong>{inv.createdBy.displayName}</strong> te ha invitado a unirte a la organización.
             </p>
 
             <div className={s.detailsSection}>
@@ -161,10 +161,10 @@ export function InvitationPublicPage() {
               </div>
             </div>
 
-            {inv.message && (
+            {inv.personalMessage && (
               <div className={s.messageBox}>
-                <div className={s.messageLabel}>Mensaje de {inv.invitedBy.displayName}:</div>
-                <p className={s.messageText}>"{inv.message}"</p>
+                <div className={s.messageLabel}>Mensaje de {inv.createdBy.displayName}:</div>
+                <p className={s.messageText}>"{inv.personalMessage}"</p>
               </div>
             )}
 
@@ -202,10 +202,10 @@ export function InvitationPublicPage() {
             {!done && !isExpired && !isConsumed && !authenticated && (
               <div className={s.authSection}>
                 <p className={s.authHint}>
-                  Para responder a esta invitación, inicia sesión con <strong>{inv.email}</strong>.
+                  Para responder a esta invitación inicia sesión o crea una cuenta.
                 </p>
                 <div className={s.authBtns}>
-                  <Link to={`/register?email=${encodeURIComponent(inv.email)}&invite=${token}`} className={s.registerBtn}>
+                  <Link to={`/register?invite=${token}`} className={s.registerBtn}>
                     Crear Cuenta
                   </Link>
                   <Link to={`/login?redirect=/invitations/${token}`} className={s.loginBtn}>

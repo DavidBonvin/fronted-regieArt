@@ -59,37 +59,39 @@ export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
 export interface EmailInvitationInviter {
   id: string;
   displayName: string;
+  avatarUrl?: string | null;
 }
 
 export interface EmailInvitation {
   id: string;
-  orgId: string;
-  email: string;
+  token: string;
+  targetEmail: string;
   role: MemberRole;
-  instrument?: string;
-  message?: string;
+  instrument?: string | null;
+  personalMessage?: string | null;
   status: InvitationStatus;
   expiresAt: string;
+  respondedAt?: string | null;
   createdAt: string;
-  invitedBy?: EmailInvitationInviter;
+  inviteUrl?: string;
+  createdBy?: EmailInvitationInviter;
+  targetUser?: { id: string; displayName: string } | null;
 }
 
 export interface InvitationPublic {
   id: string;
-  email: string;
   role: MemberRole;
-  instrument?: string;
-  message?: string;
+  instrument?: string | null;
+  personalMessage?: string | null;
   status: InvitationStatus;
   expiresAt: string;
-  organization: { id: string; name: string; description?: string };
-  invitedBy: { displayName: string };
+  organization: { id: string; name: string; description?: string; logoUrl?: string | null };
+  createdBy: { id: string; displayName: string; avatarUrl?: string | null };
 }
 
 export interface InviteByEmailDto {
   email: string;
   role: MemberRole;
   instrument?: string;
-  message?: string;
-  validityDays?: number;
+  personalMessage?: string;
 }

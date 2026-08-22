@@ -67,8 +67,7 @@ function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<MemberRole>('MEMBER');
   const [instrument, setInstrument] = useState('');
-  const [message, setMessage] = useState('');
-  const [validity, setValidity] = useState(7);
+  const [personalMessage, setPersonalMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -82,8 +81,7 @@ function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
         email: email.trim(),
         role,
         instrument: instrument.trim() || undefined,
-        message: message.trim() || undefined,
-        validityDays: validity,
+        personalMessage: personalMessage.trim() || undefined,
       });
       onSuccess(inv);
     } catch (err) {
@@ -104,7 +102,7 @@ function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
     if (e.target === e.currentTarget) onClose();
   }
 
-  const charsLeft = 500 - message.length;
+  const charsLeft = 500 - personalMessage.length;
 
   return (
     <div className={s.backdrop} onClick={handleBackdrop} role="dialog" aria-modal>
@@ -165,30 +163,12 @@ function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
             <textarea
               id={msgId}
               className={s.textarea}
-              value={message}
-              onChange={(e) => setMessage(e.target.value.slice(0, 500))}
+              value={personalMessage}
+              onChange={(e) => setPersonalMessage(e.target.value.slice(0, 500))}
               placeholder="¡Hola! Queremos que te unas al proyecto…"
               rows={3}
             />
             <span className={s.hint}>{charsLeft} caracteres restantes</span>
-          </div>
-
-          <div className={s.fieldGroup}>
-            <label className={s.label}>Validez de la invitación</label>
-            <div className={s.radioGroup}>
-              {[7, 14, 30].map((d) => (
-                <label key={d} className={s.radioLabel}>
-                  <input
-                    type="radio"
-                    name="validity"
-                    value={d}
-                    checked={validity === d}
-                    onChange={() => setValidity(d)}
-                  />
-                  <span>{d} días{d === 7 ? ' (recomendado)' : ''}</span>
-                </label>
-              ))}
-            </div>
           </div>
 
           {error && <p className={s.modalError} role="alert">{error}</p>}
@@ -247,7 +227,7 @@ export function MembersPage() {
     setInvitations((prev) => [inv, ...prev]);
     setShowInviteModal(false);
     setTab('invitations');
-    showToast(`Invitación enviada a ${inv.email}`);
+    showToast(`Invitación enviada a ${inv.targetEmail}`);
   }
 
   async function handleRevoke(invId: string) {
@@ -286,7 +266,7 @@ export function MembersPage() {
   });
 
   const filteredInvitations = invitations.filter((i) => {
-    const matchSearch = !search || i.email.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || i.targetEmail.toLowerCase().includes(search.toLowerCase());
     const matchRole = !filterRole || i.role === filterRole;
     return matchSearch && matchRole;
   });
@@ -463,7 +443,7 @@ export function MembersPage() {
                       <td className={p.td}>
                         <div className={s.inviteeCell}>
                           <span className={s.inviteeIcon}>✉</span>
-                          <span className={s.inviteeEmail}>{inv.email}</span>
+                          <span className={s.inviteeEmail}>{inv.targetEmail}</span>
                         </div>
                       </td>
                       <td className={p.td}>

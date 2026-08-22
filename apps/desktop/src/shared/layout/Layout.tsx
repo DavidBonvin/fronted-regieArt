@@ -165,6 +165,20 @@ export function Layout() {
               ))}
             </div>
           ))}
+          {org && (
+            <div className={s.navSection}>
+              <div className={s.navSectionLabel}>Organización</div>
+              <NavLink
+                to={`/organization/${org.id}`}
+                className={({ isActive }) =>
+                  `${s.navItem}${isActive ? ' ' + s.active : ''}`
+                }
+              >
+                <span className={s.navIcon}>◉</span>
+                {org.name}
+              </NavLink>
+            </div>
+          )}
         </nav>
 
         <div className={s.sidebarBottom}>

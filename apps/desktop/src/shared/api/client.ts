@@ -59,15 +59,30 @@ const fileReaderAdapter: FileReaderAdapter = {
   },
 };
 
-const apiBaseUrl = import.meta.env.DEV
-  ? '/api-prod'
-  : 'https://regieart-backend-production.up.railway.app/api/v1';
+const envApiUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
+
+const apiBaseUrl = (() => {
+  if (!import.meta.env.DEV) {
+    return envApiUrl ?? 'https://regieart-backend-production.up.railway.app/api/v1';
+  }
+  if (envApiUrl?.startsWith('http')) {
+    try {
+      return `/api-local${new URL(envApiUrl).pathname}`;
+    } catch { /* fallthrough */ }
+  }
+  return envApiUrl ?? '/api-prod';
+})();
+
+const keycloakUrl = (import.meta.env.VITE_KEYCLOAK_URL as string | undefined)
+  ?? 'https://keycloak-production-b2ce.up.railway.app';
+const realm = (import.meta.env.VITE_KEYCLOAK_REALM as string | undefined) ?? 'regieart';
+const clientId = (import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string | undefined) ?? 'regieart-mobile';
 
 initApiClient({
   apiBaseUrl,
-  keycloakUrl: 'https://keycloak-production-b2ce.up.railway.app',
-  realm: 'regieart',
-  clientId: 'regieart-mobile',
+  keycloakUrl,
+  realm,
+  clientId,
   tokenAdapter,
   fileReaderAdapter,
   onSessionExpired: () => {

@@ -222,8 +222,8 @@ export function OrganizationProfileView() {
       </div>
 
       <div className={s.actionBar}>
-        <button className={s.btnPrimary} onClick={() => navigate(`/organization/${orgId}/invitations`)}>
-          {t('org_detail.invite_musician')}
+        <button className={s.btnPrimary} onClick={() => navigate(`/organization/${orgId}/members`)}>
+          Gestionar Equipo
         </button>
         <button className={s.btnSecondary}>{t('org_detail.edit_profile')} ✏</button>
         <button className={s.btnSecondary}>{t('org_detail.export_rider')} 📄</button>
@@ -323,7 +323,12 @@ export function OrganizationProfileView() {
 
           {tab === 'members' && (
             <div className={p.card}>
-              <h3 className={s.sectionTitle}>{t('org_detail.team_section')}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
+                <h3 className={s.sectionTitle} style={{ marginBottom: 0 }}>{t('org_detail.team_section')}</h3>
+                <button className={s.viewAllLink} onClick={() => navigate(`/organization/${orgId}/members`)}>
+                  Gestionar equipo completo →
+                </button>
+              </div>
               <table className={p.table}>
                 <thead>
                   <tr>
