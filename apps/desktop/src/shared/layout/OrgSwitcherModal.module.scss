@@ -298,3 +298,87 @@
 
   &:hover { background: #5A9490; }
 }
+
+/* ═══ Responsive: mobile ≤767px — bottom sheet ════════════════════════════ */
+@media (max-width: 767px) {
+
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 24px 24px 0 0;
+    max-width: 100%;
+    max-height: 85vh;
+  }
+
+  /* drag handle */
+  .header::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-default);
+    margin: 0 auto 14px;
+  }
+
+  .header {
+    padding: 16px 20px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* move close button to absolute position so it doesn't push title down */
+  .closeBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  .body {
+    padding: 16px 20px;
+  }
+
+  /* 16px prevents iOS Safari auto-zoom */
+  .searchInput {
+    font-size: 16px;
+    height: 44px;
+  }
+
+  .orgCard {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .orgLogo {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 20px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .footerRight {
+    width: 100%;
+  }
+
+  .footerLink,
+  .footerCancel,
+  .footerCreate {
+    flex: 1;
+    height: 40px;
+    text-align: center;
+  }
+}

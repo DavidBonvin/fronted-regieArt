@@ -234,3 +234,31 @@
     animation: spin 0.7s linear infinite;
   }
 }
+
+/* ── Mobile ≤767px ────────────────────────────── */
+@media (max-width: 767px) {
+  .page {
+    padding: 16px;
+  }
+
+  .pageTitle {
+    font-size: 20px;
+  }
+
+  .grid4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .grid3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statCard {
+    padding: 14px 12px;
+  }
+
+  .statValue {
+    font-size: 22px;
+  }
+}

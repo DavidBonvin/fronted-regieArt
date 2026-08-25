@@ -114,6 +114,29 @@ export function DashboardPage() {
         </div>
       </div>
 
+      {/* Accesos rápidos — visible solo en mobile via CSS */}
+      <div className={s.quickActionsSection}>
+        <div className={s.quickSectionLabel}>Accesos rápidos</div>
+        <div className={s.quickActionsGrid}>
+          <Link to="/timeline" className={s.quickActionTile}>
+            <span className={s.quickActionIcon}>📅</span>
+            <span>Agenda</span>
+          </Link>
+          <Link to="/finance" className={s.quickActionTile}>
+            <span className={s.quickActionIcon}>💰</span>
+            <span>Finanzas</span>
+          </Link>
+          <Link to="/backline" className={s.quickActionTile}>
+            <span className={s.quickActionIcon}>🎸</span>
+            <span>Backline</span>
+          </Link>
+          <Link to="/convoy" className={s.quickActionTile}>
+            <span className={s.quickActionIcon}>🚌</span>
+            <span>Convoy</span>
+          </Link>
+        </div>
+      </div>
+
       <div className={s.mainGrid}>
         <div className={s.leftCol}>
           <div className={p.card}>

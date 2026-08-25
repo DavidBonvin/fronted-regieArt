@@ -205,6 +205,28 @@
   white-space: nowrap;
 }
 
+/* mobile org switcher pill — hidden on desktop */
+.mobileOrgBtn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobileOrgAvatar {
+  display: none;
+}
+
+.mobileOrgName {
+  display: none;
+}
+
+.mobileOrgChevron {
+  display: none;
+}
+
 .topbarActions {
   display: flex;
   align-items: center;
@@ -513,4 +535,171 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-default) transparent;
+}
+
+/* ── Mobile bottom bar (hidden on desktop) ──────── */
+.mobileBottomBar {
+  display: none;
+}
+
+.mobileTabItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  text-decoration: none;
+  color: var(--text-muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 120ms;
+  -webkit-tap-highlight-color: transparent;
+
+  &.active {
+    color: var(--action-brand);
+  }
+}
+
+.mobileTabIcon {
+  font-size: 20px;
+  line-height: 1;
+  display: block;
+}
+
+.mobileTabLabel {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.mobileFab {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--action-brand);
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: opacity 120ms, transform 100ms;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.93);
+  }
+}
+
+/* marker class to hide sign-out on mobile */
+.signOutBtn {}
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
+
+  .topbar {
+    padding: 0 12px;
+    height: 52px;
+  }
+
+  /* topbarTitle hidden — replaced by mobileOrgBtn */
+  .topbarTitle {
+    display: none;
+  }
+
+  .mobileOrgBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 5px 10px 5px 5px;
+    transition: background 120ms, border-color 120ms;
+
+    &:active {
+      background: color-mix(in srgb, var(--action-brand) 8%, var(--surface-raised));
+      border-color: var(--action-brand);
+    }
+  }
+
+  .mobileOrgAvatar {
+    display: flex;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--action-brand);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: -0.2px;
+  }
+
+  .mobileOrgName {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-heading);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileOrgChevron {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .orgSwitcherBtn,
+  .createBtn,
+  .signOutBtn {
+    display: none;
+  }
+
+  .notifPopover {
+    width: calc(100vw - 24px);
+    right: -8px;
+  }
+
+  .content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobileBottomBar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
+    background: var(--nav-background);
+    border-top: 1px solid var(--nav-border);
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-around;
+    z-index: 100;
+    padding-top: 10px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+  }
 }

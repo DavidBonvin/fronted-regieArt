@@ -396,3 +396,71 @@
   color: var(--action-brand);
   font-weight: 700;
 }
+
+/* ── Quick actions (mobile only) ──────────────── */
+.quickActionsSection {
+  display: none;
+  margin-bottom: 20px;
+}
+
+.quickSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.quickActionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.quickActionTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: var(--surface-card);
+  border-radius: 14px;
+  border: 1px solid var(--border-subtle);
+  text-decoration: none;
+  color: var(--text-body);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 120ms;
+
+  &:hover { background: var(--surface-raised); }
+}
+
+.quickActionIcon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .statsRow {
+    margin-bottom: 16px;
+  }
+
+  .mainGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .richEventRow {
+    padding: 12px 14px;
+  }
+
+  .richEventTitle {
+    white-space: normal;
+  }
+
+  .quickActionsSection {
+    display: block;
+  }
+}

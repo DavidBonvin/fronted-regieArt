@@ -27,3 +27,27 @@
 .title { font-size: 14px; font-weight: 600; color: var(--text-heading); margin-bottom: 3px; }
 .text { font-size: 13px; color: var(--text-secondary); }
 .time { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .header {
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .row {
+    padding: 14px 0;
+    gap: 12px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    margin-top: 4px;
+  }
+
+  .title { font-size: 15px; }
+  .text { font-size: 14px; line-height: 1.4; }
+  .time { font-size: 12px; margin-top: 5px; }
+}

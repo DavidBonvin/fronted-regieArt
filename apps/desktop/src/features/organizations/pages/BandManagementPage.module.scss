@@ -40,3 +40,17 @@
   border-radius: 8px;
   margin-bottom: 6px;
 }
+
+/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .createOrgBtn,
+  .viewProfileBtn {
+    width: 100%;
+    text-align: center;
+  }
+}

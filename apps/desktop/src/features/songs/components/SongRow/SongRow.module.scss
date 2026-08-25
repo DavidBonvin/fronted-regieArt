@@ -125,3 +125,62 @@
   width: 36px;
   text-align: right;
 }
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .row {
+    padding: 12px 14px;
+    border-left-width: 0;
+    border-bottom: 1px solid var(--border-subtle);
+    border-radius: 0;
+  }
+
+  /* drag-to-reorder is unavailable on touch */
+  .drag {
+    display: none;
+  }
+
+  .num {
+    width: 20px;
+    font-size: 12px;
+  }
+
+  .playBtn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    background: color-mix(in srgb, var(--action-brand) 18%, transparent);
+    color: var(--action-brand);
+
+    &.playing {
+      background: var(--action-brand);
+      color: #fff;
+    }
+  }
+
+  .title {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: normal;
+  }
+
+  .sub {
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .chips {
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+
+  /* duration is less important on small screen */
+  .dur {
+    display: none;
+  }
+}

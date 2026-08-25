@@ -396,3 +396,80 @@
   padding: 2px 7px;
   flex-shrink: 0;
 }
+
+/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* banner: shorter on mobile */
+  .bannerWrapper {
+    height: 160px;
+  }
+
+  /* edit button always visible (no hover on touch) */
+  .bannerEditBtn {
+    opacity: 1;
+  }
+
+  /* org info in banner overlay: smaller */
+  .orgName { font-size: 18px; }
+  .orgTagline { font-size: 12px; }
+
+  .orgLogoBox {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+  }
+
+  .orgLogoInitials { font-size: 20px; }
+
+  /* action bar: wrap buttons */
+  .actionBar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    text-align: center;
+  }
+
+  /* tabs: smaller padding */
+  .tabBtn {
+    padding: 6px 10px 10px;
+    font-size: 13px;
+  }
+
+  /* 2-col layout → single column (sidebar goes below) */
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* stats: 2 cols instead of 4 */
+  .dashStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* member rows: larger avatar */
+  .memberAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+  }
+
+  .avatarInitials { font-size: 13px; }
+  .memberName { font-size: 13px; }
+  .memberSub { font-size: 11px; }
+
+  /* link cards: wrap on small screens */
+  .linkCard {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .linkToken {
+    word-break: break-all;
+  }
+}

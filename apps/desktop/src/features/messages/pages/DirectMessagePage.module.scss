@@ -61,3 +61,31 @@
   &::placeholder { color: var(--input-placeholder); }
   &:focus { outline: none; border-color: var(--border-focus); }
 }
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .feed {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  /* wider bubbles on narrow screens */
+  .bubble {
+    max-width: 84%;
+    padding: 9px 12px;
+  }
+
+  .text { font-size: 15px; }
+
+  .composer {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  /* 16px prevents iOS Safari from auto-zooming on input focus */
+  .input {
+    font-size: 16px;
+    padding: 10px 12px;
+    border-radius: 22px;
+  }
+}

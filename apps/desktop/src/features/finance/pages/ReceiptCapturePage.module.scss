@@ -65,3 +65,37 @@
   gap: 10px;
   margin-top: 8px;
 }
+
+/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  .form {
+    max-width: 100%;
+    gap: 14px;
+  }
+
+  /* amount + currency: single column */
+  .row2 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* 16px prevents iOS Safari auto-zoom on focus */
+  .input,
+  .select {
+    font-size: 16px;
+    padding: 11px 14px;
+  }
+
+  /* buttons stack vertically, primary first (reversed order) */
+  .actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+
+    /* target direct button children from page.module.scss */
+    > * {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

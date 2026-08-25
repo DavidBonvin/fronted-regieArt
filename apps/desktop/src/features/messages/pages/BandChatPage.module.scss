@@ -30,3 +30,21 @@
 .name { font-size: 14px; font-weight: 600; color: var(--text-heading); }
 .role { font-size: 12px; color: var(--text-muted); }
 .arrow { font-size: 16px; color: var(--text-muted); }
+
+/* ── Responsive: mobile ≤767px ──────────────────── */
+@media (max-width: 767px) {
+  .row {
+    padding: 14px 0;
+    gap: 14px;
+  }
+
+  .avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 23px;
+    font-size: 16px;
+  }
+
+  .name { font-size: 15px; }
+  .role { font-size: 13px; }
+}

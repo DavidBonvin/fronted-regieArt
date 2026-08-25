@@ -19,3 +19,16 @@
   border-radius: 8px;
   margin-bottom: 6px;
 }
+
+/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .select {
+    width: 100%;
+    font-size: 16px; /* prevents iOS Safari auto-zoom */
+  }
+
+  .linkRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

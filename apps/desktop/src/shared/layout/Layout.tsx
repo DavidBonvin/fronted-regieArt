@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
+import { CreateSongWizard } from '../../features/songs';
+import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
 import s from './Layout.module.scss';
 
@@ -49,8 +51,21 @@ export function Layout() {
   const [allOrgs, setAllOrgs] = useState<Organization[]>([]);
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [showNotifPopover, setShowNotifPopover] = useState(false);
-  const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [showGlobalCreate, setShowGlobalCreate] = useState(false);
+  const [showEventWizard, setShowEventWizard] = useState(false);
+  const [showSongWizard, setShowSongWizard] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
+
+  function handleCreateAction(id: string) {
+    setShowGlobalCreate(false);
+    setTimeout(() => {
+      if (id === 'event') setShowEventWizard(true);
+      else if (id === 'song') setShowSongWizard(true);
+      else if (id === 'expense') navigate('/finance/receipt');
+      else if (id === 'message') navigate('/messages');
+      else if (id === 'invite') navigate('/band');
+    }, 80);
+  }
   const notifBtnRef = useRef<HTMLButtonElement>(null);
   const notifPopoverRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +150,12 @@ export function Layout() {
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('') ?? '?';
 
+  const orgInitials = org?.name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('') ?? 'RA';
+
   return (
     <div className={s.root}>
       <aside className={s.sidebar}>
@@ -195,6 +216,16 @@ export function Layout() {
       <div className={s.main}>
         <header className={s.topbar}>
           <span className={s.topbarTitle}>{org?.name ?? 'RégieArt'}</span>
+          {/* mobile-only org switcher pill — hidden on desktop via CSS */}
+          <button
+            className={s.mobileOrgBtn}
+            onClick={() => setShowOrgSwitcher(true)}
+            aria-label="Cambiar organización"
+          >
+            <span className={s.mobileOrgAvatar}>{orgInitials}</span>
+            <span className={s.mobileOrgName}>{org?.name ?? 'RégieArt'}</span>
+            <span className={s.mobileOrgChevron}>▾</span>
+          </button>
           <div className={s.topbarActions}>
             <button
               className={s.orgSwitcherBtn}
@@ -207,7 +238,7 @@ export function Layout() {
             </button>
             <button
               className={s.createBtn}
-              onClick={() => setShowCreateWizard(true)}
+              onClick={() => setShowGlobalCreate(true)}
               aria-label="Crear nuevo"
             >
               + Crear
@@ -293,7 +324,7 @@ export function Layout() {
                 </div>
               )}
             </div>
-            <button className={s.iconBtn} onClick={handleSignOut} aria-label="Sign out" title="Sign out">
+            <button className={`${s.iconBtn} ${s.signOutBtn}`} onClick={handleSignOut} aria-label="Sign out" title="Sign out">
               ⇥
             </button>
           </div>
@@ -302,10 +333,60 @@ export function Layout() {
         <main className={s.content}>
           <Outlet />
         </main>
+
+        <nav className={s.mobileBottomBar}>
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
+          >
+            <span className={s.mobileTabIcon}>◈</span>
+            <span className={s.mobileTabLabel}>Inicio</span>
+          </NavLink>
+          <NavLink
+            to="/repertoire"
+            className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
+          >
+            <span className={s.mobileTabIcon}>♪</span>
+            <span className={s.mobileTabLabel}>Repertorio</span>
+          </NavLink>
+          <button
+            className={s.mobileFab}
+            onClick={() => setShowGlobalCreate(true)}
+            aria-label="Crear nuevo"
+          >
+            +
+          </button>
+          <NavLink
+            to="/messages"
+            className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
+          >
+            <span className={s.mobileTabIcon}>✉</span>
+            <span className={s.mobileTabLabel}>Mensajes</span>
+          </NavLink>
+          <NavLink
+            to="/profile/me"
+            className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
+          >
+            <span className={s.mobileTabIcon}>◯</span>
+            <span className={s.mobileTabLabel}>Perfil</span>
+          </NavLink>
+        </nav>
       </div>
 
-      {showCreateWizard && (
-        <CreateEventWizard onClose={() => setShowCreateWizard(false)} />
+      {showGlobalCreate && (
+        <GlobalCreateModal
+          onClose={() => setShowGlobalCreate(false)}
+          onAction={handleCreateAction}
+        />
+      )}
+
+      {showEventWizard && (
+        <CreateEventWizard onClose={() => setShowEventWizard(false)} />
+      )}
+
+      {showSongWizard && (
+        <CreateSongWizard onClose={() => setShowSongWizard(false)} />
       )}
 
       {showOrgSwitcher && org && (

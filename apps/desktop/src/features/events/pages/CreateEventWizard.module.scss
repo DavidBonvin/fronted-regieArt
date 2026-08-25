@@ -715,3 +715,149 @@
 .summaryInfo { flex: 1; }
 .summaryTitle { font-size: 18px; font-weight: 700; color: #F6F8F9; letter-spacing: -0.3px; margin: 0 0 6px; }
 .summaryMeta { font-size: 13px; color: #6B7685; margin: 0; line-height: 1.6; }
+
+/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* overlay stacks vertically instead of side-by-side */
+  .overlay {
+    flex-direction: column;
+  }
+
+  /* sidebar becomes a slim topbar */
+  .sidebar {
+    width: 100%;
+    height: 56px;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 16px;
+    border-right: none;
+    border-bottom: 1px solid #1E2630;
+    overflow: visible;
+  }
+
+  .sidebarHeader {
+    flex: 1;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* stepper and preview are hidden — no space for them */
+  .stepper,
+  .previewCard {
+    display: none;
+  }
+
+  .canvas {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .canvasInner {
+    padding: 20px 16px 8px;
+    max-width: 100%;
+  }
+
+  .stepHeading {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .stepSub {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  /* ── Event type grid: 2 columns on mobile ── */
+  .typeGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .typeCard {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .typeIcon { font-size: 26px; }
+  .typeLabel { font-size: 11px; }
+
+  /* ── Date fields: single column ── */
+  .dateRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* ── Venue country row: stack vertically ── */
+  .venueCountryRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .venueCountrySelect {
+    width: 100%;
+    height: 44px;
+  }
+
+  /* ── Inputs: 16px prevents iOS Safari auto-zoom on focus ── */
+  .fieldInput,
+  .roleInput {
+    font-size: 16px;
+  }
+
+  /* ── Notes tabs: stretch full width ── */
+  .noteTabs {
+    width: 100%;
+  }
+
+  .noteTab {
+    flex: 1;
+    text-align: center;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  /* ── Roster members: tighter on mobile ── */
+  .memberRow {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .roleInput {
+    width: 90px;
+    padding: 5px 8px;
+  }
+
+  /* ── Bottom bar: full-width buttons ── */
+  .bottomBar {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .backBtn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .nextBtn,
+  .submitBtn {
+    flex: 1;
+    text-align: center;
+    padding: 11px 16px;
+  }
+
+  /* ── Summary card: stack icon above text ── */
+  .summaryCard {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .summaryIcon { font-size: 32px; }
+  .summaryTitle { font-size: 16px; }
+}
