@@ -11,7 +11,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { RootStackParamList } from '../../../navigation';
+import { SELECTED_ORG_KEY } from '../../organizations/screens/OrgHomeScreen';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -63,7 +65,7 @@ const ACTIONS = [
     accentHex: '#6E4A7E',
     title: 'Generar Invitación',
     sub: 'Link de acceso a la banda',
-    available: false,
+    available: true,
   },
 ] as const;
 
@@ -124,11 +126,14 @@ export function GlobalCreateModal({ onClose }: Props) {
     (id: string, available: boolean) => {
       if (!available) return;
       handleClose();
-      setTimeout(() => {
+      setTimeout(async () => {
         if (id === 'event') {
           navigation.navigate('CreateEventWizard');
         } else if (id === 'song') {
           navigation.navigate('CreateSongWizard');
+        } else if (id === 'invite') {
+          const orgId = await AsyncStorage.getItem(SELECTED_ORG_KEY);
+          if (orgId) navigation.navigate('Members', { organizationId: orgId, openInvite: true });
         }
       }, 220);
     },

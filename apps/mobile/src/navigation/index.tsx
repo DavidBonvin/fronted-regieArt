@@ -9,7 +9,7 @@ import { FinanceScreen, ExpensesScreen, ReceiptCameraScreen } from '../features/
 import { ConvoyScreen, PassengersScreen } from '../features/convoy';
 import { BacklineScreen, ChecklistScreen, QRScannerScreen } from '../features/inventory';
 import { BandChatScreen, DirectMessageScreen, NotificationsScreen } from '../features/messages';
-import { BandManagementScreen, InvitationsScreen, OrgSelectorScreen, CreateOrganizationScreen, OrganizationDetailScreen } from '../features/organizations';
+import { BandManagementScreen, InvitationsScreen, OrgSelectorScreen, CreateOrganizationScreen, OrganizationDetailScreen, MembersScreen, InvitationResponseScreen } from '../features/organizations';
 import { WriteSuiteScreen, DevToolsScreen, StorageSuiteScreen } from '../features/dev';
 import { CreateEventWizardScreen, EventDetailScreen } from '../features/events';
 import { MainTabNavigator } from './MainTabNavigator';
@@ -45,6 +45,8 @@ export type RootStackParamList = {
   Notifications: undefined;
   BandManagement: undefined;
   Invitations: { organizationId: string };
+  Members: { organizationId: string; openInvite?: boolean };
+  InvitationResponse: { token: string };
   DevPlayground: undefined;
   DevTools: undefined;
   StorageSuite: undefined;
@@ -102,6 +104,8 @@ export function RootNavigator() {
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="BandManagement" component={BandManagementScreen} options={{ title: 'Band Management' }} />
       <Stack.Screen name="Invitations" component={InvitationsScreen} options={{ title: 'Invitations' }} />
+      <Stack.Screen name="Members" component={MembersScreen} options={{ title: 'Equipo' }} />
+      <Stack.Screen name="InvitationResponse" component={InvitationResponseScreen} options={{ title: 'Invitación' }} />
       <Stack.Screen name="DevPlayground" component={WriteSuiteScreen} options={{ title: '🧪 Write Suite' }} />
       <Stack.Screen name="DevTools" component={DevToolsScreen} options={{ title: '🛠️ DevTools' }} />
       <Stack.Screen name="StorageSuite" component={StorageSuiteScreen} options={{ title: '📦 Storage Suite' }} />

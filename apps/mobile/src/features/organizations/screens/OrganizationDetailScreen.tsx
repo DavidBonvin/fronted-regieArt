@@ -176,7 +176,7 @@ export function OrganizationDetailScreen({ route, navigation }: Props) {
 
         {isAdmin && (
           <View style={s.actionRow}>
-            <Pressable style={s.actionBtn} onPress={() => navigation.navigate('Invitations', { organizationId: org.id })}>
+            <Pressable style={s.actionBtn} onPress={() => navigation.navigate('Members', { organizationId: org.id })}>
               <Text style={s.actionBtnLabel}>{t('org_detail.invite_musician')}</Text>
             </Pressable>
             <Pressable style={[s.actionBtn, s.actionBtnSecondary]}>

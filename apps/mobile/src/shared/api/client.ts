@@ -69,7 +69,7 @@ const fileReaderAdapter: FileReaderAdapter = {
 };
 
 initApiClient({
-  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:3005/api/v1',
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://regieart-backend-production.up.railway.app/api/v1',
   keycloakUrl:
     process.env.EXPO_PUBLIC_KEYCLOAK_URL ?? 'https://keycloak-production-b2ce.up.railway.app',
   realm: process.env.EXPO_PUBLIC_KEYCLOAK_REALM ?? 'regieart',

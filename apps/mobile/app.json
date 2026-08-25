@@ -4,7 +4,7 @@
     "slug": "regiart",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "regiart",
+    "scheme": ["regiart", "regieart"],
     "platforms": ["ios", "android"],
     "icon": "./assets/icon.png",
     "newArchEnabled": true,

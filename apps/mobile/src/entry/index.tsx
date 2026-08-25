@@ -14,6 +14,15 @@ import { installFetchInterceptor } from '../features/dev/requestLog';
 
 if (__DEV__) installFetchInterceptor();
 
+const deepLinkingConfig = {
+  prefixes: ['regieart://', 'regiart://'],
+  config: {
+    screens: {
+      InvitationResponse: 'invitations/:token',
+    },
+  },
+};
+
 function App() {
   const [i18nReady, setI18nReady] = useState(false);
 
@@ -28,7 +37,7 @@ function App() {
       <ThemeProvider>
         <SafeAreaProvider>
           <PlayerProvider>
-            <NavigationContainer>
+            <NavigationContainer linking={deepLinkingConfig}>
               <StatusBar style="auto" />
               <RootNavigator />
             </NavigationContainer>
