@@ -2,3 +2,132 @@
 .statsRow { margin-bottom: 20px; }
 .income { color: var(--status-ok); }
 .expense { color: var(--status-error); }
+
+.financeScopes {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+	overflow-x: auto;
+	padding: 2px;
+	scrollbar-width: none;
+}
+
+.financeScopes::-webkit-scrollbar {
+	display: none;
+}
+
+.financeScope {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 0 0 190px;
+	min-height: 70px;
+	padding: 11px 12px;
+	border: 1px solid var(--border-subtle);
+	border-radius: 10px;
+	background: var(--surface-card);
+	color: var(--text-body);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.financeScopeActive {
+	border-color: var(--action-brand);
+	background: color-mix(in srgb, var(--action-brand) 10%, var(--surface-card));
+}
+
+.financeScopeIcon {
+	font-size: 26px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.financeScope strong,
+.financeScope small {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.financeScope strong {
+	color: var(--text-heading);
+	font-size: 13px;
+}
+
+.financeScope small {
+	margin-top: 4px;
+	color: var(--text-muted);
+	font-size: 11px;
+}
+
+.tableCard {
+	min-width: 0;
+	overflow: hidden;
+}
+
+@media (max-width: 767px) {
+	.header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.header > a {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.statsRow {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+
+	.financeScopes {
+		margin-right: -4px;
+	}
+
+	.financeScope {
+		flex-basis: 174px;
+	}
+
+	.tableCard :global(table),
+	.tableCard :global(tbody),
+	.tableCard :global(tr),
+	.tableCard :global(td) {
+		display: block;
+		width: 100%;
+	}
+
+	.tableCard :global(thead) {
+		display: none;
+	}
+
+	.tableCard :global(tr) {
+		padding: 12px 4px;
+		border-bottom: 1px solid var(--border-subtle);
+	}
+
+	.tableCard :global(tr:last-child) {
+		border-bottom: none;
+	}
+
+	.tableCard :global(td) {
+		display: grid;
+		grid-template-columns: 92px minmax(0, 1fr);
+		gap: 10px;
+		align-items: center;
+		padding: 6px 0;
+		border-bottom: none;
+		overflow-wrap: anywhere;
+	}
+
+	.tableCard :global(td)::before {
+		content: attr(data-label);
+		color: var(--text-muted);
+		font-size: 10px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+	}
+}

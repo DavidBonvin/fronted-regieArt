@@ -22,6 +22,7 @@ import {
 import type { OrgLogoFlowMode, OrgBannerFlowMode } from '../../profile/pages/AvatarFlowModals';
 import p from '../../../shared/layout/page.module.scss';
 import s from './OrganizationProfileView.module.scss';
+import { InviteModal } from './MembersPage';
 
 type TabId = 'about' | 'members' | 'repertoire' | 'finance';
 
@@ -59,6 +60,7 @@ export function OrganizationProfileView() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabId>('about');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const [memberAvatarUrls, setMemberAvatarUrls] = useState<Record<string, string | null>>({});
 
@@ -363,8 +365,8 @@ export function OrganizationProfileView() {
           <div className={p.card}>
             <h4 className={s.sidebarTitle}>{t('org_detail.admin_panel')}</h4>
             <div className={s.adminActions}>
-              <button className={s.adminBtn} onClick={() => handleGenerateLink('MEMBER')}>
-                {t('org_detail.generate_invite')}
+              <button className={s.adminBtn} onClick={() => setShowInviteModal(true)}>
+                Invitar por correo
               </button>
               <button className={s.adminBtn}>{t('org_detail.upload_assets')}</button>
               <button className={s.adminBtn}>{t('org_detail.band_settings')}</button>
@@ -475,6 +477,14 @@ export function OrganizationProfileView() {
       )}
       {bannerMode === 'uploading' && (
         <AvatarUploadingModal progress={bannerProgress} step={bannerStep} />
+      )}
+
+      {showInviteModal && orgId && (
+        <InviteModal
+          orgId={orgId}
+          onClose={() => setShowInviteModal(false)}
+          onSuccess={() => setShowInviteModal(false)}
+        />
       )}
     </div>
   );

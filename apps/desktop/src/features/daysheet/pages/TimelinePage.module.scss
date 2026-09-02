@@ -1,15 +1,37 @@
-.layout {
+.timelineGrid {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 0;
   height: calc(100vh - 56px - 48px);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.timelineBackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.timelineBackLink:hover {
+  color: var(--text-secondary);
 }
 
 /* ── Left: event list ──────────────────────────── */
 
-.eventList {
+.timelineEventList {
   border-right: 1px solid var(--border-subtle);
-  padding-right: 16px;
+  padding: 0 12px 16px 0;
   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
@@ -17,53 +39,56 @@
   gap: 0;
 }
 
-.eventListTitle {
+.timelineListTitle {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
-.emptyList {
+.timelineEmptyMessage {
   font-size: 13px;
   color: var(--text-muted);
   padding: 16px 0;
   text-align: center;
 }
 
-.eventItem {
-  padding: 10px 12px;
+.timelineEventItem {
+  padding: 10px 10px;
   border-radius: 10px;
   cursor: pointer;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   border-left: 3px solid transparent;
   transition: background 0.12s, border-color 0.12s;
 
   &:hover { background: var(--surface-raised); }
 }
 
-.active {
-  background: color-mix(in srgb, var(--action-brand) 10%, transparent) !important;
+.timelineEventItemActive {
+  background: color-mix(in srgb, var(--action-brand) 10%, var(--surface-card)) !important;
+  border-left-color: var(--action-brand);
 }
 
-.eventItemRow {
+.timelineEventItemRow {
   display: flex;
   align-items: flex-start;
   gap: 8px;
 }
 
-.eventItemIcon {
+.timelineEventItemIcon {
   font-size: 20px;
   line-height: 1.2;
   flex-shrink: 0;
 }
 
-.eventItemMeta { flex: 1; min-width: 0; }
+.timelineEventItemMeta { flex: 1; min-width: 0; }
 
-.eventName {
+.timelineEventName {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-heading);
@@ -72,13 +97,13 @@
   text-overflow: ellipsis;
 }
 
-.eventDate {
+.timelineEventDate {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: 2px;
 }
 
-.eventItemBadges {
+.timelineEventBadges {
   display: flex;
   gap: 4px;
   margin-top: 6px;
@@ -87,14 +112,14 @@
 
 /* ── Shared pills ─────────────────────────────── */
 
-.typePill, .statusPill {
+.timelineTypePill, .timelineStatusPill {
   padding: 2px 7px;
   border-radius: 5px;
   font-size: 10px;
   font-weight: 700;
 }
 
-.publicPill {
+.timelinePublicPill {
   padding: 2px 7px;
   border-radius: 5px;
   font-size: 10px;
@@ -105,41 +130,51 @@
 
 /* ── Right: detail area ───────────────────────── */
 
-.detailArea {
+.timelineDetailPanel {
   overflow-y: auto;
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
+  padding-left: 24px;
+  min-width: 0;
 }
 
 /* ── Event header ─────────────────────────────── */
 
-.eventHeader {
+.timelineEventHeader {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 16px;
   border-left-width: 4px;
-  padding: 18px 20px 14px;
-  margin-bottom: 16px;
+  padding: 20px 20px 0;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 
-.eventHeaderTop {
+.timelineEventHeaderTop {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.eventHeaderIcon {
-  font-size: 36px;
+.timelineEventHeaderIcon {
+  font-size: 40px;
   line-height: 1;
   flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-raised);
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
 }
 
-.eventHeaderContent { flex: 1; min-width: 0; }
+.timelineEventHeaderContent { flex: 1; min-width: 0; }
 
-.eventHeaderBadges {
+.timelineEventHeaderBadges {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -147,8 +182,8 @@
   margin-bottom: 8px;
 }
 
-.eventHeaderTitle {
-  font-size: 22px;
+.timelineEventHeaderTitle {
+  font-size: 20px;
   font-weight: 800;
   color: var(--text-heading);
   letter-spacing: -0.4px;
@@ -156,71 +191,75 @@
   line-height: 1.2;
 }
 
-.eventHeaderMeta {
+.timelineEventHeaderMeta {
   font-size: 13px;
   color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
-.eventHeaderDesc {
+.timelineEventHeaderDesc {
   font-size: 13px;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 6px 0 0;
 }
 
-.viewFullBtn {
+.timelineViewFullBtn {
   flex-shrink: 0;
-  background: var(--action-brand);
-  border: none;
+  background: transparent;
+  border: 1.5px solid var(--action-brand);
   border-radius: 8px;
-  color: #fff;
+  color: var(--action-brand);
   font-size: 12px;
   font-weight: 700;
   padding: 7px 14px;
   text-decoration: none;
   white-space: nowrap;
-  transition: opacity 0.15s;
+  transition: background 0.15s, color 0.15s;
 
-  &:hover { opacity: 0.85; }
+  &:hover { background: var(--action-brand); color: #fff; }
 }
 
-.quickStats {
+.timelineQuickStats {
   display: flex;
   gap: 0;
   border-top: 1px solid var(--border-subtle);
-  padding-top: 12px;
+  margin: 0 -20px;
+  padding: 0;
 }
 
-.quickStat {
+.timelineQuickStat {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  padding: 14px 12px;
   border-right: 1px solid var(--border-subtle);
+  transition: background 120ms;
 
   &:last-child { border-right: none; }
+  &:hover { background: var(--surface-raised); }
 }
 
-.quickStatVal {
-  font-size: 20px;
+.timelineQuickStatValue {
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-heading);
   line-height: 1;
 }
 
-.quickStatLbl {
-  font-size: 10px;
-  font-weight: 600;
+.timelineQuickStatLabel {
+  font-size: 9px;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 /* ── Tabs ─────────────────────────────────────── */
 
-.tabs {
+.timelineTabs {
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--border-subtle);
@@ -228,8 +267,8 @@
   flex-shrink: 0;
 }
 
-.tab {
-  padding: 10px 18px;
+.timelineTab {
+  padding: 11px 20px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
@@ -243,32 +282,106 @@
   &:hover { color: var(--text-secondary); }
 }
 
-.tabActive {
+.timelineTabActive {
   color: var(--action-brand);
   border-bottom-color: var(--action-brand);
 }
 
-.tabContent {
+.timelineTabContent {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
-.emptyTab {
+.timelineEmptyTab {
   padding: 24px;
   text-align: center;
   font-size: 13px;
   color: var(--text-muted);
 }
 
+.scheduleToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.scheduleToolbarTitle,
+.scheduleToolbarHint {
+  display: block;
+}
+
+.scheduleToolbarTitle {
+  color: var(--text-heading);
+  font-size: 14px;
+}
+
+.scheduleToolbarHint {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.addScheduleButton,
+.scheduleEmptyButton,
+.scheduleSaveButton {
+  border: none;
+  border-radius: 8px;
+  background: var(--action-brand);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addScheduleButton {
+  flex-shrink: 0;
+  padding: 9px 13px;
+}
+
+.scheduleEmptyState {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 7px;
+  padding: 40px 20px;
+  border: 1px dashed var(--border-default);
+  border-radius: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.scheduleEmptyState strong {
+  color: var(--text-heading);
+  font-size: 15px;
+}
+
+.scheduleEmptyIcon {
+  color: var(--action-brand);
+  font-size: 28px;
+}
+
+.scheduleEmptyButton {
+  margin-top: 8px;
+  padding: 9px 13px;
+}
+
 /* ── Schedule items ───────────────────────────── */
 
-.items { display: flex; flex-direction: column; }
+.timelineScheduleList { display: flex; flex-direction: column; }
 
-.item {
+.timelineScheduleItem {
   display: grid;
-  grid-template-columns: 52px 12px 1fr auto;
-  gap: 10px;
+  grid-template-columns: 52px 3px 1fr auto;
+  gap: 12px;
   align-items: flex-start;
   padding: 12px 0;
   border-bottom: 1px solid var(--border-subtle);
@@ -276,22 +389,299 @@
   &:last-child { border-bottom: none; }
 }
 
-.past    { opacity: 0.45; }
-.current { background: color-mix(in srgb, var(--action-brand) 8%, transparent); border-radius: 8px; padding: 12px 10px; margin: 0 -10px; }
+.timelineScheduleItemPast    { opacity: 0.4; }
+.timelineScheduleItemCurrent { background: color-mix(in srgb, var(--action-brand) 8%, transparent); border-radius: 10px; padding: 12px 12px; margin: 0 -12px; }
 
-.time  { font-size: 13px; font-weight: 700; color: var(--text-heading); font-variant-numeric: tabular-nums; padding-top: 2px; }
-.bar   { width: 3px; min-height: 20px; background: var(--action-brand); border-radius: 2px; margin-top: 4px; }
-.info  { display: flex; flex-direction: column; gap: 2px; }
-.itype { font-size: 11px; font-weight: 700; color: var(--action-brand); text-transform: uppercase; letter-spacing: 0.5px; }
-.ilabel { font-size: 14px; color: var(--text-body); font-weight: 500; }
-.iend  { font-size: 11px; color: var(--text-muted); }
-.imeta { font-size: 12px; color: var(--text-secondary); }
-.inotes { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
-.idone { font-size: 15px; font-weight: 700; color: var(--action-brand); padding-top: 2px; }
+.timelineScheduleTime  { font-size: 13px; font-weight: 700; color: var(--text-heading); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.timelineScheduleBar   { width: 3px; min-height: 20px; background: var(--action-brand); border-radius: 2px; margin-top: 4px; }
+.timelineScheduleInfo  { display: flex; flex-direction: column; gap: 2px; }
+.timelineScheduleType { font-size: 11px; font-weight: 700; color: var(--action-brand); text-transform: uppercase; letter-spacing: 0.5px; }
+.timelineScheduleTitle { font-size: 14px; color: var(--text-body); font-weight: 500; }
+.timelineScheduleEndTime  { font-size: 11px; color: var(--text-muted); }
+.timelineScheduleMeta { font-size: 12px; color: var(--text-secondary); }
+.timelineScheduleNotes { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 2px; }
+.timelineScheduleDone { font-size: 15px; font-weight: 700; color: var(--action-brand); padding-top: 2px; }
+
+.scheduleItemActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 1px;
+}
+
+.scheduleCompleteButton,
+.scheduleEditButton,
+.scheduleDeleteButton {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scheduleCompleteButtonDone {
+  border-color: var(--action-brand);
+  color: var(--action-brand);
+}
+
+.scheduleEditButton:hover { color: var(--action-brand); }
+.scheduleDeleteButton:hover { color: var(--status-error, #EF4444); }
+
+.scheduleModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.66);
+}
+
+.scheduleModal {
+  width: min(100%, 580px);
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface-card);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+}
+
+.scheduleModalHeader,
+.scheduleModalFooter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.scheduleModalEyebrow {
+  color: var(--action-brand);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.scheduleModalTitle {
+  margin: 4px 0 0;
+  color: var(--text-heading);
+  font-size: 20px;
+}
+
+.scheduleModalClose {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scheduleFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.scheduleField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.scheduleField em {
+  color: var(--text-muted);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.scheduleField input,
+.scheduleField select,
+.scheduleField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  font-size: 13px;
+}
+
+.scheduleField textarea {
+  resize: vertical;
+}
+
+.scheduleFieldFull {
+  grid-column: 1 / -1;
+}
+
+.scheduleFormError {
+  margin-top: 14px;
+  color: var(--status-error, #EF4444);
+  font-size: 12px;
+}
+
+.scheduleModalFooter {
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.scheduleCancelButton {
+  padding: 9px 13px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.scheduleSaveButton {
+  padding: 9px 13px;
+}
+
+@media (max-width: 767px) {
+  .timelineGrid {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 52px);
+  }
+
+  .timelineEventList {
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0 0 12px;
+    max-height: 238px;
+    overflow-y: auto;
+  }
+
+  .timelineListTitle {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface-app);
+    padding-top: 4px;
+  }
+
+  .timelineDetailPanel {
+    overflow: visible;
+    padding: 16px 0 0;
+  }
+
+  .timelineEventHeader {
+    padding: 16px 14px 0;
+    margin-bottom: 14px;
+  }
+
+  .timelineEventHeaderTop {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .timelineEventHeaderIcon {
+    width: 44px;
+    height: 44px;
+    font-size: 32px;
+  }
+
+  .timelineEventHeaderContent {
+    min-width: calc(100% - 54px);
+  }
+
+  .timelineEventHeaderTitle,
+  .timelineEventHeaderMeta,
+  .timelineEventHeaderDesc {
+    overflow-wrap: anywhere;
+  }
+
+  .timelineViewFullBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .timelineQuickStats {
+    margin: 0 -14px;
+    flex-wrap: wrap;
+  }
+
+  .timelineQuickStat {
+    flex: 0 0 50%;
+    padding: 12px 8px;
+  }
+
+  .timelineQuickStat:nth-child(2n) {
+    border-right: none;
+  }
+
+  .timelineQuickStat:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .timelineTabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .timelineTab {
+    flex: 1 0 auto;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+
+  .timelineTabContent {
+    overflow: visible;
+  }
+
+  .timelineScheduleItem {
+    grid-template-columns: 44px 3px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .timelineScheduleTitle,
+  .timelineScheduleMeta,
+  .timelineScheduleNotes {
+    overflow-wrap: anywhere;
+  }
+
+  .timelineNoteTabs {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .timelineNoteTab {
+    white-space: nowrap;
+  }
+}
 
 /* ── Notes tab ───────────────────────────────── */
 
-.noteTabs {
+.timelineNoteTabs {
   display: flex;
   background: var(--surface-app);
   border: 1px solid var(--border-subtle);
@@ -301,7 +691,7 @@
   width: fit-content;
 }
 
-.noteTab {
+.timelineNoteTab {
   padding: 6px 16px;
   border-radius: 6px;
   border: none;
@@ -315,13 +705,13 @@
   &:hover { color: var(--text-secondary); }
 }
 
-.noteTabActive {
+.timelineNoteTabActive {
   background: var(--surface-card);
   color: var(--text-heading);
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
-.noteContent {
+.timelineNoteContent {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.8;
@@ -333,7 +723,7 @@
 
 /* ── Roster tab ──────────────────────────────── */
 
-.rosterRow {
+.timelineRosterRow {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -343,7 +733,7 @@
   &:last-child { border-bottom: none; }
 }
 
-.rosterAvatar {
+.timelineRosterAvatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -357,11 +747,11 @@
   flex-shrink: 0;
 }
 
-.rosterInfo { flex: 1; }
-.rosterName  { font-size: 14px; font-weight: 600; color: var(--text-heading); }
-.rosterRole  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.timelineRosterInfo { flex: 1; }
+.timelineRosterName  { font-size: 14px; font-weight: 600; color: var(--text-heading); }
+.timelineRosterRole  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
 
-.rosterStatus {
+.timelineRosterStatus {
   padding: 3px 10px;
   border-radius: 6px;
   font-size: 11px;

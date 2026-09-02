@@ -6,6 +6,7 @@ import type { OrganizationMember, InviteLink, MemberRole, Organization } from '@
 import { CreateOrganizationModal } from './CreateOrganizationModal';
 import p from '../../../shared/layout/page.module.scss';
 import s from './BandManagementPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 const ROLE_COLOR: Record<MemberRole, string> = { OWNER:'#F59E0B', ADMIN:'#649D98', MEMBER:'#8C949B', EXTERNAL_TECH:'#565D63' };
 
@@ -20,7 +21,7 @@ export function BandManagementPage() {
 
   useEffect(() => {
     getMyOrganizations().then(async (orgs) => {
-      const id = orgs[0]?.id;
+      const id = getActiveOrganization(orgs)?.id;
       if (!id) {
         setLoading(false);
         return;

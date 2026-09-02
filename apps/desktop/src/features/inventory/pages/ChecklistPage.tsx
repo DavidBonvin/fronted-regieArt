@@ -5,6 +5,7 @@ import { getEventAssignments, getMyOrganizations } from '@regieart/api';
 import type { InstrumentAssignment } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './ChecklistPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 export function ChecklistPage() {
   const { daysheetId } = useParams<{ daysheetId: string }>();
@@ -16,7 +17,7 @@ export function ChecklistPage() {
   useEffect(() => {
     if (!daysheetId) return;
     getMyOrganizations().then((orgs) => {
-      const orgId = orgs[0]?.id;
+      const orgId = getActiveOrganization(orgs)?.id;
       if (!orgId) { setLoading(false); return; }
       return getEventAssignments({ orgId, eventId: daysheetId });
     }).then((a) => { if (a) setAssignments(a); }).finally(() => setLoading(false));

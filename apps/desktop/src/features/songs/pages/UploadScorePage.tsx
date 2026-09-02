@@ -5,6 +5,7 @@ import { getSong, createSong, updateSong, getMyOrganizations } from '@regieart/a
 import type { Song } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './UploadScorePage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 const KEYS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B','Cm','C#m','Dm','D#m','Em','Fm','F#m','Gm','G#m','Am','A#m','Bm'];
 
@@ -20,7 +21,7 @@ export function UploadScorePage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    getMyOrganizations().then((orgs) => setOrgId(orgs[0]?.id ?? ''));
+    getMyOrganizations().then((orgs) => setOrgId(getActiveOrganization(orgs)?.id ?? ''));
     if (!isNew && songId) {
       getSong(songId).then((song) => {
         setForm({

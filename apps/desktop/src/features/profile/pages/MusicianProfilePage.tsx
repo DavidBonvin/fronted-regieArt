@@ -454,9 +454,18 @@ function AddSkillModal({ t, onAdd, onClose }: {
   const [level, setLevel] = useState<ExpertiseLevel>('INTERMEDIATE');
   const [years, setYears] = useState('');
   const [saving, setSaving] = useState(false);
-  useEffect(() => { listSkillCategories().then(setCategories).catch(() => {}); }, []);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState('');
+
+  useEffect(() => {
+    listSkillCategories()
+      .then(setCategories)
+      .catch(() => setCategoryError('No se pudieron cargar las categorías. Intenta de nuevo.'))
+      .finally(() => setLoadingCategories(false));
+  }, []);
+
   async function handleAdd() {
-    if (!selected) return;
+    if (!selected || saving) return;
     setSaving(true);
     try {
       const sk = await addSkill({ skillCategoryId: selected.id, expertiseLevel: level, yearsExp: years ? parseInt(years, 10) : undefined });
@@ -469,11 +478,33 @@ function AddSkillModal({ t, onAdd, onClose }: {
         <div className={s.modalTitle}>{t('skills.add_btn')}</div>
         <div className={s.modalField}>
           <label className={s.modalLabel}>{t('skills.pick_category')}</label>
-          <div className={s.catGrid}>
-            {categories.map((c) => (
-              <button key={c.id} className={`${s.catChip} ${selected?.id === c.id ? s.catChipActive : ''}`} onClick={() => setSelected(c)}>{c.name}</button>
-            ))}
-          </div>
+          {loadingCategories ? (
+            <div className={s.categoryStatus}>Cargando categorías…</div>
+          ) : categoryError ? (
+            <div className={s.categoryStatusError}>{categoryError}</div>
+          ) : categories.length === 0 ? (
+            <div className={s.categoryStatusError}>No hay categorías disponibles.</div>
+          ) : (
+            <div className={s.catGrid} role="group" aria-label={t('skills.pick_category')}>
+              {categories.map((c) => {
+                const isSelected = selected?.id === c.id;
+                return (
+                  <button
+                    type="button"
+                    key={c.id}
+                    className={`${s.catChip} ${isSelected ? s.catChipActive : ''}`}
+                    onClick={() => setSelected(c)}
+                    aria-pressed={isSelected}
+                  >
+                    {c.icon && <span className={s.catChipIcon}>{c.icon}</span>}
+                    <span>{c.name}</span>
+                    {isSelected && <span className={s.catChipCheck}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {selected && <div className={s.selectedCategory}>Categoría elegida: <strong>{selected.name}</strong></div>}
         </div>
         <div className={s.modalField}>
           <label className={s.modalLabel}>Nivel</label>

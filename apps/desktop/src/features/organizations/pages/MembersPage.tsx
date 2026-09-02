@@ -58,7 +58,7 @@ interface InviteModalProps {
   onSuccess: (inv: EmailInvitation) => void;
 }
 
-function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
+export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
   const emailId = useId();
   const roleId = useId();
   const instrumentId = useId();
@@ -342,7 +342,7 @@ export function MembersPage() {
       </div>
 
       {tab === 'members' ? (
-        <div className={p.card}>
+        <div className={`${p.card} ${s.tableWrap}`}>
           {filteredMembers.length === 0 ? (
             <div className={p.empty}>
               <div className={p.emptyTitle}>Sin resultados</div>
@@ -363,7 +363,7 @@ export function MembersPage() {
                   const rm = ROLE_META[m.role];
                   return (
                     <tr key={m.id} className={p.tr}>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Integrante">
                         <div className={s.memberCell}>
                           <div className={s.avatar}>
                             {m.user.displayName.slice(0, 2).toUpperCase()}
@@ -376,7 +376,7 @@ export function MembersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Rol">
                         <span
                           className={p.chip}
                           style={{ background: rm.bg, color: rm.color }}
@@ -384,12 +384,12 @@ export function MembersPage() {
                           {rm.label}
                         </span>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Se unió">
                         <span className={s.dateText}>
                           {new Date(m.joinedAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Acciones">
                         <div className={s.rowActions}>
                           <button
                             className={s.actionBtn}
@@ -415,7 +415,7 @@ export function MembersPage() {
           )}
         </div>
       ) : (
-        <div className={p.card}>
+        <div className={`${p.card} ${s.tableWrap}`}>
           {filteredInvitations.length === 0 ? (
             <div className={p.empty}>
               <div className={p.emptyTitle}>Sin invitaciones</div>
@@ -440,13 +440,13 @@ export function MembersPage() {
                   const isExpired = inv.status === 'EXPIRED';
                   return (
                     <tr key={inv.id} className={p.tr}>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Invitado">
                         <div className={s.inviteeCell}>
                           <span className={s.inviteeIcon}>✉</span>
                           <span className={s.inviteeEmail}>{inv.targetEmail}</span>
                         </div>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Rol / Instrumento">
                         <span
                           className={p.chip}
                           style={{ background: rm.bg, color: rm.color }}
@@ -457,13 +457,13 @@ export function MembersPage() {
                           <div className={s.instrument}>{inv.instrument}</div>
                         )}
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Enviado / Expira">
                         <div className={s.dateStack}>
                           <span>{timeAgo(inv.createdAt)}</span>
                           <span className={s.expiry}>{expiresIn(inv.expiresAt)}</span>
                         </div>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Estado">
                         <span
                           className={p.chip}
                           style={{ background: sm.bg, color: sm.color }}
@@ -471,7 +471,7 @@ export function MembersPage() {
                           {sm.label}
                         </span>
                       </td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Acciones">
                         <div className={s.rowActions}>
                           {isPending && (
                             <button

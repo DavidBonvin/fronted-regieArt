@@ -41,6 +41,10 @@
 }
 
 .input, .select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  box-sizing: border-box;
   background: var(--input-background);
   border: 1px solid var(--input-border);
   border-radius: 8px;
@@ -48,15 +52,77 @@
   font-size: 14px;
   color: var(--input-text);
   font-family: inherit;
+  color-scheme: dark;
 
   &::placeholder { color: var(--input-placeholder); }
   &:focus { outline: none; border-color: var(--border-focus); }
+}
+
+.select {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.option {
+  background: var(--surface-card);
+  color: var(--text-body);
 }
 
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  background: var(--surface-raised);
+  color: var(--text-body);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.categoryOptionSelected {
+  border-color: var(--action-brand);
+  background: color-mix(in srgb, var(--action-brand) 12%, var(--surface-raised));
+  color: var(--action-brand);
+}
+
+.categoryIcon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.categoryName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoryEmpty {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .actions {
@@ -80,11 +146,20 @@
     gap: 14px;
   }
 
+  .categoryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .categoryOption {
+    min-height: 48px;
+  }
+
   /* 16px prevents iOS Safari auto-zoom on focus */
   .input,
   .select {
     font-size: 16px;
     padding: 11px 14px;
+    min-height: 48px;
   }
 
   /* buttons stack vertically, primary first (reversed order) */

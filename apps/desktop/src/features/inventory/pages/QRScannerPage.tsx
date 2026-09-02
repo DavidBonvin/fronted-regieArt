@@ -4,6 +4,7 @@ import { listInstruments, getMyOrganizations } from '@regieart/api';
 import type { Instrument } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './QRScannerPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 export function QRScannerPage() {
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ export function QRScannerPage() {
     setResult(null);
     try {
       const orgs = await getMyOrganizations();
-      const orgId = orgs[0]?.id;
+      const orgId = getActiveOrganization(orgs)?.id;
       if (!orgId) return;
       const items = await listInstruments({ orgId });
       const found = items.find((i) => i.serialNumber === serial.trim());

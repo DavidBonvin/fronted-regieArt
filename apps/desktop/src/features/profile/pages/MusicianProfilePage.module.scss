@@ -387,6 +387,9 @@
 /* ─── Skill modal extras ─── */
 .catGrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .catChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 14px;
   border-radius: 100px;
   border: 1px solid var(--border-default);
@@ -397,6 +400,12 @@
   &:hover { border-color: var(--action-brand); }
 }
 .catChipActive { border-color: var(--action-brand); background: rgba(74,130,126,.15); color: var(--action-brand); font-weight: 700; }
+.catChipIcon { font-size: 16px; line-height: 1; }
+.catChipCheck { font-weight: 800; }
+.categoryStatus, .categoryStatusError { font-size: 13px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.categoryStatus { color: var(--text-muted); }
+.categoryStatusError { color: var(--status-error, #EF4444); }
+.selectedCategory { margin-top: 8px; font-size: 12px; color: var(--action-brand); text-transform: none; letter-spacing: 0; font-weight: 400; }
 .levelRow { display: flex; flex-wrap: wrap; gap: 8px; }
 .levelChip {
   padding: 6px 14px;

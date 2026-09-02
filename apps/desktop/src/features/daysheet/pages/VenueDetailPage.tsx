@@ -25,7 +25,14 @@ export function VenueDetailPage() {
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{venue.name}</h1>
+      <div className={p.pageHeader}>
+        <h1 className={p.pageTitle}>{venue.name}</h1>
+        {(venue.city || venue.country) && (
+          <p className={p.pageSubtitle}>
+            📍 {[venue.city, venue.country].filter(Boolean).join(', ')}
+          </p>
+        )}
+      </div>
 
       <div className={`${p.grid2} ${s.grid}`}>
         <div className={p.card}>
@@ -58,7 +65,7 @@ export function VenueDetailPage() {
       </div>
 
       {venue.parkingNotes && (
-        <div className={p.card} style={{ marginTop:16 }}>
+        <div className={`${p.card} ${s.notesCard}`}>
           <div className={s.sectionTitle}>{t('venue.notes_label')}</div>
           <p style={{ margin:0, color:'var(--text-body)', fontSize:14, lineHeight:1.6 }}>{venue.parkingNotes}</p>
         </div>

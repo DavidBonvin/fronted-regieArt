@@ -16,6 +16,27 @@ $red: #f44336;
   padding: 32px 40px;
   max-width: 960px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-sub;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.backLink:hover {
+  color: $text;
 }
 
 .pageHeader {
@@ -109,6 +130,7 @@ $red: #f44336;
   gap: 16px;
   padding: 18px 20px 16px;
   border-bottom: 1px solid $border;
+  min-width: 0;
 }
 
 .eventInfo {
@@ -131,6 +153,7 @@ $red: #f44336;
   font-weight: 700;
   color: $text;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .eventDate {
@@ -436,6 +459,36 @@ $red: #f44336;
   color: $text-sub;
 }
 
+.departureCallout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(74, 130, 126, 0.35);
+  border-radius: 8px;
+  background: $teal-dim;
+  color: $text;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.departureCalloutIcon {
+  color: $teal;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.departureCallout strong,
+.departureCallout small {
+  display: block;
+}
+
+.departureCallout small {
+  margin-top: 2px;
+  color: $text-sub;
+  font-size: 0.76rem;
+}
+
 .legs {
   border-top: 1px solid $border;
   padding-top: 12px;
@@ -574,4 +627,96 @@ $red: #f44336;
   transition: background 0.15s;
 
   &:hover { background: rgba(255, 152, 0, 0.08); }
+}
+
+@media (max-width: 767px) {
+  .root {
+    padding: 16px;
+  }
+
+  .pageHeader {
+    margin-bottom: 20px;
+  }
+
+  .pageTitle {
+    font-size: 1.3rem;
+  }
+
+  .pageSubtitle {
+    line-height: 1.5;
+  }
+
+  .eventList {
+    gap: 12px;
+  }
+
+  .eventCardHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .statusBadgeGreen,
+  .statusBadgeOrange {
+    align-self: flex-start;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .vehicleList {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .vehicleCard {
+    padding: 12px;
+  }
+
+  .vehicleCardHeader {
+    align-items: flex-start;
+  }
+
+  .vehicleName {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .driverLabel,
+  .statRoute,
+  .legFrom,
+  .errorBanner,
+  .noRouteText {
+    overflow-wrap: anywhere;
+  }
+
+  .leg {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .legDist {
+    width: 100%;
+    margin-left: 30px;
+  }
+
+  .vehicleActions,
+  .noConvoyActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .navGroup,
+  .btnNav,
+  .btnRecalc,
+  .btnWarn,
+  .btnCalculate,
+  .btnCreate {
+    width: 100%;
+  }
+
+  .navOptions {
+    right: 0;
+    left: 0;
+  }
 }

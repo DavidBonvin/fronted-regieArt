@@ -1,28 +1,61 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { createEntry, listCategories, getMyOrganizations } from '@regieart/api';
-import type { FinanceCategory } from '@regieart/types';
+import { createEntry, listCategories, getMyOrganizations, listEvents } from '@regieart/api';
+import type { Event, FinanceCategory } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './ReceiptCapturePage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 const CURRENCIES = ['EUR','USD','GBP','ARS','MXN','CLP','COP'];
+
+const CATEGORY_META: Record<string, { icon: string; label: string }> = {
+  travel: { icon: '🚗', label: 'Transporte' },
+  transporte: { icon: '🚗', label: 'Transporte' },
+  accommodation: { icon: '🛏️', label: 'Alojamiento' },
+  alojamiento: { icon: '🛏️', label: 'Alojamiento' },
+  food: { icon: '🍽️', label: 'Comida' },
+  comida: { icon: '🍽️', label: 'Comida' },
+  equipment: { icon: '🎛️', label: 'Equipamiento' },
+  equipamiento: { icon: '🎛️', label: 'Equipamiento' },
+  marketing: { icon: '📣', label: 'Marketing' },
+  fees: { icon: '🧾', label: 'Honorarios' },
+  honorarios: { icon: '🧾', label: 'Honorarios' },
+  other: { icon: '📦', label: 'Otros' },
+  otros: { icon: '📦', label: 'Otros' },
+};
+
+function categoryMeta(category: FinanceCategory) {
+  return CATEGORY_META[category.name.trim().toLowerCase()] ?? {
+    icon: category.icon || '🏷️',
+    label: category.name,
+  };
+}
+
+function eventIcon(type: Event['type']) {
+  return { CONCERT: '🎤', REHEARSAL: '🎸', AUDITION: '🎼', TOUR_DATE: '🚌', RECORDING_SESSION: '🎙️' }[type] ?? '📅';
+}
 
 export function ReceiptCapturePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [orgId, setOrgId] = useState('');
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
-  const [form, setForm] = useState({ type:'EXPENSE', amount:'', currency:'EUR', categoryId:'', description:'', date: new Date().toISOString().slice(0,10) });
+  const [events, setEvents] = useState<Event[]>([]);
+  const [form, setForm] = useState({ type:'EXPENSE', amount:'', currency:'EUR', categoryId:'', eventId:'', description:'', date: new Date().toISOString().slice(0,10) });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     getMyOrganizations().then((orgs) => {
-      const id = orgs[0]?.id;
+      const id = getActiveOrganization(orgs)?.id;
       if (!id) return;
       setOrgId(id);
-      listCategories(id).then(setCategories);
+      Promise.all([listCategories(id), listEvents({ orgId: id, limit: 100 })]).then(([items, eventResult]) => {
+        setCategories(items);
+        setEvents(eventResult.events);
+        if (items[0]) setForm((prev) => ({ ...prev, categoryId: items[0].id }));
+      });
     });
   }, []);
 
@@ -37,6 +70,7 @@ export function ReceiptCapturePage() {
     try {
       await createEntry({
         orgId,
+        eventId: form.eventId || undefined,
         type: form.type as 'EXPENSE'|'INCOME',
         amount: form.amount,
         currency: form.currency,
@@ -66,15 +100,41 @@ export function ReceiptCapturePage() {
           </label>
           <label className={s.label}>{t('finance_form.currency_label')}
             <select className={s.select} value={form.currency} onChange={set('currency')}>
-              {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
+              {CURRENCIES.map((c) => <option className={s.option} key={c}>{c}</option>)}
             </select>
           </label>
         </div>
 
-        <label className={s.label}>{t('finance_form.category_label')}
-          <select className={s.select} value={form.categoryId} onChange={set('categoryId')}>
-            <option value="">{t('common.none')}</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        <div className={s.label}>
+          <span>{t('finance_form.category_label')}</span>
+          {categories.length > 0 ? (
+            <div className={s.categoryGrid} role="radiogroup" aria-label={t('finance_form.category_label')}>
+              {categories.map((category) => {
+                const meta = categoryMeta(category);
+                const selected = form.categoryId === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    className={`${s.categoryOption} ${selected ? s.categoryOptionSelected : ''}`}
+                    onClick={() => setForm((prev) => ({ ...prev, categoryId: category.id }))}
+                    aria-pressed={selected}
+                  >
+                    <span className={s.categoryIcon}>{meta.icon}</span>
+                    <span className={s.categoryName}>{meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <span className={s.categoryEmpty}>No hay categorías disponibles para esta organización.</span>
+          )}
+        </div>
+
+        <label className={s.label}>{'Asignar a'}
+          <select className={s.select} value={form.eventId} onChange={set('eventId')}>
+            <option className={s.option} value="">🏢 Finanzas generales de la organización</option>
+            {events.map((event) => <option className={s.option} key={event.id} value={event.id}>{eventIcon(event.type)} {event.title}</option>)}
           </select>
         </label>
 

@@ -348,11 +348,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-bottom: 18px;
 
-/* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
+
+  .fieldGroup { margin-bottom: 0; }
+}
+
+.tableWrap {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Mobile layout keeps table columns readable inside a touch-scroll container. */
 @media (max-width: 767px) {
-
-  /* page header: stack title + invite button */
   .headRow {
     flex-direction: column;
     align-items: stretch;
@@ -364,25 +372,98 @@
     text-align: center;
   }
 
-  /* toolbar: search full-width */
-  .searchInput {
+  .toolbar {
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .tabs {
     width: 100%;
-    font-size: 16px; /* prevents iOS Safari auto-zoom */
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  /* member avatar: slightly larger touch target */
-  .avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 13px;
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
 
-  /* row actions: always visible (no hover needed on touch) */
+  .tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .filters {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .searchWrap,
+  .searchInput,
+  .select {
+    width: 100%;
+  }
+
+  .searchInput {
+    font-size: 16px;
+  }
+
+  .tableWrap {
+    padding: 0;
+  }
+
+  .tableWrap :global(table),
+  .tableWrap :global(tbody),
+  .tableWrap :global(tr),
+  .tableWrap :global(td) {
+    display: block;
+    width: 100%;
+  }
+
+  .tableWrap :global(thead) {
+    display: none;
+  }
+
+  .tableWrap :global(tr) {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .tableWrap :global(tr:last-child) {
+    border-bottom: none;
+  }
+
+  .tableWrap :global(td) {
+    display: grid;
+    grid-template-columns: minmax(94px, 34%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: none;
+  }
+
+  .tableWrap :global(td)::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  .tableWrap :global(td:first-child) {
+    padding-top: 0;
+  }
+
+  .tableWrap :global(td:last-child) {
+    padding-bottom: 0;
+  }
+
   .rowActions {
     flex-wrap: wrap;
   }
 
-  /* invite modal: bottom sheet on mobile */
   .backdrop {
     align-items: flex-end;
     padding: 0;
@@ -395,15 +476,10 @@
     padding: 24px 20px 20px;
   }
 
-  /* invite modal field row: single column */
   .fieldRow {
     grid-template-columns: 1fr;
     gap: 14px;
   }
-}
-  margin-bottom: 18px;
-
-  .fieldGroup { margin-bottom: 0; }
 }
 
 .label {

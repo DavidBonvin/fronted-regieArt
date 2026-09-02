@@ -22,9 +22,11 @@ export default defineConfig(({ mode }) => {
     svgr(),
   ],
   css: {
+    modules: {
+      generateScopedName: '[name]__[local]___[hash:base64:5]',
+    },
     preprocessorOptions: {
       scss: {
-        // Allows @use 'theme' / @use 'theme/colors' without relative paths
         loadPaths: [resolve(__dirname, '../../packages/ui/src')],
         api: 'modern',
       },

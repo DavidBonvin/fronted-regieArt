@@ -3,6 +3,7 @@ import { getMyOrganizations } from '@regieart/api';
 import type { CreateSongDto } from '@regieart/types';
 import { createSongWorkflow } from '../../services/songsDesktop';
 import s from './CreateSongWizard.module.scss';
+import { getActiveOrganization } from '../../../../shared/utils/activeOrganization';
 
 const MUSICAL_KEYS = [
   'Do', 'Do#', 'Re♭', 'Re', 'Re#', 'Mi♭', 'Mi',
@@ -47,7 +48,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
 
   useEffect(() => {
     getMyOrganizations()
-      .then((orgs) => { if (orgs[0]) setOrgId(orgs[0].id); })
+      .then((orgs) => { const active = getActiveOrganization(orgs); if (active) setOrgId(active.id); })
       .catch(() => null);
   }, []);
 

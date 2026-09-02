@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { listEntries, getMyOrganizations } from '@regieart/api';
 import type { FinanceEntry } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 export function ExpensesPage() {
   const { daysheetId } = useParams<{ daysheetId: string }>();
@@ -13,7 +14,7 @@ export function ExpensesPage() {
 
   useEffect(() => {
     getMyOrganizations().then((orgs) => {
-      const orgId = orgs[0]?.id;
+      const orgId = getActiveOrganization(orgs)?.id;
       if (!orgId) { setLoading(false); return; }
       return listEntries({ orgId, eventId: daysheetId });
     }).then((res) => { if (res) setEntries(res.entries); }).finally(() => setLoading(false));

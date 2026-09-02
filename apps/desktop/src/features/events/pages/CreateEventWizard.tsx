@@ -12,6 +12,7 @@ import {
 } from '@regieart/api';
 import type { EventType, Venue, OrganizationMember, SupportedCountry, AutocompleteResult } from '@regieart/types';
 import s from './CreateEventWizard.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 
 const EVENT_TYPES: { value: EventType; label: string; icon: string }[] = [
@@ -271,7 +272,7 @@ export function CreateEventWizard({ onClose }: Props) {
 
   useEffect(() => {
     getMyOrganizations()
-      .then((orgs) => setOrgId(orgs[0]?.id ?? null))
+      .then((orgs) => setOrgId(getActiveOrganization(orgs)?.id ?? null))
       .catch(() => {});
   }, []);
 

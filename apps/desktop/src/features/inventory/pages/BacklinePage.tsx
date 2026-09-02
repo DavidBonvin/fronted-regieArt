@@ -4,23 +4,26 @@ import { useTranslation } from 'react-i18next';
 import { listInstruments, getMyOrganizations } from '@regieart/api';
 import type { Instrument, InstrumentStatus } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
+import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 const EMOJI: Record<string, string> = { BRASS:'🎺', WOODWIND:'🎷', STRING:'🎸', KEYBOARD:'🎹', PERCUSSION:'🥁', AUDIO_GEAR:'🎛️', LIGHTING:'💡', OTHER:'🎵' };
 const STATUS_CLASS = (st: InstrumentStatus, p: Record<string,string>) => st==='AVAILABLE' ? p.chipOk : st==='IN_USE' ? p.chipBrand : p.chipError;
 
 export function BacklinePage() {
   const { t } = useTranslation();
+  const activeOrgId = useActiveOrganizationId();
   const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [filter, setFilter] = useState<InstrumentStatus|'ALL'>('ALL');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getMyOrganizations().then((orgs) => {
-      const orgId = orgs[0]?.id;
+      const orgId = getActiveOrganization(orgs)?.id;
       if (!orgId) { setLoading(false); return; }
       return listInstruments({ orgId });
     }).then((res) => { if (res) setInstruments(res); }).finally(() => setLoading(false));
-  }, []);
+  }, [activeOrgId]);
 
   const shown = filter === 'ALL' ? instruments : instruments.filter((i) => i.status === filter);
 

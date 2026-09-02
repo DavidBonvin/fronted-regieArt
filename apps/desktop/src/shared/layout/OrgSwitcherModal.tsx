@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getOrganization } from '@regieart/api';
 import type { Organization, OrganizationDetail } from '@regieart/types';
 import s from './OrgSwitcherModal.module.scss';
@@ -9,11 +8,12 @@ interface Props {
   activeOrgId: string;
   currentUserId: string;
   onSelect: (org: Organization) => void;
+  onCreateOrganization: () => void;
+  onInviteByEmail: () => void;
   onClose: () => void;
 }
 
-export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, onClose }: Props) {
-  const navigate = useNavigate();
+export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, onCreateOrganization, onInviteByEmail, onClose }: Props) {
   const [query, setQuery] = useState('');
   const [detail, setDetail] = useState<OrganizationDetail | null>(null);
 
@@ -122,15 +122,15 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
         <div className={s.footer}>
           <button
             className={s.footerLink}
-            onClick={() => { onClose(); navigate('/organization/' + activeOrgId + '/invitations'); }}
+            onClick={onInviteByEmail}
           >
-            🔗 Unirse a Banda
+            ✉ Invitar por correo
           </button>
           <div className={s.footerRight}>
             <button className={s.footerCancel} onClick={onClose}>Cancelar</button>
             <button
               className={s.footerCreate}
-              onClick={() => { onClose(); navigate('/band'); }}
+              onClick={onCreateOrganization}
             >
               + NUEVA BANDA
             </button>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listEvents } from '@regieart/api';
 import type { Event, ConvoySummaryItem, RouteResult } from '@regieart/types';
@@ -7,16 +8,16 @@ import { useCalculateRoute } from '../hooks/useCalculateRoute';
 import { VehicleFormModal } from '../components/VehicleFormModal';
 import { openGPSNavigation } from '../../../shared/utils/openGPSNavigation';
 import s from './ConvoyPage.module.scss';
-
-const ACTIVE_ORG_KEY = 'regieart_active_org_id';
+import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 // ─── VehicleRouteCard ─────────────────────────────────────────────────────────
 
 function VehicleRouteCard({
-  vehicle, eventId, onRouteCalculated,
+  vehicle, eventId, eventStartTime, onRouteCalculated,
 }: {
   vehicle: ConvoySummaryItem;
   eventId: string;
+  eventStartTime: string;
   onRouteCalculated: () => void;
 }) {
   const { calculate, isLoading, error, errorStatus } = useCalculateRoute(
@@ -37,6 +38,16 @@ function VehicleRouteCard({
   const departure = vehicle.suggestedDepartureAt
     ? new Date(vehicle.suggestedDepartureAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null;
+  const arrival = new Date(eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const distance = routeResult?.totalDistanceKm ?? vehicle.routeDistanceKm;
+  const duration = routeResult?.totalDurationMin ?? vehicle.routeDurationMin;
+
+  function formatDuration(minutes: number | null) {
+    if (minutes == null) return null;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = Math.round(minutes % 60);
+    return hours > 0 ? `${hours} h ${remainingMinutes} min` : `${remainingMinutes} min`;
+  }
 
   const venueCoords =
     routeResult?.venueLat != null && routeResult.venueLng != null
@@ -73,18 +84,22 @@ function VehicleRouteCard({
         /* ── STATE D: Route calculée ── */
         <div className={s.routeDetails}>
           <div className={s.routeMetrics}>
-            {vehicle.routeDistanceKm != null && (
+            {distance != null && (
               <div className={s.metric}>
-                <span className={s.metricVal}>{vehicle.routeDistanceKm} km</span>
+                <span className={s.metricVal}>{distance} km</span>
                 <span className={s.metricLabel}>Distance</span>
               </div>
             )}
-            {vehicle.routeDurationMin != null && (
+            {duration != null && (
               <div className={s.metric}>
-                <span className={s.metricVal}>{vehicle.routeDurationMin} min</span>
-                <span className={s.metricLabel}>Durée estimée</span>
+                <span className={s.metricVal}>{formatDuration(duration)}</span>
+                <span className={s.metricLabel}>Duración estimada</span>
               </div>
             )}
+            <div className={s.metric}>
+              <span className={s.metricVal}>{arrival}</span>
+              <span className={s.metricLabel}>Llegada requerida</span>
+            </div>
             {departure && (
               <div className={s.metric}>
                 <span className={s.metricVal}>{departure}</span>
@@ -92,6 +107,13 @@ function VehicleRouteCard({
               </div>
             )}
           </div>
+
+          {departure && (
+            <div className={s.departureCallout}>
+              <span className={s.departureCalloutIcon}>⏱</span>
+              <span><strong>Salí a las {departure}</strong><small>para llegar a tiempo a las {arrival}. El cálculo incluye la duración estimada del trayecto.</small></span>
+            </div>
+          )}
 
           {routeResult && routeResult.legs.length > 0 && (
             <div className={s.legs}>
@@ -131,7 +153,7 @@ function VehicleRouteCard({
               </div>
             )}
             <button className={s.btnRecalc} onClick={handleCalculate} disabled={isLoading}>
-              {isLoading ? '⏳ Calculant…' : '🔄 Recalculer'}
+              {isLoading ? '⏳ Calculando…' : '🔄 Recalcular ruta'}
             </button>
             <button className={s.btnWarn}>⚠️ Signaler un Retard</button>
           </div>
@@ -164,7 +186,7 @@ function VehicleRouteCard({
             >
               {isLoading
                 ? <><span className={s.dotSpinner} /> Calculant la route…</>
-                : "📍 Calculer la Route et l'Itinéraire"}
+                : '📍 Calcular ruta y salida sugerida'}
             </button>
           )}
         </div>
@@ -229,6 +251,7 @@ function EventConvoyCard({ event }: { event: Event }) {
               key={v.vehicleId}
               vehicle={v}
               eventId={event.id}
+              eventStartTime={event.startTime}
               onRouteCalculated={refetch}
             />
           ))}
@@ -255,20 +278,25 @@ function EventConvoyCard({ event }: { event: Event }) {
 
 export function ConvoyPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const activeOrgId = useActiveOrganizationId();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const orgId = localStorage.getItem(ACTIVE_ORG_KEY) ?? undefined;
+    const orgId = activeOrgId ?? undefined;
     const from = new Date().toISOString().slice(0, 10);
     listEvents({ orgId, from, limit: 20 })
       .then((res) => setEvents(res.events))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeOrgId]);
 
   return (
     <div className={s.root}>
+      <button className={s.backLink} onClick={() => navigate(-1)}>
+        ← Volver
+      </button>
       <header className={s.pageHeader}>
         <h1 className={s.pageTitle}>{t('nav.convoy')}</h1>
         <p className={s.pageSubtitle}>

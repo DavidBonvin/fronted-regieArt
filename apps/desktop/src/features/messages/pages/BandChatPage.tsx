@@ -5,20 +5,23 @@ import { getMyOrganizations, getOrganizationMembers } from '@regieart/api';
 import type { OrganizationMember } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './BandChatPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
+import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 export function BandChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const activeOrgId = useActiveOrganizationId();
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getMyOrganizations().then((orgs) => {
-      const orgId = orgs[0]?.id;
+      const orgId = getActiveOrganization(orgs)?.id;
       if (!orgId) { setLoading(false); return; }
       return getOrganizationMembers(orgId);
     }).then((m) => { if (m) setMembers(m); }).finally(() => setLoading(false));
-  }, []);
+  }, [activeOrgId]);
 
   return (
     <div className={p.page}>

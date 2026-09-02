@@ -4,6 +4,7 @@ import { getInviteLinks, revokeInviteLink, createInviteLink, getMyOrganizations 
 import type { InviteLink, MemberRole } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './InvitationsPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 
 const ROLE_COLOR: Record<MemberRole,string> = { OWNER:'#F59E0B', ADMIN:'#649D98', MEMBER:'#8C949B', EXTERNAL_TECH:'#565D63' };
 
@@ -16,7 +17,7 @@ export function InvitationsPage() {
 
   useEffect(() => {
     getMyOrganizations().then(async (orgs) => {
-      const id = orgs[0]?.id;
+      const id = getActiveOrganization(orgs)?.id;
       if (!id) return;
       setOrgId(id);
       const lnks = await getInviteLinks(id);

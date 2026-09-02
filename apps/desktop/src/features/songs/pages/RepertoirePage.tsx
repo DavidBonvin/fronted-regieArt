@@ -22,10 +22,13 @@ import { StudioPanel } from '../components/StudioPanel/StudioPanel';
 import { FooterPlayer } from '../components/FooterPlayer/FooterPlayer';
 import { CreateSongWizard } from '../components/CreateSongWizard/CreateSongWizard';
 import { fetchSongAudioUrl } from '../services/songsDesktop';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
+import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 import s from './RepertoirePage.module.scss';
 
 function RepertoireInner() {
   const player = usePlayer();
+  const activeOrgId = useActiveOrganizationId();
 
   const [songs, setSongs] = useState<Song[]>([]);
   const [filtered, setFiltered] = useState<Song[]>([]);
@@ -43,7 +46,7 @@ function RepertoireInner() {
     setLoading(true);
     try {
       const orgs = await getMyOrganizations();
-      const id = orgs[0]?.id;
+      const id = getActiveOrganization(orgs)?.id;
       if (!id) return;
       const res = await listSongs({ orgId: id, limit: 200 });
       setSongs(res.songs);
@@ -51,7 +54,7 @@ function RepertoireInner() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeOrgId]);
 
   useEffect(() => { loadSongs(); }, [loadSongs]);
 

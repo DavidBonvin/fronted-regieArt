@@ -9,6 +9,8 @@ import {
 import type { Event, DaySheetMasterResponse, Conversation, Notification, Organization } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './DashboardPage.module.scss';
+import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
+import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 const TYPE_META: Record<string, { icon: string; label: string; color: string }> = {
   CONCERT:           { icon: '🎤', label: 'Concierto',  color: '#4A827E' },
@@ -28,6 +30,7 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string }> 
 export function DashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const activeOrgId = useActiveOrganizationId();
 
   const [org, setOrg] = useState<Organization | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
@@ -56,7 +59,7 @@ export function DashboardPage() {
         if (status === 401) { navigate('/login'); return; }
       }
 
-      const firstOrg = orgs[0] ?? null;
+      const firstOrg = getActiveOrganization(orgs);
       setOrg(firstOrg);
       setConvos((Array.isArray(convosData) ? convosData : []).filter(c => c?.userId).slice(0, 5));
       setNotifs((notifsData.notifications ?? []).filter((n) => !n.isRead).slice(0, 5));
@@ -74,7 +77,7 @@ export function DashboardPage() {
         }
       } catch { /* show empty */ }
     }).finally(() => setLoading(false));
-  }, [navigate]);
+  }, [navigate, activeOrgId]);
 
   if (loading) return <div className={p.spinner} />;
 
@@ -91,57 +94,57 @@ export function DashboardPage() {
         </p>
       </div>
 
-      <div className={`${p.grid4} ${s.statsRow}`}>
-        <div className={p.statCard}>
+      <div className={`${p.grid4} ${s.dashStatsRow}`}>
+        <Link to="/timeline" className={`${p.statCard} ${s.dashStatCardLink}`}>
           <div className={p.statLabel}>{t('dashboard.next_event')}</div>
           <div className={p.statValue}>{events.length}</div>
           <div className={p.statSub}>Próximos 30 días</div>
-        </div>
-        <div className={p.statCard}>
+        </Link>
+        <Link to="/messages" className={`${p.statCard} ${s.dashStatCardLink}`}>
           <div className={p.statLabel}>{t('dashboard.unread_messages')}</div>
           <div className={p.statValue}>{unreadMessages}</div>
           <div className={p.statSub}>{t('dashboard.conversations')}</div>
-        </div>
-        <div className={p.statCard}>
+        </Link>
+        <Link to="/notifications" className={`${p.statCard} ${s.dashStatCardLink}`}>
           <div className={p.statLabel}>{t('dashboard.notifications')}</div>
           <div className={p.statValue}>{unreadNotifs}</div>
           <div className={p.statSub}>{t('dashboard.unread')}</div>
-        </div>
-        <div className={p.statCard}>
+        </Link>
+        <Link to={org ? `/organization/${org.id}` : '/band'} className={`${p.statCard} ${s.dashStatCardLink}`}>
           <div className={p.statLabel}>{t('dashboard.org')}</div>
-          <div className={s.orgStatName}>{org?.name ?? '—'}</div>
+          <div className={s.dashOrgStatName}>{org?.name ?? '—'}</div>
           <div className={p.statSub}>{t('dashboard.active')}</div>
-        </div>
+        </Link>
       </div>
 
       {/* Accesos rápidos — visible solo en mobile via CSS */}
-      <div className={s.quickActionsSection}>
-        <div className={s.quickSectionLabel}>Accesos rápidos</div>
-        <div className={s.quickActionsGrid}>
-          <Link to="/timeline" className={s.quickActionTile}>
-            <span className={s.quickActionIcon}>📅</span>
+      <div className={s.dashQuickActionsSection}>
+        <div className={s.dashQuickActionsLabel}>Accesos rápidos</div>
+        <div className={s.dashQuickActionsGrid}>
+          <Link to="/timeline" className={s.dashQuickActionTile}>
+            <span className={s.dashQuickActionIcon}>📅</span>
             <span>Agenda</span>
           </Link>
-          <Link to="/finance" className={s.quickActionTile}>
-            <span className={s.quickActionIcon}>💰</span>
+          <Link to="/finance" className={s.dashQuickActionTile}>
+            <span className={s.dashQuickActionIcon}>💰</span>
             <span>Finanzas</span>
           </Link>
-          <Link to="/backline" className={s.quickActionTile}>
-            <span className={s.quickActionIcon}>🎸</span>
+          <Link to="/backline" className={s.dashQuickActionTile}>
+            <span className={s.dashQuickActionIcon}>🎸</span>
             <span>Backline</span>
           </Link>
-          <Link to="/convoy" className={s.quickActionTile}>
-            <span className={s.quickActionIcon}>🚌</span>
+          <Link to="/convoy" className={s.dashQuickActionTile}>
+            <span className={s.dashQuickActionIcon}>🚌</span>
             <span>Convoy</span>
           </Link>
         </div>
       </div>
 
-      <div className={s.mainGrid}>
-        <div className={s.leftCol}>
-          <div className={p.card}>
-            <div className={s.cardHeader}>
-              <span className={s.cardLabel}>Próximos eventos</span>
+      <div className={s.dashContentGrid}>
+        <div className={s.dashEventsColumn}>
+          <div className={`${p.card} ${s.dashCard}`}>
+            <div className={s.dashCardHeader}>
+              <span className={s.dashCardLabel}>Próximos eventos</span>
             </div>
 
             {events.length === 0 ? (
@@ -158,50 +161,50 @@ export function DashboardPage() {
                   <Link
                     key={ev.id}
                     to={`/events/${ev.id}`}
-                    className={s.richEventRow}
+                    className={s.dashEventRow}
                     style={{ borderLeftColor: tm.color }}
                   >
-                    <span className={s.richEventIcon}>{tm.icon}</span>
-                    <div className={s.richEventContent}>
-                      <div className={s.richEventBadges}>
+                    <span className={s.dashEventIcon}>{tm.icon}</span>
+                    <div className={s.dashEventContent}>
+                      <div className={s.dashEventBadges}>
                         <span
-                          className={s.richTypeBadge}
+                          className={s.dashEventTypeBadge}
                           style={{ background: tm.color + '26', color: tm.color }}
                         >
                           {tm.label}
                         </span>
                         <span
-                          className={s.richStatusBadge}
+                          className={s.dashEventStatusBadge}
                           style={{ background: sm.bg, color: sm.color }}
                         >
                           {sm.label}
                         </span>
                       </div>
-                      <div className={s.richEventTitle}>{ev.title}</div>
-                      <div className={s.richEventMeta}>
+                      <div className={s.dashEventTitle}>{ev.title}</div>
+                      <div className={s.dashEventMeta}>
                         🗓{' '}
                         {new Date(ev.startTime).toLocaleDateString('es-AR', { weekday: 'short', month: 'short', day: 'numeric' })}
                         {' · '}
                         {new Date(ev.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                       {ev.description && (
-                        <div className={s.richEventDesc}>{ev.description}</div>
+                        <div className={s.dashEventDesc}>{ev.description}</div>
                       )}
                       {isFirst && daysheet?.schedule && daysheet.schedule.length > 0 && (
-                        <div className={s.scheduleInline}>
+                          <div className={s.dashSchedulePreview}>
                           {daysheet.schedule.slice(0, 4).map((item) => (
-                            <div key={item.id} className={s.scheduleInlineRow}>
-                              <span className={s.scheduleInlineTime}>
+                            <div key={item.id} className={s.dashScheduleRow}>
+                              <span className={s.dashScheduleTime}>
                                 {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
-                              <span className={s.scheduleInlineLabel}>{item.title}</span>
-                              {item.isCompleted && <span className={s.scheduleInlineDone}>✓</span>}
+                              <span className={s.dashScheduleLabel}>{item.title}</span>
+                              {item.isCompleted && <span className={s.dashScheduleDone}>✓</span>}
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                    <span className={s.richEventArrow}>›</span>
+                    <span className={s.dashEventArrow}>›</span>
                   </Link>
                 );
               })
@@ -209,32 +212,32 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className={s.rightCol}>
-          <div className={p.card}>
-            <div className={s.cardHeader}>
-              <span className={s.cardLabel}>{t('nav.messages')}</span>
-              <Link to="/messages" className={s.viewLink}>{t('common.view_all')} →</Link>
+        <div className={s.dashSidebarColumn}>
+          <div className={`${p.card} ${s.dashCard}`}>
+            <div className={s.dashCardHeader}>
+              <span className={s.dashCardLabel}>{t('nav.messages')}</span>
+              <Link to="/messages" className={s.dashViewAllLink}>{t('common.view_all')} →</Link>
             </div>
             {convos.length === 0 ? (
-              <div className={s.rightEmpty}>{t('common.no_results')}</div>
+              <div className={s.dashSidebarEmpty}>{t('common.no_results')}</div>
             ) : (
               convos.map((c) => (
                 <div
                   key={c.userId}
-                  className={s.convoRow}
+                  className={s.dashConvoRow}
                   onClick={() => navigate(`/messages/direct/${c.userId}`)}
                 >
-                  <div className={s.convoAvatar}>
+                  <div className={s.dashConvoAvatar}>
                     {(c.user?.displayName ?? c.userId ?? '').slice(0, 2).toUpperCase()}
                   </div>
-                  <div className={s.convoInfo}>
-                    <div className={s.convoName}>{c.user?.displayName ?? c.userId ?? '—'}</div>
+                  <div className={s.dashConvoInfo}>
+                    <div className={s.dashConvoName}>{c.user?.displayName ?? c.userId ?? '—'}</div>
                     {c.lastMessage && (
-                      <div className={s.convoPreview}>{c.lastMessage.content}</div>
+                      <div className={s.dashConvoPreview}>{c.lastMessage.content}</div>
                     )}
                   </div>
                   {c.unreadCount > 0 && (
-                    <span className={s.unreadBadge}>{c.unreadCount}</span>
+                    <span className={s.dashUnreadBadge}>{c.unreadCount}</span>
                   )}
                 </div>
               ))
@@ -242,17 +245,17 @@ export function DashboardPage() {
           </div>
 
           {notifs.length > 0 && (
-            <div className={`${p.card} ${s.notifsCard}`}>
-              <div className={s.cardHeader}>
-                <span className={s.cardLabel}>{t('messages.notifications_tab')}</span>
-                <Link to="/notifications" className={s.viewLink}>{t('common.view_all')} →</Link>
+            <div className={`${p.card} ${s.dashCard} ${s.dashNotifsCard}`}>
+              <div className={s.dashCardHeader}>
+                <span className={s.dashCardLabel}>{t('messages.notifications_tab')}</span>
+                <Link to="/notifications" className={s.dashViewAllLink}>{t('common.view_all')} →</Link>
               </div>
               {notifs.map((n) => (
-                <div key={n.id} className={s.notifRow}>
-                  <div className={s.notifDot} />
-                  <div className={s.notifContent}>
-                    <div className={s.notifTitle}>{n.title}</div>
-                    {n.body && <div className={s.notifBody}>{n.body}</div>}
+                <div key={n.id} className={s.dashNotifRow}>
+                  <div className={s.dashNotifDot} />
+                  <div className={s.dashNotifContent}>
+                    <div className={s.dashNotifTitle}>{n.title}</div>
+                    {n.body && <div className={s.dashNotifBody}>{n.body}</div>}
                   </div>
                 </div>
               ))}

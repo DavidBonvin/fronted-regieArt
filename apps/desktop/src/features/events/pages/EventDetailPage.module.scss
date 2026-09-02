@@ -1,6 +1,8 @@
 .root {
   max-width: 960px;
   padding: 28px 32px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── Back nav ────────────────────────────────────────── */
@@ -21,6 +23,7 @@
 /* ── Hero ────────────────────────────────────────────── */
 
 .hero {
+  position: relative;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: 18px;
@@ -30,6 +33,101 @@
   display: flex;
   gap: 20px;
   align-items: flex-start;
+}
+
+.heroEditButton {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--action-brand);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.heroEditButton:hover { background: var(--surface-highlight); }
+
+.generalEditor {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.generalEditorGrid {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.generalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.generalField input,
+.generalField select,
+.generalField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.generalFieldFull { grid-column: 1 / -1; }
+
+.generalPublicToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.generalEditorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.generalEditorActions button {
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.generalEditorActions button:last-child {
+  border-color: transparent;
+  background: var(--action-brand);
+  color: #fff;
+}
+
+.generalError {
+  margin-top: 10px;
+  color: var(--status-error, #EF4444);
+  font-size: 12px;
 }
 
 .heroIconBox {
@@ -86,6 +184,17 @@
   margin: 0;
 }
 
+.heroVenue {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--action-brand);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 /* ── Quick stats strip ───────────────────────────────── */
 
 .statsStrip {
@@ -126,8 +235,13 @@
 
 .mainGrid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 20px;
+  min-width: 0;
+}
+
+.mainGrid > * {
+  min-width: 0;
 }
 
 .fullWidth { grid-column: 1 / -1; }
@@ -151,6 +265,35 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.cardHeaderWithAction {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHeaderWithAction .cardHeader {
+  flex: 1;
+}
+
+.sectionEditButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  margin: 10px 12px 0 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--action-brand);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sectionEditButton:hover {
+  background: var(--surface-highlight);
+}
+
 /* ── Time block ──────────────────────────────────────── */
 
 .timeRow {
@@ -163,8 +306,74 @@
   &:last-child { border-bottom: none; }
 }
 
-.timeRowLabel { font-size: 11px; color: var(--text-muted); font-weight: 700; width: 36px; }
-.timeRowValue { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+.timeRowLabel { font-size: 11px; color: var(--text-muted); font-weight: 700; width: 36px; flex-shrink: 0; }
+.timeRowValue { font-size: 15px; font-weight: 600; color: var(--text-heading); flex: 1; }
+
+.timeEditButton {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--action-brand);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.timeEditButton:hover {
+  background: var(--surface-highlight);
+}
+
+.timeEditor {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeEditorInput {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: 7px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  font-size: 13px;
+}
+
+.timeEditorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.timeEditorActions button {
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.timeEditorActions button:last-child {
+  border-color: transparent;
+  background: var(--action-brand);
+  color: #fff;
+}
+
+.timeEditorError {
+  display: block;
+  margin-top: 6px;
+  color: var(--status-error, #EF4444);
+  font-size: 12px;
+}
 
 /* ── Venue ───────────────────────────────────────────── */
 
@@ -173,6 +382,24 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--text-heading);
+}
+
+.eventAddressBlock {
+  padding-bottom: 8px;
+}
+
+.eventAddress {
+  padding: 0 18px 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.venueMissing {
+  padding: 18px;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .venueMeta {
@@ -185,6 +412,128 @@
   padding: 0 18px 14px;
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.venueGpsNote {
+  padding: 8px 18px 12px;
+  color: var(--action-brand);
+  font-size: 12px;
+}
+
+.venueEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px 16px;
+}
+
+.venueEditorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px;
+  gap: 10px;
+}
+
+.venueField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.venueField input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.venueField {
+  position: relative;
+}
+
+.venueField select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.venueSuggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.venueSuggestions button {
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-body);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.venueSuggestions button:last-child { border-bottom: none; }
+.venueSuggestions button:hover { background: var(--surface-raised); }
+
+.venueGpsNote + .venueEditorError,
+.venueEditorError {
+  color: var(--status-error, #EF4444);
+  font-size: 12px;
+}
+
+.venueEditorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.venueEditorActions button {
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.venueEditorActions button:last-child {
+  border-color: transparent;
+  background: var(--action-brand);
+  color: #fff;
 }
 
 .venueNote {
@@ -250,12 +599,91 @@
 }
 
 .noteContent {
+  position: relative;
   padding: 16px 18px;
+  padding-bottom: 48px;
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.7;
   white-space: pre-wrap;
   min-height: 80px;
+}
+
+.setlistEditButton {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--action-brand);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.setlistEditButton:hover {
+  background: var(--surface-highlight);
+}
+
+.noteEditor {
+  padding: 14px 18px 16px;
+}
+
+.noteEditorInput {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-input, var(--surface-app));
+  color: var(--text-body);
+  font: inherit;
+  line-height: 1.6;
+}
+
+.noteEditorInput:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.noteEditorError {
+  margin-top: 8px;
+  color: var(--status-error, #EF4444);
+  font-size: 12px;
+}
+
+.noteEditorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.noteEditorCancel,
+.noteEditorSave {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.noteEditorCancel {
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.noteEditorSave {
+  border: none;
+  background: var(--action-brand);
+  color: #fff;
 }
 
 .noteEmpty {
@@ -362,6 +790,8 @@
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 
   &:hover { background: var(--surface-raised); color: var(--text-heading); }
@@ -393,4 +823,105 @@
   color: #E05A5A;
   font-size: 14px;
   margin-top: 32px;
+}
+
+@media (max-width: 767px) {
+  .root {
+    padding: 16px;
+  }
+
+  .hero {
+    padding: 18px 16px;
+    gap: 12px;
+  }
+
+  .heroIconBox {
+    font-size: 36px;
+  }
+
+  .heroEditButton {
+    top: 10px;
+    right: 10px;
+  }
+
+  .generalEditor {
+    padding-right: 0;
+  }
+
+  .generalEditorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .generalEditorActions {
+    flex-direction: column-reverse;
+  }
+
+  .generalEditorActions button {
+    width: 100%;
+  }
+
+  .heroTitle {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+
+  .statsStrip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statCell:nth-child(2) {
+    border-right: none;
+  }
+
+  .statCell:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .mainGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .timeRow,
+  .scheduleRow,
+  .rosterRow,
+  .financeRow {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .venueEditor {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .venueEditorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .venueEditorActions {
+    flex-direction: column-reverse;
+  }
+
+  .venueEditorActions button {
+    width: 100%;
+  }
+
+  .timeRowValue,
+  .venueMeta,
+  .venueNoteText,
+  .financeValue,
+  .rosterName,
+  .scheduleTitle,
+  .scheduleMeta {
+    overflow-wrap: anywhere;
+  }
+
+  .actionsRow {
+    flex-wrap: wrap;
+  }
+
+  .actionLink {
+    min-width: calc(50% - 4px);
+  }
 }
