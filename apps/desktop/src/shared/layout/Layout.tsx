@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
@@ -15,47 +14,46 @@ import s from './Layout.module.scss';
 
 const NAV_SECTIONS = [
   {
-    label: 'nav.today',
+    label: 'Aujourd’hui',
     items: [
-      { label: 'nav.dashboard', icon: '◈', to: '/' },
-      { label: 'nav.timeline', icon: '⏱', to: '/timeline' },
+      { label: 'Tableau de bord', icon: '◈', to: '/' },
+      { label: 'Chronologie', icon: '⏱', to: '/timeline' },
     ],
   },
   {
-    label: 'nav.music',
+    label: 'Musique',
     items: [
-      { label: 'nav.repertoire', icon: '♪', to: '/repertoire' },
+      { label: 'Répertoire', icon: '♪', to: '/repertoire' },
     ],
   },
   {
-    label: 'nav.operations',
+    label: 'Opérations',
     items: [
-      { label: 'nav.convoy', icon: '◎', to: '/convoy' },
-      { label: 'nav.backline', icon: '☰', to: '/backline' },
-      { label: 'nav.finance', icon: '₿', to: '/finance' },
+      { label: 'Convoi', icon: '◎', to: '/convoy' },
+      { label: 'Backline', icon: '☰', to: '/backline' },
+      { label: 'Finances', icon: '₿', to: '/finance' },
     ],
   },
   {
-    label: 'nav.people',
+    label: 'Personnes',
     items: [
-      { label: 'nav.messages', icon: '✉', to: '/messages' },
-      { label: 'nav.talent_search', icon: '⊕', to: '/talents' },
-      { label: 'nav.band_management', icon: '⊞', to: '/band' },
+      { label: 'Messages', icon: '✉', to: '/messages' },
+      { label: 'Recherche de talents', icon: '⊕', to: '/talents' },
+      { label: 'Gestion du groupe', icon: '⊞', to: '/band' },
     ],
   },
 ];
 
 /* 5 most important nav items — shown in the LinkedIn-style top nav */
 const NAV_MAIN = [
-  { label: 'nav.dashboard',  icon: '◈', to: '/' },
-  { label: 'nav.timeline',   icon: '⏱', to: '/timeline' },
-  { label: 'nav.repertoire', icon: '♪', to: '/repertoire' },
-  { label: 'nav.messages',   icon: '✉', to: '/messages' },
-  { label: 'nav.people',     icon: '⊞', to: '/band' },
+  { label: 'Tableau de bord', icon: '◈', to: '/' },
+  { label: 'Chronologie',     icon: '⏱', to: '/timeline' },
+  { label: 'Répertoire',      icon: '♪', to: '/repertoire' },
+  { label: 'Messages',        icon: '✉', to: '/messages' },
+  { label: 'Personnes',       icon: '⊞', to: '/band' },
 ];
 
 export function Layout() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [org, setOrg] = useState<Organization | null>(null);
@@ -192,7 +190,7 @@ export function Layout() {
         <nav className={s.nav}>
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className={s.navSection}>
-              <div className={s.navSectionLabel}>{t(section.label)}</div>
+              <div className={s.navSectionLabel}>{section.label}</div>
               {section.items.map((item) => (
                 <NavLink
                   key={item.to}
@@ -203,14 +201,14 @@ export function Layout() {
                   }
                 >
                   <span className={s.navIcon}>{item.icon}</span>
-                  {t(item.label)}
+                  {item.label}
                 </NavLink>
               ))}
             </div>
           ))}
           {org && (
             <div className={s.navSection}>
-              <div className={s.navSectionLabel}>Organización</div>
+              <div className={s.navSectionLabel}>Organisation</div>
               <NavLink
                 to={`/organization/${org.id}`}
                 className={({ isActive }) =>
@@ -241,7 +239,7 @@ export function Layout() {
           {/* ── Desktop: LinkedIn-style top nav ─────────────────────────── */}
           <div className={s.desktopNav}>
 
-            <NavLink to="/" className={s.brandLink} aria-label="RégieArt inicio">
+            <NavLink to="/" className={s.brandLink} aria-label="RégieArt accueil">
               <div className={s.brandMark}>RA</div>
             </NavLink>
 
@@ -249,13 +247,13 @@ export function Layout() {
               <span className={s.searchBarIcon}>🔍</span>
               <input
                 className={s.searchBarInput}
-                placeholder="Buscar..."
+                placeholder="Rechercher..."
                 readOnly
-                aria-label="Buscar"
+                aria-label="Rechercher"
               />
             </div>
 
-            <nav className={s.mainNav} aria-label="Navegación principal">
+            <nav className={s.mainNav} aria-label="Navigation principale">
               {NAV_MAIN.map((item) => (
                 <NavLink
                   key={item.to}
@@ -266,7 +264,7 @@ export function Layout() {
                   }
                 >
                   <span className={s.mainNavIcon}>{item.icon}</span>
-                  <span className={s.mainNavLabel}>{t(item.label)}</span>
+                  <span className={s.mainNavLabel}>{item.label}</span>
                 </NavLink>
               ))}
             </nav>
@@ -276,15 +274,15 @@ export function Layout() {
               <button
                 className={s.rightCreateBtn}
                 onClick={() => setShowGlobalCreate(true)}
-                aria-label="Crear nuevo"
+                aria-label="Créer"
               >
-                + Crear
+                + Créer
               </button>
 
               <button
                 className={s.rightOrgBtn}
                 onClick={() => setShowOrgSwitcher(true)}
-                aria-label="Cambiar organización"
+                aria-label="Changer d’organisation"
               >
                 <span className={s.rightOrgAvatar}>{orgInitials}</span>
                 <span className={s.rightOrgLabel}>{org?.name ?? '—'}</span>
@@ -296,7 +294,7 @@ export function Layout() {
                   ref={notifBtnRef}
                   className={`${s.rightNavItem} ${showNotifPopover ? s.rightNavItemActive : ''}`}
                   onClick={() => setShowNotifPopover((v) => !v)}
-                  aria-label="Notificaciones"
+                  aria-label="Notifications"
                 >
                   <span className={s.rightNavIcon}>🔔</span>
                   {unread > 0 && <span className={s.badge}>{unread > 9 ? '9+' : unread}</span>}
@@ -304,16 +302,16 @@ export function Layout() {
                 {showNotifPopover && (
                   <div ref={notifPopoverRef} className={s.notifPopover}>
                     <div className={s.notifPopoverHead}>
-                      <span className={s.notifPopoverTitle}>Notificaciones</span>
+                      <span className={s.notifPopoverTitle}>Notifications</span>
                       {unread > 0 && (
                         <button className={s.markAllBtn} onClick={handleMarkAll}>
-                          Marcar leídas
+                          Tout marquer comme lu
                         </button>
                       )}
                     </div>
                     <div className={s.notifList}>
                       {notifs.length === 0 ? (
-                        <div className={s.notifEmpty}>Sin notificaciones</div>
+                        <div className={s.notifEmpty}>Aucune notification</div>
                       ) : (
                         notifs.slice(0, 8).map((n) => {
                           const isNewInvite = !!n.metadata?.invitationToken && !n.isRead;
@@ -331,7 +329,7 @@ export function Layout() {
                                 <div className={s.notifItemTitle}>{n.title}</div>
                                 {n.body && <div className={s.notifItemText}>{n.body}</div>}
                                 <div className={s.notifItemTime}>
-                                  {new Date(n.createdAt).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                  {new Date(n.createdAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                 </div>
                                 {isNewInvite && (
                                   <div className={s.notifInviteActions}>
@@ -339,13 +337,13 @@ export function Layout() {
                                       className={s.notifRejectBtn}
                                       onClick={(e) => { e.stopPropagation(); void handleRejectInvite(n); }}
                                     >
-                                      Rechazar
+                                      Refuser
                                     </button>
                                     <button
                                       className={s.notifAcceptBtn}
                                       onClick={(e) => { e.stopPropagation(); void handleAcceptInvite(n); }}
                                     >
-                                      Aceptar →
+                                      Accepter →
                                     </button>
                                   </div>
                                 )}
@@ -354,7 +352,7 @@ export function Layout() {
                                     className={s.notifDetailBtn}
                                     onClick={(e) => { e.stopPropagation(); setShowNotifPopover(false); navigate(`/invitations/${n.metadata!.invitationToken}`); }}
                                   >
-                                    Ver detalles →
+                                    Voir les détails →
                                   </button>
                                 )}
                               </div>
@@ -367,7 +365,7 @@ export function Layout() {
                       className={s.notifViewAll}
                       onClick={() => { setShowNotifPopover(false); navigate('/notifications'); }}
                     >
-                      Ver todas las notificaciones
+                      Voir toutes les notifications
                     </button>
                   </div>
                 )}
@@ -376,32 +374,32 @@ export function Layout() {
               <button
                 className={s.rightNavItem}
                 onClick={() => navigate('/profile/me')}
-                aria-label="Mi perfil"
+                aria-label="Mon profil"
               >
                 <span className={s.rightProfileAvatar}>{initials}</span>
-                <span className={s.rightNavLabel}>Yo</span>
+                <span className={s.rightNavLabel}>Moi</span>
                 <span className={s.rightChevron}>▾</span>
               </button>
 
               <button
                 className={`${s.rightNavItem} ${s.signOutBtn}`}
                 onClick={handleSignOut}
-                aria-label="Cerrar sesión"
-                title="Cerrar sesión"
+                aria-label="Se déconnecter"
+                title="Se déconnecter"
               >
                 <span className={s.rightNavIcon}>⇥</span>
-                <span className={s.rightNavLabel}>Salir</span>
+                <span className={s.rightNavLabel}>Quitter</span>
               </button>
 
             </div>
           </div>
 
-          {/* ── Mobile: barra compacta ──────────────────────────────────── */}
+          {/* ── Mobile: barre compacte ───────────────────────────── */}
           <div className={s.mobileBar}>
             <button
               className={s.mobileOrgBtn}
               onClick={() => setShowOrgSwitcher(true)}
-              aria-label="Cambiar organización"
+              aria-label="Changer d’organisation"
             >
               <span className={s.mobileOrgAvatar}>{orgInitials}</span>
               <span className={s.mobileOrgName}>{org?.name ?? 'RégieArt'}</span>
@@ -410,7 +408,7 @@ export function Layout() {
             <button
               className={s.iconBtn}
               onClick={() => navigate('/notifications')}
-              aria-label="Notificaciones"
+              aria-label="Notifications"
             >
               🔔
               {unread > 0 && <span className={s.badge}>{unread > 9 ? '9+' : unread}</span>}
@@ -430,19 +428,19 @@ export function Layout() {
             className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
           >
             <span className={s.mobileTabIcon}>◈</span>
-            <span className={s.mobileTabLabel}>Inicio</span>
+            <span className={s.mobileTabLabel}>Accueil</span>
           </NavLink>
           <NavLink
             to="/repertoire"
             className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
           >
             <span className={s.mobileTabIcon}>♪</span>
-            <span className={s.mobileTabLabel}>Repertorio</span>
+            <span className={s.mobileTabLabel}>Répertoire</span>
           </NavLink>
           <button
             className={s.mobileFab}
             onClick={() => setShowGlobalCreate(true)}
-            aria-label="Crear nuevo"
+            aria-label="Créer"
           >
             +
           </button>
@@ -451,14 +449,14 @@ export function Layout() {
             className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
           >
             <span className={s.mobileTabIcon}>✉</span>
-            <span className={s.mobileTabLabel}>Mensajes</span>
+            <span className={s.mobileTabLabel}>Messages</span>
           </NavLink>
           <NavLink
             to="/profile/me"
             className={({ isActive }) => `${s.mobileTabItem}${isActive ? ' ' + s.active : ''}`}
           >
             <span className={s.mobileTabIcon}>◯</span>
-            <span className={s.mobileTabLabel}>Perfil</span>
+            <span className={s.mobileTabLabel}>Profil</span>
           </NavLink>
         </nav>
       </div>

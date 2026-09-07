@@ -78,7 +78,7 @@ const apiBaseUrl = (() => {
 const keycloakUrl = (import.meta.env.VITE_KEYCLOAK_URL as string | undefined)
   ?? 'https://keycloak-production-b2ce.up.railway.app';
 const realm = (import.meta.env.VITE_KEYCLOAK_REALM as string | undefined) ?? 'regieart';
-const clientId = (import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string | undefined) ?? 'regieart-mobile';
+const clientId = (import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string | undefined) ?? 'regieart-web';
 
 initApiClient({
   apiBaseUrl,

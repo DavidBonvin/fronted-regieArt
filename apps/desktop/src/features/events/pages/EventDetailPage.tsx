@@ -1,34 +1,34 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getAddressAutocomplete, getDaySheetMaster, getEvent, getVenue, createVenue, updateEvent, updateDaySheet, updateVenue } from '@regieart/api';
+import { getAddressAutocomplete, getDaySheetMaster, getEvent, getVenue, createVenue, updateEvent, updateDaySheet, updateVenue, deleteEvent } from '@regieart/api';
 import type { AutocompleteResult, DaySheetMasterResponse, EventType, SupportedCountry } from '@regieart/types';
 import s from './EventDetailPage.module.scss';
 
 
 const TYPE_META: Record<string, { icon: string; label: string; color: string }> = {
-  CONCERT:           { icon: '🎤', label: 'Concierto',  color: '#4A827E' },
-  REHEARSAL:         { icon: '🎸', label: 'Ensayo',     color: '#7E7B4A' },
-  AUDITION:          { icon: '🎼', label: 'Audición',   color: '#6E4A7E' },
-  TOUR_DATE:         { icon: '🚌', label: 'Gira',       color: '#4A6E7E' },
-  RECORDING_SESSION: { icon: '🎙️', label: 'Grabación',  color: '#7E4F4A' },
+  CONCERT:           { icon: '🎤', label: 'Concert',       color: '#4A827E' },
+  REHEARSAL:         { icon: '🎸', label: 'Répétition',    color: '#7E7B4A' },
+  AUDITION:          { icon: '🎼', label: 'Audition',      color: '#6E4A7E' },
+  TOUR_DATE:         { icon: '🚌', label: 'Tournée',       color: '#4A6E7E' },
+  RECORDING_SESSION: { icon: '🎙️', label: 'Enregistrement', color: '#7E4F4A' },
 };
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  DRAFT:     { label: 'Borrador',   color: '#8A96A8', bg: '#1E2630' },
-  CONFIRMED: { label: 'Confirmado', color: '#4A827E', bg: '#162220' },
-  CANCELLED: { label: 'Cancelado',  color: '#E05A5A', bg: '#2A1A1A' },
-  COMPLETED: { label: 'Completado', color: '#6B8AC4', bg: '#1A1F2E' },
+  DRAFT:     { label: 'Brouillon', color: '#8A96A8', bg: '#1E2630' },
+  CONFIRMED: { label: 'Confirmé',  color: '#4A827E', bg: '#162220' },
+  CANCELLED: { label: 'Annulé',    color: '#E05A5A', bg: '#2A1A1A' },
+  COMPLETED: { label: 'Terminé',   color: '#6B8AC4', bg: '#1A1F2E' },
 };
 
 function fmtFull(iso: string) {
-  return new Date(iso).toLocaleString('es-AR', {
+  return new Date(iso).toLocaleString('fr-FR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
 }
 
 function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
 function toDateTimeInputValue(iso?: string) {
@@ -67,6 +67,9 @@ export function EventDetailPage() {
   const [generalDraft, setGeneralDraft] = useState({ title: '', type: 'CONCERT' as EventType, description: '', isPublic: false });
   const [savingGeneral, setSavingGeneral] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const notesCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,12 +80,12 @@ export function EventDetailPage() {
         const venue = daysheet.venue ?? (event?.venueId ? await getVenue(event.venueId).catch(() => null) : null);
         setData({ ...daysheet, event: { ...daysheet.event, ...event }, venue: venue ?? undefined });
       })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Error al cargar'))
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Erreur de chargement'))
       .finally(() => setLoading(false));
   }, [eventId]);
 
-  if (loading) return <div className={s.spinner}>Cargando evento…</div>;
-  if (error || !data) return <div className={s.errorBox}>{error ?? 'Evento no encontrado'}</div>;
+  if (loading) return <div className={s.spinner}>Chargement de l’événement…</div>;
+  if (error || !data) return <div className={s.errorBox}>{error ?? 'Événement introuvable'}</div>;
 
   const { event, venue, schedule, roster, finance, weather, meta } = data;
   const typeMeta = TYPE_META[event.type] ?? { icon: '📅', label: event.type, color: '#4A827E' };
@@ -90,7 +93,7 @@ export function EventDetailPage() {
   const noteTabs = [
     { label: 'Setlist', content: event.setlistNotes },
     { label: 'DaySheet', content: event.daysheetNotes },
-    { label: 'Itinerario', content: event.itineraryNotes },
+    { label: 'Itinéraire', content: event.itineraryNotes },
   ];
   const hasNotes = noteTabs.some((tab) => tab.content);
 
@@ -107,7 +110,7 @@ export function EventDetailPage() {
       setData((prev) => prev ? { ...prev, event: { ...prev.event, ...updatedEvent } } : prev);
       setEditingNote(false);
     } catch (e: unknown) {
-      setNoteError(e instanceof Error ? e.message : 'No se pudo guardar la nota.');
+      setNoteError(e instanceof Error ? e.message : 'Impossible d’enregistrer la note.');
     } finally {
       setSavingNote(false);
     }
@@ -125,7 +128,7 @@ export function EventDetailPage() {
       setData((prev) => prev ? { ...prev, event: { ...prev.event, ...updatedEvent } } : prev);
       setEditingTime(null);
     } catch (e: unknown) {
-      setTimeError(e instanceof Error ? e.message : 'No se pudo guardar la fecha.');
+      setTimeError(e instanceof Error ? e.message : 'Impossible d’enregistrer la date.');
     } finally {
       setSavingTime(false);
     }
@@ -133,7 +136,7 @@ export function EventDetailPage() {
 
   async function handleSaveVenue() {
     if (!venueDraft.name.trim() || !venueDraft.city.trim()) {
-      setVenueError('El nombre y la ciudad son obligatorios.');
+      setVenueError('Le nom et la ville sont obligatoires.');
       return;
     }
     setSavingVenue(true);
@@ -155,7 +158,7 @@ export function EventDetailPage() {
       setData((prev) => prev ? { ...prev, venue: updatedVenue, event: { ...prev.event, venueId: updatedVenue.id } } : prev);
       setEditingVenue(false);
     } catch (e: unknown) {
-      setVenueError(e instanceof Error ? e.message : 'No se pudo guardar el lugar.');
+      setVenueError(e instanceof Error ? e.message : 'Impossible d’enregistrer le lieu.');
     } finally {
       setSavingVenue(false);
     }
@@ -179,7 +182,7 @@ export function EventDetailPage() {
 
   async function handleSaveGeneral() {
     if (!event || !generalDraft.title.trim()) {
-      setGeneralError('El título es obligatorio.');
+      setGeneralError('Le titre est obligatoire.');
       return;
     }
     setSavingGeneral(true);
@@ -194,15 +197,64 @@ export function EventDetailPage() {
       setData((prev) => prev ? { ...prev, event: { ...prev.event, ...updatedEvent } } : prev);
       setEditingGeneral(false);
     } catch (e: unknown) {
-      setGeneralError(e instanceof Error ? e.message : 'No se pudo guardar el evento.');
+      setGeneralError(e instanceof Error ? e.message : 'Impossible d’enregistrer l’événement.');
     } finally {
       setSavingGeneral(false);
     }
   }
 
+  async function handleDeleteEvent() {
+    if (!data?.event) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteEvent(data.event.id);
+      navigate('/', { replace: true });
+    } catch (e: unknown) {
+      setDeleteError(e instanceof Error ? e.message : 'Impossible de supprimer l’événement.');
+      setDeleting(false);
+    }
+  }
+
   return (
     <div className={s.root}>
-      <button className={s.backLink} onClick={() => navigate(-1)}>← Volver</button>
+      <div className={s.topBar}>
+        <button className={s.backLink} onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          type="button"
+          className={s.deleteEventButton}
+          onClick={() => { setDeleteError(null); setConfirmingDelete(true); }}
+        >
+          🗑 Supprimer l’événement
+        </button>
+      </div>
+
+      {confirmingDelete && (
+        <div
+          className={s.confirmOverlay}
+          onClick={() => { if (!deleting) setConfirmingDelete(false); }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirmer la suppression de l’événement"
+        >
+          <div className={s.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <div className={s.confirmEyebrow}>Action irréversible</div>
+            <h2 className={s.confirmTitle}>Supprimer « {event.title} » ?</h2>
+            <p className={s.confirmText}>
+              Le planning, le roster et toutes les données liées à cet événement seront supprimés. Cette action est définitive.
+            </p>
+            {deleteError && <div className={s.confirmError}>{deleteError}</div>}
+            <div className={s.confirmActions}>
+              <button type="button" className={s.confirmCancel} onClick={() => setConfirmingDelete(false)} disabled={deleting}>
+                Annuler
+              </button>
+              <button type="button" className={s.confirmDelete} onClick={() => void handleDeleteEvent()} disabled={deleting}>
+                {deleting ? 'Suppression…' : 'Oui, supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className={s.hero}
@@ -217,8 +269,8 @@ export function EventDetailPage() {
               setGeneralError(null);
               setEditingGeneral(true);
             }}
-            aria-label="Editar información general del evento"
-            title="Editar información general del evento"
+            aria-label="Modifier les informations générales de l’événement"
+            title="Modifier les informations générales de l’événement"
           >
             ✎
           </button>
@@ -226,26 +278,26 @@ export function EventDetailPage() {
         {editingGeneral ? (
           <div className={s.generalEditor}>
             <div className={s.generalEditorGrid}>
-              <label className={s.generalField}>Tipo de evento
+              <label className={s.generalField}>Type d’événement
                 <select value={generalDraft.type} onChange={(e) => setGeneralDraft((draft) => ({ ...draft, type: e.target.value as EventType }))}>
                   {Object.entries(TYPE_META).map(([value, meta]) => <option key={value} value={value}>{meta.icon} {meta.label}</option>)}
                 </select>
               </label>
-              <label className={s.generalField}>Título
+              <label className={s.generalField}>Titre
                 <input value={generalDraft.title} onChange={(e) => setGeneralDraft((draft) => ({ ...draft, title: e.target.value }))} autoFocus />
               </label>
-              <label className={`${s.generalField} ${s.generalFieldFull}`}>Descripción
+              <label className={`${s.generalField} ${s.generalFieldFull}`}>Description
                 <textarea value={generalDraft.description} onChange={(e) => setGeneralDraft((draft) => ({ ...draft, description: e.target.value }))} rows={3} />
               </label>
             </div>
             <label className={s.generalPublicToggle}>
               <input type="checkbox" checked={generalDraft.isPublic} onChange={(e) => setGeneralDraft((draft) => ({ ...draft, isPublic: e.target.checked }))} />
-              Evento público
+              Événement public
             </label>
             {generalError && <div className={s.generalError}>{generalError}</div>}
             <div className={s.generalEditorActions}>
-              <button type="button" onClick={() => setEditingGeneral(false)} disabled={savingGeneral}>Cancelar</button>
-              <button type="button" onClick={() => void handleSaveGeneral()} disabled={savingGeneral}>{savingGeneral ? 'Guardando…' : 'Guardar información'}</button>
+              <button type="button" onClick={() => setEditingGeneral(false)} disabled={savingGeneral}>Annuler</button>
+              <button type="button" onClick={() => void handleSaveGeneral()} disabled={savingGeneral}>{savingGeneral ? 'Enregistrement…' : 'Enregistrer les informations'}</button>
             </div>
           </div>
         ) : (
@@ -259,7 +311,7 @@ export function EventDetailPage() {
                 <span className={s.statusBadge} style={{ background: statusMeta.bg, color: statusMeta.color }}>
                   {statusMeta.label}
                 </span>
-                {event.isPublic && <span className={s.publicBadge}>🌐 Público</span>}
+                {event.isPublic && <span className={s.publicBadge}>🌐 Public</span>}
               </div>
               <h1 className={s.heroTitle}>{event.title}</h1>
               {event.description && <p className={s.heroDesc}>{event.description}</p>}
@@ -281,28 +333,28 @@ export function EventDetailPage() {
       <div className={s.statsStrip}>
         <div className={s.statCell}>
           <div className={s.statCellValue}>{meta.totalScheduleItems}</div>
-          <div className={s.statCellLabel}>Horarios</div>
+          <div className={s.statCellLabel}>Horaires</div>
         </div>
         <div className={s.statCell}>
           <div className={s.statCellValue}>{meta.confirmedAttendees}</div>
-          <div className={s.statCellLabel}>Confirmados</div>
+          <div className={s.statCellLabel}>Confirmés</div>
         </div>
         <div className={s.statCell}>
           <div className={s.statCellValue}>{roster.length}</div>
-          <div className={s.statCellLabel}>Músicos</div>
+          <div className={s.statCellLabel}>Musiciens</div>
         </div>
         <div className={s.statCell}>
           <div className={s.statCellValue}>{meta.totalVehicles}</div>
-          <div className={s.statCellLabel}>Vehículos</div>
+          <div className={s.statCellLabel}>Véhicules</div>
         </div>
       </div>
 
       <div className={s.mainGrid}>
         <div>
           <div className={s.card} style={{ marginBottom: 16 }}>
-            <div className={s.cardHeader}>Fecha y Hora</div>
+            <div className={s.cardHeader}>Date et heure</div>
             <div className={s.timeRow}>
-              <span className={s.timeRowLabel}>Inicio</span>
+              <span className={s.timeRowLabel}>Début</span>
               {editingTime === 'start' ? (
                 <div className={s.timeEditor}>
                   <input
@@ -312,9 +364,9 @@ export function EventDetailPage() {
                     onChange={(e) => setTimeDraft(e.target.value)}
                   />
                   <div className={s.timeEditorActions}>
-                    <button type="button" onClick={() => setEditingTime(null)} disabled={savingTime}>Cancelar</button>
+                    <button type="button" onClick={() => setEditingTime(null)} disabled={savingTime}>Annuler</button>
                     <button type="button" onClick={() => void handleSaveTime()} disabled={savingTime}>
-                      {savingTime ? 'Guardando…' : 'Guardar'}
+                      {savingTime ? 'Enregistrement…' : 'Enregistrer'}
                     </button>
                   </div>
                   {timeError && <span className={s.timeEditorError}>{timeError}</span>}
@@ -326,8 +378,8 @@ export function EventDetailPage() {
                     type="button"
                     className={s.timeEditButton}
                     onClick={() => { setTimeDraft(toDateTimeInputValue(event.startTime)); setTimeError(null); setEditingTime('start'); }}
-                    aria-label="Editar fecha y hora de inicio"
-                    title="Editar fecha y hora de inicio"
+                    aria-label="Modifier la date et l’heure de début"
+                    title="Modifier la date et l’heure de début"
                   >
                     ✎
                   </button>
@@ -346,9 +398,9 @@ export function EventDetailPage() {
                       onChange={(e) => setTimeDraft(e.target.value)}
                     />
                     <div className={s.timeEditorActions}>
-                      <button type="button" onClick={() => setEditingTime(null)} disabled={savingTime}>Cancelar</button>
+                      <button type="button" onClick={() => setEditingTime(null)} disabled={savingTime}>Annuler</button>
                       <button type="button" onClick={() => void handleSaveTime()} disabled={savingTime}>
-                        {savingTime ? 'Guardando…' : 'Guardar'}
+                        {savingTime ? 'Enregistrement…' : 'Enregistrer'}
                       </button>
                     </div>
                     {timeError && <span className={s.timeEditorError}>{timeError}</span>}
@@ -360,8 +412,8 @@ export function EventDetailPage() {
                       type="button"
                       className={s.timeEditButton}
                       onClick={() => { setTimeDraft(toDateTimeInputValue(event.endTime)); setTimeError(null); setEditingTime('end'); }}
-                      aria-label="Editar fecha y hora de fin"
-                      title="Editar fecha y hora de fin"
+                      aria-label="Modifier la date et l’heure de fin"
+                      title="Modifier la date et l’heure de fin"
                     >
                       ✎
                     </button>
@@ -373,7 +425,7 @@ export function EventDetailPage() {
 
           <div className={s.card} style={{ marginBottom: 16 }}>
             <div className={s.cardHeaderWithAction}>
-              <div className={s.cardHeader}>Ubicación del evento</div>
+              <div className={s.cardHeader}>Lieu de l’événement</div>
               {!editingVenue && (
                 <button
                   type="button"
@@ -386,8 +438,8 @@ export function EventDetailPage() {
                     setVenueError(null);
                     setEditingVenue(true);
                   }}
-                  aria-label="Editar dirección del evento"
-                  title="Editar dirección del evento"
+                  aria-label="Modifier l’adresse de l’événement"
+                  title="Modifier l’adresse de l’événement"
                 >
                   ✎
                 </button>
@@ -395,47 +447,47 @@ export function EventDetailPage() {
             </div>
             {editingVenue ? (
                 <div className={s.venueEditor}>
-                  <label className={s.venueField}>Nombre del lugar<input value={venueDraft.name} onChange={(e) => setVenueDraft((draft) => ({ ...draft, name: e.target.value }))} /></label>
-                  <label className={s.venueField}>País
+                  <label className={s.venueField}>Nom du lieu<input value={venueDraft.name} onChange={(e) => setVenueDraft((draft) => ({ ...draft, name: e.target.value }))} /></label>
+                  <label className={s.venueField}>Pays
                     <select value={venueCountry} onChange={(e) => { setVenueCountry(e.target.value as SupportedCountry); setVenueSuggestions([]); }}>
-                      <option value="FR">🇫🇷 Francia</option>
-                      <option value="BE">🇧🇪 Bélgica</option>
-                      <option value="IT">🇮🇹 Italia</option>
-                      <option value="DE">🇩🇪 Alemania</option>
-                      <option value="ES">🇪🇸 España</option>
-                      <option value="CA">🇨🇦 Canadá</option>
+                      <option value="FR">🇫🇷 France</option>
+                      <option value="BE">🇧🇪 Belgique</option>
+                      <option value="IT">🇮🇹 Italie</option>
+                      <option value="DE">🇩🇪 Allemagne</option>
+                      <option value="ES">🇪🇸 Espagne</option>
+                      <option value="CA">🇨🇦 Canada</option>
                     </select>
                   </label>
-                  <label className={s.venueField}>Dirección
-                    <input value={venueDraft.address} onChange={(e) => handleVenueAddressChange(e.target.value)} placeholder="Busca una dirección" />
+                  <label className={s.venueField}>Adresse
+                    <input value={venueDraft.address} onChange={(e) => handleVenueAddressChange(e.target.value)} placeholder="Rechercher une adresse" />
                     {venueSuggestions.length > 0 && <span className={s.venueSuggestions}>{venueSuggestions.map((result) => <button type="button" key={`${result.lat}-${result.lng}`} onClick={() => selectVenueAddress(result)}>{result.label}</button>)}</span>}
                   </label>
                   <div className={s.venueEditorGrid}>
-                    <label className={s.venueField}>Ciudad<input value={venueDraft.city} onChange={(e) => setVenueDraft((draft) => ({ ...draft, city: e.target.value }))} /></label>
-                    <label className={s.venueField}>Capacidad<input type="number" min="0" value={venueDraft.capacity} onChange={(e) => setVenueDraft((draft) => ({ ...draft, capacity: e.target.value }))} /></label>
+                    <label className={s.venueField}>Ville<input value={venueDraft.city} onChange={(e) => setVenueDraft((draft) => ({ ...draft, city: e.target.value }))} /></label>
+                    <label className={s.venueField}>Capacité<input type="number" min="0" value={venueDraft.capacity} onChange={(e) => setVenueDraft((draft) => ({ ...draft, capacity: e.target.value }))} /></label>
                   </div>
-                  {venue?.latitude != null && venue.longitude != null && <div className={s.venueGpsNote}>GPS configurado. Convoy puede calcular los trayectos.</div>}
+                  {venue?.latitude != null && venue.longitude != null && <div className={s.venueGpsNote}>GPS configuré. Le convoi peut calculer les trajets.</div>}
                   {venueError && <div className={s.venueEditorError}>{venueError}</div>}
                   <div className={s.venueEditorActions}>
-                    <button type="button" onClick={() => setEditingVenue(false)} disabled={savingVenue}>Cancelar</button>
-                    <button type="button" onClick={() => void handleSaveVenue()} disabled={savingVenue}>{savingVenue ? 'Guardando…' : 'Guardar dirección'}</button>
+                    <button type="button" onClick={() => setEditingVenue(false)} disabled={savingVenue}>Annuler</button>
+                    <button type="button" onClick={() => void handleSaveVenue()} disabled={savingVenue}>{savingVenue ? 'Enregistrement…' : 'Enregistrer l’adresse'}</button>
                   </div>
                 </div>
               ) : venue ? (
                 <div className={s.eventAddressBlock}>
                   <div className={s.venueName}>📍 {venue.name}</div>
-                  <div className={s.eventAddress}>{venue.address || 'Dirección no configurada'}</div>
+                  <div className={s.eventAddress}>{venue.address || 'Adresse non renseignée'}</div>
                   <div className={s.venueMeta}>{venue.city}{venue.country ? `, ${venue.country}` : ''}</div>
-                  {venue.latitude != null && venue.longitude != null && <div className={s.venueGpsNote}>✓ Ubicación GPS disponible para calcular trayectos</div>}
+                  {venue.latitude != null && venue.longitude != null && <div className={s.venueGpsNote}>✓ Position GPS disponible pour calculer les trajets</div>}
                 </div>
             ) : (
-              <div className={s.venueMissing}>Este evento todavía no tiene un lugar asignado.</div>
+              <div className={s.venueMissing}>Cet événement n’a pas encore de lieu assigné.</div>
             )}
           </div>
 
           {weather?.available && (
             <div className={s.card} style={{ marginBottom: 16 }}>
-              <div className={s.cardHeader}>Clima</div>
+              <div className={s.cardHeader}>Météo</div>
               <div className={s.weatherRow}>
                 {weather.icon && <span className={s.weatherIcon}>{weather.icon}</span>}
                 <div>
@@ -454,10 +506,10 @@ export function EventDetailPage() {
 
           {finance && (
             <div className={s.card} style={{ marginBottom: 16 }}>
-              <div className={s.cardHeader}>Finanzas</div>
+              <div className={s.cardHeader}>Finances</div>
               {finance.cacheTotal && (
                 <div className={s.financeRow}>
-                  <span className={s.financeLabel}>Caché total</span>
+                  <span className={s.financeLabel}>Cachet total</span>
                   <span className={s.financeValue}>{finance.currency ?? 'ARS'} {finance.cacheTotal}</span>
                 </div>
               )}
@@ -468,12 +520,12 @@ export function EventDetailPage() {
                 </div>
               )}
               <div className={s.financeRow}>
-                <span className={s.financeLabel}>Estado de pago</span>
+                <span className={s.financeLabel}>Statut de paiement</span>
                 <span
                   className={s.financeValue}
                   style={{ color: finance.isPaid ? '#4A827E' : '#E0A05A' }}
                 >
-                  {finance.isPaid ? '✓ Pagado' : '⏳ Pendiente'}
+                  {finance.isPaid ? '✓ Payé' : '⏳ En attente'}
                 </span>
               </div>
               {finance.paymentNotes && (
@@ -497,7 +549,7 @@ export function EventDetailPage() {
               <span className={s.actionLinkIcon}>🚌</span> Convoy
             </Link>
             <Link to={`/finance/${event.id}/expenses`} className={s.actionLink}>
-              <span className={s.actionLinkIcon}>💰</span> Gastos
+              <span className={s.actionLinkIcon}>💰</span> Dépenses
             </Link>
             <Link to={`/inventory/${event.id}/checklist`} className={s.actionLink}>
               <span className={s.actionLinkIcon}>☑️</span> Checklist
@@ -531,10 +583,10 @@ export function EventDetailPage() {
                   {noteError && <div className={s.noteEditorError}>{noteError}</div>}
                   <div className={s.noteEditorActions}>
                     <button type="button" className={s.noteEditorCancel} onClick={() => setEditingNote(false)} disabled={savingNote}>
-                      Cancelar
+                      Annuler
                     </button>
                     <button type="button" className={s.noteEditorSave} onClick={() => void handleSaveNote()} disabled={savingNote}>
-                      {savingNote ? 'Guardando…' : `Guardar ${noteTabs[activeNoteTab].label}`}
+                      {savingNote ? 'Enregistrement…' : `Enregistrer ${noteTabs[activeNoteTab].label}`}
                     </button>
                   </div>
                 </div>
@@ -549,15 +601,15 @@ export function EventDetailPage() {
                       setNoteError(null);
                       setEditingNote(true);
                     }}
-                    aria-label={`Editar ${noteTabs[activeNoteTab].label}`}
-                    title={`Editar ${noteTabs[activeNoteTab].label}`}
+                    aria-label={`Modifier ${noteTabs[activeNoteTab].label}`}
+                    title={`Modifier ${noteTabs[activeNoteTab].label}`}
                   >
                     ✎
                   </button>
                 </div>
               ) : (
                 <div className={s.noteContent}>
-                  <span className={s.noteEmpty}>Sin {noteTabs[activeNoteTab].label.toLowerCase()}.</span>
+                  <span className={s.noteEmpty}>Aucun contenu · {noteTabs[activeNoteTab].label}.</span>
                   <button
                     type="button"
                     className={s.setlistEditButton}
@@ -566,8 +618,8 @@ export function EventDetailPage() {
                       setNoteError(null);
                       setEditingNote(true);
                     }}
-                    aria-label={`Editar ${noteTabs[activeNoteTab].label}`}
-                    title={`Editar ${noteTabs[activeNoteTab].label}`}
+                    aria-label={`Modifier ${noteTabs[activeNoteTab].label}`}
+                    title={`Modifier ${noteTabs[activeNoteTab].label}`}
                   >
                     ✎
                   </button>
@@ -578,7 +630,7 @@ export function EventDetailPage() {
 
           {schedule.length > 0 && (
             <div className={s.card} style={{ marginBottom: 16 }}>
-              <div className={s.cardHeader}>Cronograma · {schedule.length} ítems</div>
+              <div className={s.cardHeader}>Planning · {schedule.length} éléments</div>
               {schedule.map((item) => (
                 <div key={item.id} className={s.scheduleRow}>
                   <span className={s.scheduleTime}>{fmtTime(item.startTime)}</span>
@@ -596,7 +648,7 @@ export function EventDetailPage() {
 
           {roster.length > 0 && (
             <div className={s.card}>
-              <div className={s.cardHeader}>Roster · {roster.length} músicos</div>
+              <div className={s.cardHeader}>Roster · {roster.length} musiciens</div>
               {roster.map((entry) => {
                 const confirmed = entry.status === 'CONFIRMED';
                 return (
@@ -615,7 +667,7 @@ export function EventDetailPage() {
                         color: confirmed ? '#4A827E' : entry.status === 'DECLINED' ? '#E05A5A' : '#6B7685',
                       }}
                     >
-                      {confirmed ? '✓ Confirmado' : entry.status === 'DECLINED' ? '✕ Rechazado' : '? Invitado'}
+                      {confirmed ? '✓ Confirmé' : entry.status === 'DECLINED' ? '✕ Refusé' : '? Invité'}
                     </span>
                   </div>
                 );

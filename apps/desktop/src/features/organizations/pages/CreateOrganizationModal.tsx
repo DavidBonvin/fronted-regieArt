@@ -1,5 +1,4 @@
 ﻿import React, { useId, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { createOrganization } from '@regieart/api';
 import type { Organization } from '@regieart/types';
 import s from './CreateOrganizationModal.module.scss';
@@ -10,7 +9,6 @@ interface Props {
 }
 
 export function CreateOrganizationModal({ onClose, onCreated }: Props) {
-  const { t } = useTranslation();
   const id = useId();
 
   const [name, setName] = useState('');
@@ -22,7 +20,7 @@ export function CreateOrganizationModal({ onClose, onCreated }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) { setError(t('errors.required_fields')); return; }
+    if (!name.trim()) { setError('Veuillez remplir tous les champs obligatoires.'); return; }
     setLoading(true);
     setError(null);
     try {
@@ -34,7 +32,7 @@ export function CreateOrganizationModal({ onClose, onCreated }: Props) {
       });
       onCreated(org);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'));
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -48,57 +46,57 @@ export function CreateOrganizationModal({ onClose, onCreated }: Props) {
     <div className={s.backdrop} onClick={handleBackdropClick} role="dialog" aria-modal="true">
       <div className={s.modal}>
         <div className={s.modalHeader}>
-          <h2 className={s.modalTitle}>{t('create_org.title')}</h2>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Close">×</button>
+          <h2 className={s.modalTitle}>Nouvelle organisation</h2>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">×</button>
         </div>
-        <p className={s.modalSubtitle}>{t('create_org.subtitle')}</p>
+        <p className={s.modalSubtitle}>Créez l’espace de travail de votre projet musical.</p>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={s.fieldGroup}>
-            <label htmlFor={`${id}-name`} className={s.label}>{t('create_org.field_name')}</label>
+            <label htmlFor={`${id}-name`} className={s.label}>Nom du groupe / organisation *</label>
             <input
               id={`${id}-name`}
               className={s.input}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t('create_org.name_placeholder')}
+              placeholder="ex. Les Étoiles du Nord"
               autoFocus
               required
             />
           </div>
 
           <div className={s.fieldGroup}>
-            <label htmlFor={`${id}-desc`} className={s.label}>{t('create_org.field_description')}</label>
+            <label htmlFor={`${id}-desc`} className={s.label}>Description / Biographie (optionnel)</label>
             <textarea
               id={`${id}-desc`}
               className={s.textarea}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={t('create_org.description_placeholder')}
+              placeholder="Orchestre de musique du monde..."
               rows={3}
             />
           </div>
 
           <div className={s.fieldRow}>
             <div className={s.fieldGroup}>
-              <label htmlFor={`${id}-web`} className={s.label}>{t('create_org.field_website')}</label>
+              <label htmlFor={`${id}-web`} className={s.label}>Site web officiel (optionnel)</label>
               <input
                 id={`${id}-web`}
                 className={s.input}
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                placeholder={t('create_org.website_placeholder')}
+                placeholder="https://etoilesdunord.ca"
                 type="url"
               />
             </div>
             <div className={s.fieldGroup}>
-              <label htmlFor={`${id}-phone`} className={s.label}>{t('create_org.field_phone')}</label>
+              <label htmlFor={`${id}-phone`} className={s.label}>Téléphone de contact (optionnel)</label>
               <input
                 id={`${id}-phone`}
                 className={s.input}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder={t('create_org.phone_placeholder')}
+                placeholder="+1-514-555-0100"
                 type="tel"
               />
             </div>
@@ -108,10 +106,10 @@ export function CreateOrganizationModal({ onClose, onCreated }: Props) {
 
           <div className={s.modalFooter}>
             <button type="button" className={s.cancelBtn} onClick={onClose} disabled={loading}>
-              {t('common.cancel')}
+              Annuler
             </button>
             <button type="submit" className={s.submitBtn} disabled={loading}>
-              {loading ? t('create_org.creating') : t('create_org.submit')}
+              {loading ? 'Création en cours...' : 'CRÉER L’ORGANISATION'}
             </button>
           </div>
         </form>

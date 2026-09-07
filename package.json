@@ -7,10 +7,10 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean",
-    "dev:desktop": "turbo dev --filter=@regiart/desktop",
-    "dev:mobile": "turbo dev --filter=@regiart/mobile",
-    "build:desktop": "turbo build --filter=@regiart/desktop",
-    "build:packages": "turbo build --filter=@regiart/ui --filter=@regiart/types"
+    "dev:desktop": "turbo dev --filter=@regieart/desktop",
+    "dev:mobile": "turbo dev --filter=@regieart/mobile",
+    "build:desktop": "turbo build --filter=@regieart/desktop",
+    "build:packages": "turbo build --filter=@regieart/ui --filter=@regieart/types"
   },
   "devDependencies": {
     "eslint": "^8",

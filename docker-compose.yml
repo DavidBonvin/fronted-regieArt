@@ -16,12 +16,11 @@ services:
       - "5173:5173"
     environment:
       - NODE_ENV=development
-      # Hardcoded local dev values — intentionally NOT reading from root .env
-      # (root .env has production URLs which would override .env.local via process.env)
-      - VITE_API_BASE_URL=http://host.docker.internal:3005/api/v1
+      # Vite uses this as the /api-local proxy target. Backend runs on the host in the 5-container local flow.
+      - VITE_API_BASE_URL=http://host.docker.internal:3000/api/v1
       - VITE_KEYCLOAK_URL=http://localhost:8090
       - VITE_KEYCLOAK_REALM=regieart
-      - VITE_KEYCLOAK_CLIENT_ID=regieart-mobile
+      - VITE_KEYCLOAK_CLIENT_ID=regieart-web
       - VITE_CLOUDFLARE_R2_PUBLIC_URL=${VITE_CLOUDFLARE_R2_PUBLIC_URL:-https://pub.r2.dev}
     networks:
       - regiart
@@ -46,14 +45,14 @@ services:
       - "19001:19001"
     environment:
       - NODE_ENV=development
-      - EXPO_PUBLIC_API_BASE_URL=${EXPO_PUBLIC_API_BASE_URL:-http://host.docker.internal:3001}
+      - EXPO_PUBLIC_API_BASE_URL=${EXPO_PUBLIC_API_BASE_URL:-http://host.docker.internal:3000/api/v1}
       - EXPO_PUBLIC_KEYCLOAK_URL=${EXPO_PUBLIC_KEYCLOAK_URL:-http://host.docker.internal:8090}
       - EXPO_PUBLIC_KEYCLOAK_REALM=${EXPO_PUBLIC_KEYCLOAK_REALM:-regieart}
       - EXPO_PUBLIC_KEYCLOAK_CLIENT_ID=${EXPO_PUBLIC_KEYCLOAK_CLIENT_ID:-regieart-mobile}
       - EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL=${EXPO_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL:-https://pub.r2.dev}
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
       - EXPO_NO_DOTENV=1
-      - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-10.150.225.17}
+      - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-127.0.0.1}
     dns:
       - 8.8.8.8
       - 8.8.4.4

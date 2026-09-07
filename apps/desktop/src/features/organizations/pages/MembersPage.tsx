@@ -1,6 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   getOrganization,
   getOrganizationMembers,
@@ -21,17 +20,17 @@ import p from '../../../shared/layout/page.module.scss';
 import s from './MembersPage.module.scss';
 
 const ROLE_META: Record<MemberRole, { label: string; color: string; bg: string }> = {
-  OWNER:         { label: 'Owner',         color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
-  ADMIN:         { label: 'Admin',         color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
-  MEMBER:        { label: 'Miembro',       color: '#8C949B', bg: 'rgba(140,148,155,0.12)' },
-  EXTERNAL_TECH: { label: 'Técnico Ext.',  color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
+  OWNER:         { label: 'Propriétaire', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+  ADMIN:         { label: 'Admin',        color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
+  MEMBER:        { label: 'Membre',       color: '#8C949B', bg: 'rgba(140,148,155,0.12)' },
+  EXTERNAL_TECH: { label: 'Technicien ext.', color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
 };
 
 const STATUS_META: Record<InvitationStatus, { label: string; color: string; bg: string }> = {
-  PENDING:  { label: 'Pendiente', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
-  ACCEPTED: { label: 'Aceptada',  color: '#10B981', bg: 'rgba(16,185,129,0.12)' },
-  REJECTED: { label: 'Rechazada', color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
-  EXPIRED:  { label: 'Expirada',  color: '#64748B', bg: 'rgba(100,116,139,0.12)' },
+  PENDING:  { label: 'En attente', color: '#F59E0B', bg: 'rgba(245,158,11,0.12)' },
+  ACCEPTED: { label: 'Acceptée',   color: '#10B981', bg: 'rgba(16,185,129,0.12)' },
+  REJECTED: { label: 'Refusée',    color: '#EF4444', bg: 'rgba(239,68,68,0.12)' },
+  EXPIRED:  { label: 'Expirée',    color: '#64748B', bg: 'rgba(100,116,139,0.12)' },
 };
 
 type Tab = 'members' | 'invitations';
@@ -39,17 +38,17 @@ type Tab = 'members' | 'invitations';
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 60) return `Hace ${minutes}m`;
+  if (minutes < 60) return `Il y a ${minutes} min`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Hace ${hours}h`;
-  return `Hace ${Math.floor(hours / 24)}d`;
+  if (hours < 24) return `Il y a ${hours} h`;
+  return `Il y a ${Math.floor(hours / 24)} j`;
 }
 
 function expiresIn(iso: string): string {
   const diff = new Date(iso).getTime() - Date.now();
-  if (diff <= 0) return 'Expiró';
+  if (diff <= 0) return 'Expirée';
   const days = Math.ceil(diff / 86_400_000);
-  return `Expira en ${days} días`;
+  return `Expire dans ${days} jours`;
 }
 
 interface InviteModalProps {
@@ -73,7 +72,7 @@ export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) { setError('El correo es requerido.'); return; }
+    if (!email.trim()) { setError('L’adresse e-mail est obligatoire.'); return; }
     setLoading(true);
     setError('');
     try {
@@ -87,9 +86,9 @@ export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
     } catch (err) {
       const raw = err instanceof Error ? err.message : String(err);
       if (raw.includes('409') || raw.toLowerCase().includes('pendiente')) {
-        setError('Ya existe una invitación pendiente para este correo.');
+        setError('Une invitation est déjà en attente pour cette adresse e-mail.');
       } else if (raw.toLowerCase().includes('miembro') || raw.toLowerCase().includes('member')) {
-        setError('Este usuario ya es miembro de la organización.');
+        setError('Cet utilisateur est déjà membre de l’organisation.');
       } else {
         setError(raw);
       }
@@ -109,15 +108,15 @@ export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
       <div className={s.modal}>
         <div className={s.modalHead}>
           <div>
-            <h2 className={s.modalTitle}>Invitar nuevo integrante</h2>
-            <p className={s.modalSub}>Se enviará un correo con la invitación.</p>
+            <h2 className={s.modalTitle}>Inviter un nouveau membre</h2>
+            <p className={s.modalSub}>Un e-mail d’invitation sera envoyé.</p>
           </div>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Cerrar">×</button>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">×</button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={s.fieldGroup}>
-            <label className={s.label} htmlFor={emailId}>Correo electrónico *</label>
+            <label className={s.label} htmlFor={emailId}>Adresse e-mail *</label>
             <input
               id={emailId}
               className={s.input}
@@ -128,55 +127,55 @@ export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
               autoFocus
               autoComplete="off"
             />
-            <span className={s.hint}>Si ya tiene cuenta recibirá una notificación in-app.</span>
+            <span className={s.hint}>Si la personne a déjà un compte, elle recevra une notification dans l’app.</span>
           </div>
 
           <div className={s.fieldRow}>
             <div className={s.fieldGroup}>
-              <label className={s.label} htmlFor={roleId}>Rol en la organización *</label>
+              <label className={s.label} htmlFor={roleId}>Rôle dans l’organisation *</label>
               <select
                 id={roleId}
                 className={s.select}
                 value={role}
                 onChange={(e) => setRole(e.target.value as MemberRole)}
               >
-                <option value="MEMBER">Miembro (MEMBER)</option>
-                <option value="ADMIN">Administrador (ADMIN)</option>
-                <option value="EXTERNAL_TECH">Técnico Externo (EXTERNAL_TECH)</option>
+                <option value="MEMBER">Membre (MEMBER)</option>
+                <option value="ADMIN">Administrateur (ADMIN)</option>
+                <option value="EXTERNAL_TECH">Technicien externe (EXTERNAL_TECH)</option>
               </select>
             </div>
             <div className={s.fieldGroup}>
-              <label className={s.label} htmlFor={instrumentId}>Instrumento / Especialidad</label>
+              <label className={s.label} htmlFor={instrumentId}>Instrument / Spécialité</label>
               <input
                 id={instrumentId}
                 className={s.input}
                 type="text"
                 value={instrument}
                 onChange={(e) => setInstrument(e.target.value)}
-                placeholder="Piano, Guitarra, Sonido…"
+                placeholder="Piano, Guitare, Son…"
               />
             </div>
           </div>
 
           <div className={s.fieldGroup}>
-            <label className={s.label} htmlFor={msgId}>Mensaje personal</label>
+            <label className={s.label} htmlFor={msgId}>Message personnel</label>
             <textarea
               id={msgId}
               className={s.textarea}
               value={personalMessage}
               onChange={(e) => setPersonalMessage(e.target.value.slice(0, 500))}
-              placeholder="¡Hola! Queremos que te unas al proyecto…"
+              placeholder="Bonjour ! Nous aimerions que tu rejoignes le projet…"
               rows={3}
             />
-            <span className={s.hint}>{charsLeft} caracteres restantes</span>
+            <span className={s.hint}>{charsLeft} caractères restants</span>
           </div>
 
           {error && <p className={s.modalError} role="alert">{error}</p>}
 
           <div className={s.modalActions}>
-            <button type="button" className={s.cancelBtn} onClick={onClose}>Cancelar</button>
+            <button type="button" className={s.cancelBtn} onClick={onClose}>Annuler</button>
             <button type="submit" className={s.submitBtn} disabled={loading}>
-              {loading ? <span className={s.spinner} /> : 'Enviar Invitación →'}
+              {loading ? <span className={s.spinner} /> : 'Envoyer l’invitation →'}
             </button>
           </div>
         </form>
@@ -187,7 +186,6 @@ export function InviteModal({ orgId, onClose, onSuccess }: InviteModalProps) {
 
 export function MembersPage() {
   const { orgId } = useParams<{ orgId: string }>();
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [org, setOrg] = useState<OrganizationDetail | null>(null);
@@ -227,34 +225,34 @@ export function MembersPage() {
     setInvitations((prev) => [inv, ...prev]);
     setShowInviteModal(false);
     setTab('invitations');
-    showToast(`Invitación enviada a ${inv.targetEmail}`);
+    showToast(`Invitation envoyée à ${inv.targetEmail}`);
   }
 
   async function handleRevoke(invId: string) {
     if (!orgId) return;
     await revokeEmailInvitation(orgId, invId);
     setInvitations((prev) => prev.filter((i) => i.id !== invId));
-    showToast('Invitación revocada.');
+    showToast('Invitation révoquée.');
   }
 
   async function handleResend(invId: string) {
     if (!orgId) return;
     await resendEmailInvitation(orgId, invId);
-    showToast('Invitación reenviada.');
+    showToast('Invitation renvoyée.');
   }
 
   async function handleCopyLink(inv: EmailInvitation) {
     const url = `${window.location.origin}/invitations/${(inv as EmailInvitation & { token?: string }).token ?? inv.id}`;
     await navigator.clipboard.writeText(url);
-    showToast('Enlace copiado al portapapeles.');
+    showToast('Lien copié dans le presse-papiers.');
   }
 
   async function handleRemoveMember(memberId: string, name: string) {
     if (!orgId) return;
-    if (!window.confirm(`¿Eliminar a ${name} de la organización?`)) return;
+    if (!window.confirm(`Retirer ${name} de l’organisation ?`)) return;
     await removeMember(orgId, memberId);
     setMembers((prev) => prev.filter((m) => m.id !== memberId));
-    showToast(`${name} fue eliminado.`);
+    showToast(`${name} a été retiré.`);
   }
 
   const filteredMembers = members.filter((m) => {
@@ -290,11 +288,11 @@ export function MembersPage() {
         </div>
         <div className={s.headRow}>
           <div>
-            <h1 className={p.pageTitle}>Gestión de Equipo</h1>
-            <p className={p.pageSubtitle}>{org?.name} · {members.length} integrantes</p>
+            <h1 className={p.pageTitle}>Gestion de l’équipe</h1>
+            <p className={p.pageSubtitle}>{org?.name} · {members.length} membres</p>
           </div>
           <button className={s.inviteBtn} onClick={() => setShowInviteModal(true)}>
-            + Invitar Miembro
+            + Inviter un membre
           </button>
         </div>
       </div>
@@ -305,14 +303,14 @@ export function MembersPage() {
             className={`${s.tab} ${tab === 'members' ? s.tabActive : ''}`}
             onClick={() => setTab('members')}
           >
-            Miembros
+            Membres
             <span className={s.tabBadge}>{members.length}</span>
           </button>
           <button
             className={`${s.tab} ${tab === 'invitations' ? s.tabActive : ''}`}
             onClick={() => setTab('invitations')}
           >
-            Invitaciones Pendientes
+            Invitations en attente
             {pendingCount > 0 && <span className={`${s.tabBadge} ${s.tabBadgePending}`}>{pendingCount}</span>}
           </button>
         </div>
@@ -323,7 +321,7 @@ export function MembersPage() {
             <input
               className={s.searchInput}
               type="search"
-              placeholder="Buscar por email o nombre…"
+              placeholder="Rechercher par e-mail ou nom…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -333,7 +331,7 @@ export function MembersPage() {
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value as MemberRole | '')}
           >
-            <option value="">Todos los roles</option>
+            <option value="">Tous les rôles</option>
             {(Object.keys(ROLE_META) as MemberRole[]).map((r) => (
               <option key={r} value={r}>{ROLE_META[r].label}</option>
             ))}
@@ -345,16 +343,16 @@ export function MembersPage() {
         <div className={`${p.card} ${s.tableWrap}`}>
           {filteredMembers.length === 0 ? (
             <div className={p.empty}>
-              <div className={p.emptyTitle}>Sin resultados</div>
-              <div className={p.emptyBody}>Intenta con otro filtro o invita nuevos miembros.</div>
+              <div className={p.emptyTitle}>Aucun résultat</div>
+              <div className={p.emptyBody}>Essayez un autre filtre ou invitez de nouveaux membres.</div>
             </div>
           ) : (
             <table className={p.table}>
               <thead>
                 <tr>
-                  <th className={p.th}>Integrante</th>
-                  <th className={p.th}>Rol</th>
-                  <th className={p.th}>Se unió</th>
+                  <th className={p.th}>Membre</th>
+                  <th className={p.th}>Rôle</th>
+                  <th className={p.th}>A rejoint</th>
                   <th className={p.th} />
                 </tr>
               </thead>
@@ -363,7 +361,7 @@ export function MembersPage() {
                   const rm = ROLE_META[m.role];
                   return (
                     <tr key={m.id} className={p.tr}>
-                      <td className={p.td} data-label="Integrante">
+                      <td className={p.td} data-label="Membre">
                         <div className={s.memberCell}>
                           <div className={s.avatar}>
                             {m.user.displayName.slice(0, 2).toUpperCase()}
@@ -376,7 +374,7 @@ export function MembersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className={p.td} data-label="Rol">
+                      <td className={p.td} data-label="Rôle">
                         <span
                           className={p.chip}
                           style={{ background: rm.bg, color: rm.color }}
@@ -384,25 +382,25 @@ export function MembersPage() {
                           {rm.label}
                         </span>
                       </td>
-                      <td className={p.td} data-label="Se unió">
+                      <td className={p.td} data-label="A rejoint">
                         <span className={s.dateText}>
-                          {new Date(m.joinedAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {new Date(m.joinedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </td>
-                      <td className={p.td} data-label="Acciones">
+                      <td className={p.td} data-label="Actions">
                         <div className={s.rowActions}>
                           <button
                             className={s.actionBtn}
                             onClick={() => navigate(`/profile/${m.user.id}`)}
                           >
-                            Ver perfil
+                            Voir le profil
                           </button>
                           {m.role !== 'OWNER' && (
                             <button
                               className={`${s.actionBtn} ${s.actionDanger}`}
                               onClick={() => handleRemoveMember(m.id, m.user.displayName)}
                             >
-                              Eliminar
+                              Retirer
                             </button>
                           )}
                         </div>
@@ -418,17 +416,17 @@ export function MembersPage() {
         <div className={`${p.card} ${s.tableWrap}`}>
           {filteredInvitations.length === 0 ? (
             <div className={p.empty}>
-              <div className={p.emptyTitle}>Sin invitaciones</div>
-              <div className={p.emptyBody}>Invita a nuevos integrantes con el botón superior.</div>
+              <div className={p.emptyTitle}>Aucune invitation</div>
+              <div className={p.emptyBody}>Invitez de nouveaux membres avec le bouton ci-dessus.</div>
             </div>
           ) : (
             <table className={p.table}>
               <thead>
                 <tr>
-                  <th className={p.th}>Invitado</th>
-                  <th className={p.th}>Rol / Instrumento</th>
-                  <th className={p.th}>Enviado / Expira</th>
-                  <th className={p.th}>Estado</th>
+                  <th className={p.th}>Invité</th>
+                  <th className={p.th}>Rôle / Instrument</th>
+                  <th className={p.th}>Envoyée / Expire</th>
+                  <th className={p.th}>Statut</th>
                   <th className={p.th} />
                 </tr>
               </thead>
@@ -440,13 +438,13 @@ export function MembersPage() {
                   const isExpired = inv.status === 'EXPIRED';
                   return (
                     <tr key={inv.id} className={p.tr}>
-                      <td className={p.td} data-label="Invitado">
+                      <td className={p.td} data-label="Invité">
                         <div className={s.inviteeCell}>
                           <span className={s.inviteeIcon}>✉</span>
                           <span className={s.inviteeEmail}>{inv.targetEmail}</span>
                         </div>
                       </td>
-                      <td className={p.td} data-label="Rol / Instrumento">
+                      <td className={p.td} data-label="Rôle / Instrument">
                         <span
                           className={p.chip}
                           style={{ background: rm.bg, color: rm.color }}
@@ -457,13 +455,13 @@ export function MembersPage() {
                           <div className={s.instrument}>{inv.instrument}</div>
                         )}
                       </td>
-                      <td className={p.td} data-label="Enviado / Expira">
+                      <td className={p.td} data-label="Envoyée / Expire">
                         <div className={s.dateStack}>
                           <span>{timeAgo(inv.createdAt)}</span>
                           <span className={s.expiry}>{expiresIn(inv.expiresAt)}</span>
                         </div>
                       </td>
-                      <td className={p.td} data-label="Estado">
+                      <td className={p.td} data-label="Statut">
                         <span
                           className={p.chip}
                           style={{ background: sm.bg, color: sm.color }}
@@ -471,15 +469,15 @@ export function MembersPage() {
                           {sm.label}
                         </span>
                       </td>
-                      <td className={p.td} data-label="Acciones">
+                      <td className={p.td} data-label="Actions">
                         <div className={s.rowActions}>
                           {isPending && (
                             <button
                               className={s.actionBtn}
                               onClick={() => handleCopyLink(inv)}
-                              title="Copiar enlace"
+                              title="Copier le lien"
                             >
-                              Copiar
+                              Copier
                             </button>
                           )}
                           {isExpired && (
@@ -487,7 +485,7 @@ export function MembersPage() {
                               className={s.actionBtn}
                               onClick={() => handleResend(inv.id)}
                             >
-                              Reenviar
+                              Renvoyer
                             </button>
                           )}
                           {(isPending || isExpired) && (
@@ -495,7 +493,7 @@ export function MembersPage() {
                               className={`${s.actionBtn} ${s.actionDanger}`}
                               onClick={() => handleRevoke(inv.id)}
                             >
-                              {isPending ? 'Revocar' : 'Eliminar'}
+                              {isPending ? 'Révoquer' : 'Supprimer'}
                             </button>
                           )}
                         </div>

@@ -51,20 +51,20 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
       <div className={s.modal} onClick={(e) => e.stopPropagation()}>
 
         <div className={s.header}>
-          <span className={s.title}>Seleccionar Espacio de Trabajo / Banda</span>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Cerrar">×</button>
+          <span className={s.title}>Sélectionner un espace de travail / groupe</span>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">×</button>
         </div>
 
         <div className={s.body}>
           <p className={s.subtitle}>
-            Selecciona la organización activa para actualizar tu agenda, shows y finanzas.
+            Sélectionnez l’organisation active pour mettre à jour votre agenda, vos concerts et vos finances.
           </p>
 
           <div className={s.searchWrapper}>
             <span className={s.searchIcon}>🔍</span>
             <input
               className={s.searchInput}
-              placeholder="Filtrar por nombre de banda..."
+              placeholder="Filtrer par nom de groupe..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoFocus
@@ -73,7 +73,7 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
 
           {activeOrg && (
             <section className={s.section}>
-              <div className={s.sectionLabel}>ORGANIZACIÓN ACTIVA ACTUALMENTE</div>
+              <div className={s.sectionLabel}>ORGANISATION ACTUELLEMENT ACTIVE</div>
               <div className={`${s.orgCard} ${s.orgCardActive}`}>
                 <div className={s.orgLogo}>{initials(activeOrg.name)}</div>
                 <div className={s.orgInfo}>
@@ -82,18 +82,18 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
                     <div className={s.orgDesc}>{activeOrg.description}</div>
                   )}
                   <div className={s.orgMeta}>
-                    {detail && <span>👥 {detail.members.length} Miembros</span>}
-                    {myRole && <span>Tu Rol: {myRole}</span>}
+                    {detail && <span>👥 {detail.members.length} Membres</span>}
+                    {myRole && <span>Votre rôle : {myRole}</span>}
                   </div>
                 </div>
-                <div className={s.activeBadge}>ACTIVA ✓</div>
+                <div className={s.activeBadge}>ACTIVE ✓</div>
               </div>
             </section>
           )}
 
           {others.length > 0 && (
             <section className={s.section}>
-              <div className={s.sectionLabel}>OTRAS ORGANIZACIONES</div>
+              <div className={s.sectionLabel}>AUTRES ORGANISATIONS</div>
               {others.map((org) => (
                 <div key={org.id} className={s.orgCard}>
                   <div className={s.orgLogo}>{initials(org.name)}</div>
@@ -107,7 +107,7 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
                     </div>
                   </div>
                   <button className={s.selectBtn} onClick={() => handleSelect(org)}>
-                    SELECCIONAR
+                    SÉLECTIONNER
                   </button>
                 </div>
               ))}
@@ -115,7 +115,7 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
           )}
 
           {filtered.length === 0 && (
-            <p className={s.emptyState}>No se encontraron organizaciones.</p>
+            <p className={s.emptyState}>Aucune organisation trouvée.</p>
           )}
         </div>
 
@@ -124,15 +124,15 @@ export function OrgSwitcherModal({ orgs, activeOrgId, currentUserId, onSelect, o
             className={s.footerLink}
             onClick={onInviteByEmail}
           >
-            ✉ Invitar por correo
+            ✉ Inviter par e-mail
           </button>
           <div className={s.footerRight}>
-            <button className={s.footerCancel} onClick={onClose}>Cancelar</button>
+            <button className={s.footerCancel} onClick={onClose}>Annuler</button>
             <button
               className={s.footerCreate}
               onClick={onCreateOrganization}
             >
-              + NUEVA BANDA
+              + NOUVEAU GROUPE
             </button>
           </div>
         </div>

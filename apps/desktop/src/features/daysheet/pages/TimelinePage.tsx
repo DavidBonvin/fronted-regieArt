@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   listEvents, getDaySheetMaster, getEvent, getMyOrganizations,
   createScheduleItem, updateScheduleItem, toggleScheduleItemComplete, deleteScheduleItem,
@@ -11,30 +10,30 @@ import s from './TimelinePage.module.scss';
 import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 const TYPE_META: Record<string, { icon: string; label: string; color: string }> = {
-  CONCERT:           { icon: '🎤', label: 'Concierto',  color: '#4A827E' },
-  REHEARSAL:         { icon: '🎸', label: 'Ensayo',     color: '#7E7B4A' },
-  AUDITION:          { icon: '🎼', label: 'Audición',   color: '#6E4A7E' },
-  TOUR_DATE:         { icon: '🚌', label: 'Gira',       color: '#4A6E7E' },
-  RECORDING_SESSION: { icon: '🎙️', label: 'Grabación',  color: '#7E4F4A' },
+  CONCERT:           { icon: '🎤', label: 'Concert',        color: '#4A827E' },
+  REHEARSAL:         { icon: '🎸', label: 'Répétition',     color: '#7E7B4A' },
+  AUDITION:          { icon: '🎼', label: 'Audition',       color: '#6E4A7E' },
+  TOUR_DATE:         { icon: '🚌', label: 'Tournée',        color: '#4A6E7E' },
+  RECORDING_SESSION: { icon: '🎙️', label: 'Enregistrement', color: '#7E4F4A' },
 };
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  DRAFT:     { label: 'Borrador',   color: '#8A96A8', bg: 'rgba(138,150,168,0.12)' },
-  CONFIRMED: { label: 'Confirmado', color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
-  CANCELLED: { label: 'Cancelado',  color: '#E05A5A', bg: 'rgba(224,90,90,0.12)' },
-  COMPLETED: { label: 'Completado', color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
+  DRAFT:     { label: 'Brouillon', color: '#8A96A8', bg: 'rgba(138,150,168,0.12)' },
+  CONFIRMED: { label: 'Confirmé',  color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
+  CANCELLED: { label: 'Annulé',    color: '#E05A5A', bg: 'rgba(224,90,90,0.12)' },
+  COMPLETED: { label: 'Terminé',   color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
 };
 
 const SCHEDULE_TYPES: { value: ScheduleType; label: string }[] = [
-  { value: 'DEPARTURE', label: 'Salida' },
-  { value: 'ARRIVAL', label: 'Llegada' },
-  { value: 'LOAD_IN', label: 'Carga / montaje' },
-  { value: 'SOUNDCHECK', label: 'Prueba de sonido' },
-  { value: 'DOORS_OPEN', label: 'Apertura de puertas' },
-  { value: 'CATERING_DINNER', label: 'Catering / cena' },
-  { value: 'SHOWTIME', label: 'Inicio del show' },
-  { value: 'LOAD_OUT', label: 'Desmontaje / carga' },
-  { value: 'OTHER', label: 'Otra actividad' },
+  { value: 'DEPARTURE', label: 'Départ' },
+  { value: 'ARRIVAL', label: 'Arrivée' },
+  { value: 'LOAD_IN', label: 'Chargement / montage' },
+  { value: 'SOUNDCHECK', label: 'Balances' },
+  { value: 'DOORS_OPEN', label: 'Ouverture des portes' },
+  { value: 'CATERING_DINNER', label: 'Catering / dîner' },
+  { value: 'SHOWTIME', label: 'Début du show' },
+  { value: 'LOAD_OUT', label: 'Démontage / chargement' },
+  { value: 'OTHER', label: 'Autre activité' },
 ];
 
 type RightTab = 'schedule' | 'notes' | 'roster';
@@ -80,7 +79,6 @@ function scheduleDraftFromItem(item: EventScheduleItem): ScheduleDraft {
 }
 
 export function TimelinePage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const activeOrgId = useActiveOrganizationId();
   const [events, setEvents] = useState<Event[]>([]);
@@ -135,7 +133,7 @@ export function TimelinePage() {
 
   async function handleSaveSchedule() {
     if (!ev || !scheduleDraft.title.trim() || !scheduleDraft.startTime) {
-      setScheduleError('Indica un nombre y una hora de inicio.');
+      setScheduleError('Indiquez un nom et une heure de début.');
       return;
     }
     setScheduleSaving(true);
@@ -161,7 +159,7 @@ export function TimelinePage() {
       } : prev);
       setScheduleEditorItem(undefined);
     } catch (e: unknown) {
-      setScheduleError(e instanceof Error ? e.message : 'No se pudo guardar la actividad.');
+      setScheduleError(e instanceof Error ? e.message : 'Impossible d’enregistrer l’activité.');
     } finally {
       setScheduleSaving(false);
     }
@@ -176,7 +174,7 @@ export function TimelinePage() {
   }
 
   async function handleDeleteSchedule(item: EventScheduleItem) {
-    if (!ev || !window.confirm(`¿Eliminar "${item.title}" del cronograma?`)) return;
+    if (!ev || !window.confirm(`Supprimer « ${item.title} » du planning ?`)) return;
     try {
       await deleteScheduleItem(ev.id, item.id);
       setDetail((prev) => prev ? {
@@ -195,7 +193,7 @@ export function TimelinePage() {
   }
 
   function fmtDateTime(iso: string) {
-    return new Date(iso).toLocaleString('es-AR', {
+    return new Date(iso).toLocaleString('fr-FR', {
       weekday: 'short', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
@@ -208,22 +206,22 @@ export function TimelinePage() {
   const noteTabs = ev ? [
     { label: 'Setlist',    content: ev.setlistNotes },
     { label: 'DaySheet',   content: ev.daysheetNotes },
-    { label: 'Itinerario', content: ev.itineraryNotes },
+    { label: 'Itinéraire', content: ev.itineraryNotes },
   ] : [];
 
   return (
     <div className={p.pageWide}>
       <button className={s.timelineBackLink} onClick={() => navigate(-1)}>
-        ← Volver
+        ← Retour
       </button>
       <div className={s.timelineGrid}>
                 <div className={s.timelineEventList}>
-          <div className={s.timelineListTitle}>{t('nav.timeline')}</div>
+          <div className={s.timelineListTitle}>Chronologie</div>
 
           {loading ? (
             <div className={p.spinner} style={{ marginTop: 24 }} />
           ) : events.length === 0 ? (
-            <div className={s.timelineEmptyMessage}>Sin eventos próximos</div>
+            <div className={s.timelineEmptyMessage}>Aucun événement à venir</div>
           ) : (
             events.map((item) => {
               const tm = TYPE_META[item.type] ?? { icon: '📅', label: item.type, color: '#4A827E' };
@@ -241,7 +239,7 @@ export function TimelinePage() {
                     <div className={s.timelineEventItemMeta}>
                       <div className={s.timelineEventName}>{item.title}</div>
                       <div className={s.timelineEventDate}>
-                        {new Date(item.startTime).toLocaleDateString('es-AR', {
+                        {new Date(item.startTime).toLocaleDateString('fr-FR', {
                           weekday: 'short', month: 'short', day: 'numeric',
                         })}
                         {' · '}
@@ -272,12 +270,12 @@ export function TimelinePage() {
                 <div className={s.timelineDetailPanel}>
           {!selectedId ? (
             <div className={p.empty}>
-              <div className={p.emptyTitle}>Seleccioná un evento</div>
+              <div className={p.emptyTitle}>Sélectionnez un événement</div>
             </div>
           ) : loadingDetail ? (
             <div className={p.spinner} />
           ) : !ev ? (
-            <div className={p.empty}><div className={p.emptyTitle}>No se pudo cargar</div></div>
+            <div className={p.empty}><div className={p.emptyTitle}>Chargement impossible</div></div>
           ) : (
             <>
               <div
@@ -300,7 +298,7 @@ export function TimelinePage() {
                       >
                         {statusMeta?.label}
                       </span>
-                      {ev.isPublic && <span className={s.timelinePublicPill}>🌐 Público</span>}
+                      {ev.isPublic && <span className={s.timelinePublicPill}>🌐 Public</span>}
                     </div>
                     <h2 className={s.timelineEventHeaderTitle}>{ev.title}</h2>
                     <div className={s.timelineEventHeaderMeta}>
@@ -313,7 +311,7 @@ export function TimelinePage() {
                     )}
                   </div>
                   <Link to={`/events/${ev.id}`} className={s.timelineViewFullBtn}>
-                    Ver completo →
+                    Voir en détail →
                   </Link>
                 </div>
 
@@ -321,19 +319,19 @@ export function TimelinePage() {
                   <div className={s.timelineQuickStats}>
                     <div className={s.timelineQuickStat}>
                       <span className={s.timelineQuickStatValue}>{detail.meta.totalScheduleItems}</span>
-                      <span className={s.timelineQuickStatLabel}>Horarios</span>
+                      <span className={s.timelineQuickStatLabel}>Horaires</span>
                     </div>
                     <div className={s.timelineQuickStat}>
                       <span className={s.timelineQuickStatValue}>{detail.roster.length}</span>
-                      <span className={s.timelineQuickStatLabel}>Músicos</span>
+                      <span className={s.timelineQuickStatLabel}>Musiciens</span>
                     </div>
                     <div className={s.timelineQuickStat}>
                       <span className={s.timelineQuickStatValue}>{detail.meta.confirmedAttendees}</span>
-                      <span className={s.timelineQuickStatLabel}>Confirmados</span>
+                      <span className={s.timelineQuickStatLabel}>Confirmés</span>
                     </div>
                     <div className={s.timelineQuickStat}>
                       <span className={s.timelineQuickStatValue}>{detail.meta.totalVehicles}</span>
-                      <span className={s.timelineQuickStatLabel}>Vehículos</span>
+                      <span className={s.timelineQuickStatLabel}>Véhicules</span>
                     </div>
                     {detail.finance && (
                       <div className={s.timelineQuickStat}>
@@ -341,9 +339,9 @@ export function TimelinePage() {
                           className={s.timelineQuickStatValue}
                           style={{ color: detail.finance.isPaid ? '#4A827E' : '#E0A05A', fontSize: 13 }}
                         >
-                          {detail.finance.isPaid ? '✓ Pagado' : '⏳ Pendiente'}
+                          {detail.finance.isPaid ? '✓ Payé' : '⏳ En attente'}
                         </span>
-                        <span className={s.timelineQuickStatLabel}>Finanzas</span>
+                        <span className={s.timelineQuickStatLabel}>Finances</span>
                       </div>
                     )}
                   </div>
@@ -355,19 +353,19 @@ export function TimelinePage() {
                   className={`${s.timelineTab} ${activeTab === 'schedule' ? s.timelineTabActive : ''}`}
                   onClick={() => setActiveTab('schedule')}
                 >
-                  Cronograma {detail && `(${detail.schedule.length})`}
+                  Planning {detail && `(${detail.schedule.length})`}
                 </button>
                 <button
                   className={`${s.timelineTab} ${activeTab === 'notes' ? s.timelineTabActive : ''}`}
                   onClick={() => setActiveTab('notes')}
                 >
-                  Notas
+                  Notes
                 </button>
                 <button
                   className={`${s.timelineTab} ${activeTab === 'roster' ? s.timelineTabActive : ''}`}
                   onClick={() => setActiveTab('roster')}
                 >
-                  Participantes {detail && `(${detail.roster.length})`}
+                  Participants {detail && `(${detail.roster.length})`}
                 </button>
               </div>
 
@@ -375,20 +373,20 @@ export function TimelinePage() {
                 <div className={s.timelineTabContent}>
                                 <div className={s.scheduleToolbar}>
                                   <div>
-                                    <strong className={s.scheduleToolbarTitle}>Plan del evento</strong>
-                                    <span className={s.scheduleToolbarHint}>Organiza las tareas antes, durante y después del show.</span>
+                                    <strong className={s.scheduleToolbarTitle}>Plan de l’événement</strong>
+                                    <span className={s.scheduleToolbarHint}>Organisez les tâches avant, pendant et après le show.</span>
                                   </div>
                                   <button type="button" className={s.addScheduleButton} onClick={() => openScheduleEditor()}>
-                                    + Agregar actividad
+                                    + Ajouter une activité
                                   </button>
                                 </div>
                                 {!detail || detail.schedule.length === 0 ? (
                                   <div className={s.scheduleEmptyState}>
                                     <span className={s.scheduleEmptyIcon}>◷</span>
-                                    <strong>El cronograma está vacío</strong>
-                                    <span>Agrega la salida, prueba de sonido, show y cualquier tarea logística.</span>
+                                    <strong>Le planning est vide</strong>
+                                    <span>Ajoutez le départ, les balances, le show et toute tâche logistique.</span>
                                     <button type="button" className={s.scheduleEmptyButton} onClick={() => openScheduleEditor()}>
-                                      Crear primera actividad
+                                      Créer la première activité
                                     </button>
                                   </div>
                                 ) : (
@@ -410,7 +408,7 @@ export function TimelinePage() {
                               <div className={s.timelineScheduleType}>{typeLabel}</div>
                               <div className={s.timelineScheduleTitle}>{item.title}</div>
                               {item.endTime && (
-                                <div className={s.timelineScheduleEndTime}>hasta {fmtTime(item.endTime)}</div>
+                                <div className={s.timelineScheduleEndTime}>jusqu’à {fmtTime(item.endTime)}</div>
                               )}
                               {item.location && (
                                 <div className={s.timelineScheduleMeta}>📍 {item.location}</div>
@@ -427,12 +425,12 @@ export function TimelinePage() {
                                 type="button"
                                 className={`${s.scheduleCompleteButton} ${item.isCompleted ? s.scheduleCompleteButtonDone : ''}`}
                                 onClick={() => void handleToggleSchedule(item)}
-                                title={item.isCompleted ? 'Marcar como pendiente' : 'Marcar como completada'}
+                                title={item.isCompleted ? 'Marquer comme à faire' : 'Marquer comme terminée'}
                               >
                                 {item.isCompleted ? '✓' : '○'}
                               </button>
-                              <button type="button" className={s.scheduleEditButton} onClick={() => openScheduleEditor(item)} title="Editar actividad">✎</button>
-                              <button type="button" className={s.scheduleDeleteButton} onClick={() => void handleDeleteSchedule(item)} title="Eliminar actividad">×</button>
+                              <button type="button" className={s.scheduleEditButton} onClick={() => openScheduleEditor(item)} title="Modifier l’activité">✎</button>
+                              <button type="button" className={s.scheduleDeleteButton} onClick={() => void handleDeleteSchedule(item)} title="Supprimer l’activité">×</button>
                             </div>
                           </div>
                         );
@@ -458,7 +456,7 @@ export function TimelinePage() {
                   {noteTabs[activeNoteTab].content ? (
                     <pre className={s.timelineNoteContent}>{noteTabs[activeNoteTab].content}</pre>
                   ) : (
-                    <div className={s.timelineEmptyTab}>Sin {noteTabs[activeNoteTab].label.toLowerCase()}.</div>
+                    <div className={s.timelineEmptyTab}>Aucun contenu · {noteTabs[activeNoteTab].label}.</div>
                   )}
                 </div>
               )}
@@ -466,7 +464,7 @@ export function TimelinePage() {
                             {activeTab === 'roster' && (
                 <div className={s.timelineTabContent}>
                   {!detail || detail.roster.length === 0 ? (
-                    <div className={s.timelineEmptyTab}>Sin músicos asignados a este evento.</div>
+                    <div className={s.timelineEmptyTab}>Aucun musicien assigné à cet événement.</div>
                   ) : (
                     detail.roster.map((entry) => {
                       const confirmed = entry.status === 'CONFIRMED';
@@ -487,7 +485,7 @@ export function TimelinePage() {
                               color: confirmed ? '#4A827E' : declined ? '#E05A5A' : '#8A96A8',
                             }}
                           >
-                            {confirmed ? '✓ Confirmado' : declined ? '✕ Rechazado' : '? Invitado'}
+                            {confirmed ? '✓ Confirmé' : declined ? '✕ Refusé' : '? Invité'}
                           </span>
                         </div>
                       );
@@ -500,51 +498,51 @@ export function TimelinePage() {
         </div>
       </div>
       {scheduleEditorItem !== undefined && ev && (
-        <div className={s.scheduleModalOverlay} onClick={closeScheduleEditor} role="dialog" aria-modal="true" aria-label="Editar actividad del cronograma">
+        <div className={s.scheduleModalOverlay} onClick={closeScheduleEditor} role="dialog" aria-modal="true" aria-label="Modifier une activité du planning">
           <form className={s.scheduleModal} onClick={(event) => event.stopPropagation()} onSubmit={(event) => { event.preventDefault(); void handleSaveSchedule(); }}>
             <div className={s.scheduleModalHeader}>
               <div>
-                <span className={s.scheduleModalEyebrow}>{scheduleEditorItem ? 'Editar actividad' : 'Nueva actividad'}</span>
-                <h3 className={s.scheduleModalTitle}>{scheduleEditorItem ? 'Actualiza el plan del evento' : 'Agrega una actividad'}</h3>
+                <span className={s.scheduleModalEyebrow}>{scheduleEditorItem ? 'Modifier l’activité' : 'Nouvelle activité'}</span>
+                <h3 className={s.scheduleModalTitle}>{scheduleEditorItem ? 'Mettez à jour le plan de l’événement' : 'Ajoutez une activité'}</h3>
               </div>
-              <button type="button" className={s.scheduleModalClose} onClick={closeScheduleEditor} aria-label="Cerrar">×</button>
+              <button type="button" className={s.scheduleModalClose} onClick={closeScheduleEditor} aria-label="Fermer">×</button>
             </div>
             <div className={s.scheduleFormGrid}>
               <label className={s.scheduleField}>
-                <span>Tipo de actividad</span>
+                <span>Type d’activité</span>
                 <select value={scheduleDraft.type} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, type: event.target.value as ScheduleType }))}>
                   {SCHEDULE_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}
                 </select>
               </label>
               <label className={s.scheduleField}>
-                <span>Nombre de la actividad</span>
-                <input value={scheduleDraft.title} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, title: event.target.value }))} placeholder="Ej. Prueba de sonido" autoFocus />
+                <span>Nom de l’activité</span>
+                <input value={scheduleDraft.title} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, title: event.target.value }))} placeholder="Ex. Balances" autoFocus />
               </label>
               <label className={s.scheduleField}>
-                <span>Inicio</span>
+                <span>Début</span>
                 <input type="datetime-local" value={scheduleDraft.startTime} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, startTime: event.target.value }))} />
               </label>
               <label className={s.scheduleField}>
-                <span>Fin <em>(opcional)</em></span>
+                <span>Fin <em>(optionnel)</em></span>
                 <input type="datetime-local" value={scheduleDraft.endTime} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, endTime: event.target.value }))} />
               </label>
               <label className={s.scheduleField}>
-                <span>Lugar <em>(opcional)</em></span>
-                <input value={scheduleDraft.location} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, location: event.target.value }))} placeholder="Ej. Escenario principal" />
+                <span>Lieu <em>(optionnel)</em></span>
+                <input value={scheduleDraft.location} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, location: event.target.value }))} placeholder="Ex. Scène principale" />
               </label>
               <label className={s.scheduleField}>
-                <span>Responsable <em>(opcional)</em></span>
-                <input value={scheduleDraft.withWho} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, withWho: event.target.value }))} placeholder="Ej. Equipo técnico" />
+                <span>Responsable <em>(optionnel)</em></span>
+                <input value={scheduleDraft.withWho} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, withWho: event.target.value }))} placeholder="Ex. Équipe technique" />
               </label>
               <label className={`${s.scheduleField} ${s.scheduleFieldFull}`}>
-                <span>Notas <em>(opcional)</em></span>
-                <textarea value={scheduleDraft.notes} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, notes: event.target.value }))} rows={3} placeholder="Indicaciones para el equipo" />
+                <span>Notes <em>(optionnel)</em></span>
+                <textarea value={scheduleDraft.notes} onChange={(event) => setScheduleDraft((draft) => ({ ...draft, notes: event.target.value }))} rows={3} placeholder="Consignes pour l’équipe" />
               </label>
             </div>
             {scheduleError && <div className={s.scheduleFormError}>{scheduleError}</div>}
             <div className={s.scheduleModalFooter}>
-              <button type="button" className={s.scheduleCancelButton} onClick={closeScheduleEditor} disabled={scheduleSaving}>Cancelar</button>
-              <button type="submit" className={s.scheduleSaveButton} disabled={scheduleSaving}>{scheduleSaving ? 'Guardando…' : 'Guardar actividad'}</button>
+              <button type="button" className={s.scheduleCancelButton} onClick={closeScheduleEditor} disabled={scheduleSaving}>Annuler</button>
+              <button type="submit" className={s.scheduleSaveButton} disabled={scheduleSaving}>{scheduleSaving ? 'Enregistrement…' : 'Enregistrer l’activité'}</button>
             </div>
           </form>
         </div>

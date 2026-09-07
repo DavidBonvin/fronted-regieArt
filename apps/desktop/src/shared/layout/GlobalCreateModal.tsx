@@ -6,48 +6,48 @@ const ACTIONS = [
     id: 'event',
     icon: '📅',
     accentHex: '#4A827E',
-    title: 'Nuevo Evento',
-    sub: 'Concierto, ensayo, audición, gira...',
+    title: 'Nouvel événement',
+    sub: 'Concert, répétition, audition, tournée...',
     available: true,
   },
   {
     id: 'song',
     icon: '🎵',
     accentHex: '#7E7B4A',
-    title: 'Nueva Canción',
-    sub: 'Agregar al repertorio de la banda',
+    title: 'Nouveau morceau',
+    sub: 'Ajouter au répertoire du groupe',
     available: true,
   },
   {
     id: 'expense',
     icon: '💰',
     accentHex: '#7E4F4A',
-    title: 'Registrar Gasto',
-    sub: 'Añadir viático o gasto de banda',
+    title: 'Enregistrer une dépense',
+    sub: 'Ajouter un per diem ou une dépense du groupe',
     available: true,
   },
   {
     id: 'message',
     icon: '💬',
     accentHex: '#4A4A8E',
-    title: 'Nuevo Mensaje',
-    sub: 'Escribir directamente a un músico',
+    title: 'Nouveau message',
+    sub: 'Écrire directement à un musicien',
     available: true,
   },
   {
     id: 'invite',
     icon: '👥',
     accentHex: '#6E4A7E',
-    title: 'Generar Invitación',
-    sub: 'Link de acceso a la organización',
+    title: 'Créer une invitation',
+    sub: 'Lien d’accès à l’organisation',
     available: true,
   },
   {
     id: 'upload',
     icon: '📤',
     accentHex: '#4A6E7E',
-    title: 'Subir Archivo',
-    sub: 'Partitura, audio, documento técnico',
+    title: 'Envoyer un fichier',
+    sub: 'Partition, audio, document technique',
     available: false,
   },
 ] as const;
@@ -72,18 +72,18 @@ export function GlobalCreateModal({ onClose, onAction }: Props) {
   }
 
   return (
-    <div className={s.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Crear nuevo">
+    <div className={s.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-label="Créer">
       <div className={s.sheet} onClick={(e) => e.stopPropagation()}>
         <div className={s.handle} />
 
         <div className={s.header}>
-          <span className={s.headerTitle}>¿Qué querés crear?</span>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Cerrar">✕</button>
+          <span className={s.headerTitle}>Que souhaitez-vous créer ?</span>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">✕</button>
         </div>
 
         <div className={s.actionList}>
           {ACTIONS.map((action, i) => {
-            const showDivider = i === 4; // divider before "Subir Archivo" (disabled)
+            const showDivider = i === 4; // divider before the disabled upload action
             return (
               <React.Fragment key={action.id}>
                 {showDivider && <div className={s.divider} />}

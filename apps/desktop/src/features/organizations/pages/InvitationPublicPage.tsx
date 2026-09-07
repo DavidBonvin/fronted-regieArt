@@ -5,10 +5,10 @@ import type { InvitationPublic, MemberRole } from '@regieart/types';
 import s from './InvitationPublicPage.module.scss';
 
 const ROLE_LABEL: Record<MemberRole, string> = {
-  OWNER:         'Propietario',
-  ADMIN:         'Administrador',
-  MEMBER:        'Miembro',
-  EXTERNAL_TECH: 'Técnico Externo',
+  OWNER:         'Propriétaire',
+  ADMIN:         'Administrateur',
+  MEMBER:        'Membre',
+  EXTERNAL_TECH: 'Technicien externe',
 };
 
 const ROLE_ICON: Record<MemberRole, string> = {
@@ -62,7 +62,7 @@ export function InvitationPublicPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('403') || msg.toLowerCase().includes('email')) {
-        setError('Esta invitación fue enviada a otro correo. Cierra sesión e ingresa con la cuenta correcta.');
+        setError('Cette invitation a été envoyée à une autre adresse e-mail. Déconnectez-vous et connectez-vous avec le bon compte.');
       } else {
         setError(msg);
       }
@@ -98,11 +98,11 @@ export function InvitationPublicPage() {
         <div className={s.card}>
           <div className={s.notFound}>
             <span className={s.notFoundIcon}>⚠️</span>
-            <h2 className={s.notFoundTitle}>Invitación no encontrada</h2>
+            <h2 className={s.notFoundTitle}>Invitation introuvable</h2>
             <p className={s.notFoundBody}>
-              Este enlace puede haber expirado o ya no es válido.
+              Ce lien a peut-être expiré ou n’est plus valide.
             </p>
-            <Link to="/login" className={s.loginBtn}>Ir al inicio</Link>
+            <Link to="/login" className={s.loginBtn}>Retour à l’accueil</Link>
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ export function InvitationPublicPage() {
   const inv = invitation!;
   const isExpired = inv.status === 'EXPIRED' || new Date(inv.expiresAt).getTime() < Date.now();
   const isConsumed = inv.status === 'ACCEPTED' || inv.status === 'REJECTED';
-  const expiresDate = new Date(inv.expiresAt).toLocaleDateString('es-AR', {
+  const expiresDate = new Date(inv.expiresAt).toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
 
@@ -123,7 +123,7 @@ export function InvitationPublicPage() {
           <div className={s.brandMark}>RA</div>
           <span className={s.brandName}>RégieArt</span>
         </div>
-        <Link to="/login" className={s.headerLogin}>Iniciar Sesión</Link>
+        <Link to="/login" className={s.headerLogin}>Se connecter</Link>
       </header>
 
       <main className={s.main}>
@@ -140,30 +140,30 @@ export function InvitationPublicPage() {
 
           <div className={s.body}>
             <p className={s.greeting}>
-              👋 <strong>{inv.createdBy.displayName}</strong> te ha invitado a unirte a la organización.
+              👋 <strong>{inv.createdBy.displayName}</strong> vous invite à rejoindre l’organisation.
             </p>
 
             <div className={s.detailsSection}>
-              <div className={s.detailsTitle}>Detalles de la invitación</div>
+              <div className={s.detailsTitle}>Détails de l’invitation</div>
               <div className={s.detailRow}>
                 <span>{ROLE_ICON[inv.role]}</span>
-                <span>Rol: <strong>{ROLE_LABEL[inv.role]}</strong></span>
+                <span>Rôle : <strong>{ROLE_LABEL[inv.role]}</strong></span>
               </div>
               {inv.instrument && (
                 <div className={s.detailRow}>
                   <span>🎹</span>
-                  <span>Instrumento: <strong>{inv.instrument}</strong></span>
+                  <span>Instrument : <strong>{inv.instrument}</strong></span>
                 </div>
               )}
               <div className={s.detailRow}>
                 <span>📅</span>
-                <span>Expira el: <strong>{expiresDate}</strong></span>
+                <span>Expire le : <strong>{expiresDate}</strong></span>
               </div>
             </div>
 
             {inv.personalMessage && (
               <div className={s.messageBox}>
-                <div className={s.messageLabel}>Mensaje de {inv.createdBy.displayName}:</div>
+                <div className={s.messageLabel}>Message de {inv.createdBy.displayName} :</div>
                 <p className={s.messageText}>"{inv.personalMessage}"</p>
               </div>
             )}
@@ -174,16 +174,16 @@ export function InvitationPublicPage() {
               <div className={s.successBox}>
                 <span className={s.successIcon}>✅</span>
                 <div>
-                  <div className={s.successTitle}>¡Te has unido a {inv.organization.name}!</div>
-                  <div className={s.successSub}>Redirigiendo al dashboard…</div>
+                  <div className={s.successTitle}>Vous avez rejoint {inv.organization.name} !</div>
+                  <div className={s.successSub}>Redirection vers le tableau de bord…</div>
                 </div>
               </div>
             )}
 
             {done === 'rejected' && (
               <div className={s.rejectedBox}>
-                <span>Has rechazado la invitación.</span>
-                <Link to="/" className={s.loginBtn}>Ir al inicio</Link>
+                <span>Vous avez refusé l’invitation.</span>
+                <Link to="/" className={s.loginBtn}>Retour à l’accueil</Link>
               </div>
             )}
 
@@ -192,9 +192,9 @@ export function InvitationPublicPage() {
                 <span className={s.invalidIcon}>⚠️</span>
                 <div>
                   <div className={s.invalidTitle}>
-                    {isExpired ? 'Esta invitación ha expirado.' : 'Esta invitación ya no está activa.'}
+                    {isExpired ? 'Cette invitation a expiré.' : 'Cette invitation n’est plus active.'}
                   </div>
-                  <div className={s.invalidSub}>Solicita a un administrador que te envíe una nueva.</div>
+                  <div className={s.invalidSub}>Demandez à un administrateur de vous en envoyer une nouvelle.</div>
                 </div>
               </div>
             )}
@@ -202,14 +202,14 @@ export function InvitationPublicPage() {
             {!done && !isExpired && !isConsumed && !authenticated && (
               <div className={s.authSection}>
                 <p className={s.authHint}>
-                  Para responder a esta invitación inicia sesión o crea una cuenta.
+                  Pour répondre à cette invitation, connectez-vous ou créez un compte.
                 </p>
                 <div className={s.authBtns}>
                   <Link to={`/register?invite=${token}`} className={s.registerBtn}>
-                    Crear Cuenta
+                    Créer un compte
                   </Link>
                   <Link to={`/login?redirect=/invitations/${token}`} className={s.loginBtn}>
-                    Iniciar Sesión
+                    Se connecter
                   </Link>
                 </div>
               </div>
@@ -229,14 +229,14 @@ export function InvitationPublicPage() {
                     onClick={handleReject}
                     disabled={rejecting}
                   >
-                    {rejecting ? <span className={s.spinner} /> : '✕ Rechazar'}
+                    {rejecting ? <span className={s.spinner} /> : '✕ Refuser'}
                   </button>
                   <button
                     className={s.acceptBtn}
                     onClick={handleAccept}
                     disabled={accepting}
                   >
-                    {accepting ? <span className={s.spinner} /> : '✓ Aceptar e Ingresar'}
+                    {accepting ? <span className={s.spinner} /> : '✓ Accepter et rejoindre'}
                   </button>
                 </div>
               </>

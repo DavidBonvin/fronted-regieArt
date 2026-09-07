@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   listEvents, getDaySheetMaster,
   listConversations, listNotifications,
@@ -13,22 +12,21 @@ import { getActiveOrganization } from '../../../shared/utils/activeOrganization'
 import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
 const TYPE_META: Record<string, { icon: string; label: string; color: string }> = {
-  CONCERT:           { icon: '🎤', label: 'Concierto',  color: '#4A827E' },
-  REHEARSAL:         { icon: '🎸', label: 'Ensayo',     color: '#7E7B4A' },
-  AUDITION:          { icon: '🎼', label: 'Audición',   color: '#6E4A7E' },
-  TOUR_DATE:         { icon: '🚌', label: 'Gira',       color: '#4A6E7E' },
-  RECORDING_SESSION: { icon: '🎙️', label: 'Grabación',  color: '#7E4F4A' },
+  CONCERT:           { icon: '🎤', label: 'Concert',        color: '#4A827E' },
+  REHEARSAL:         { icon: '🎸', label: 'Répétition',     color: '#7E7B4A' },
+  AUDITION:          { icon: '🎼', label: 'Audition',       color: '#6E4A7E' },
+  TOUR_DATE:         { icon: '🚌', label: 'Tournée',        color: '#4A6E7E' },
+  RECORDING_SESSION: { icon: '🎙️', label: 'Enregistrement', color: '#7E4F4A' },
 };
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  DRAFT:     { label: 'Borrador',   color: '#8A96A8', bg: 'rgba(138,150,168,0.12)' },
-  CONFIRMED: { label: 'Confirmado', color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
-  CANCELLED: { label: 'Cancelado',  color: '#E05A5A', bg: 'rgba(224,90,90,0.12)' },
-  COMPLETED: { label: 'Completado', color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
+  DRAFT:     { label: 'Brouillon', color: '#8A96A8', bg: 'rgba(138,150,168,0.12)' },
+  CONFIRMED: { label: 'Confirmé',  color: '#4A827E', bg: 'rgba(74,130,126,0.12)' },
+  CANCELLED: { label: 'Annulé',    color: '#E05A5A', bg: 'rgba(224,90,90,0.12)' },
+  COMPLETED: { label: 'Terminé',   color: '#6B8AC4', bg: 'rgba(107,138,196,0.12)' },
 };
 
 export function DashboardPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const activeOrgId = useActiveOrganizationId();
 
@@ -87,39 +85,39 @@ export function DashboardPage() {
   return (
     <div className={p.page}>
       <div className={p.pageHeader}>
-        <h1 className={p.pageTitle}>{t('dashboard.title')}</h1>
+        <h1 className={p.pageTitle}>Tableau de bord</h1>
         <p className={p.pageSubtitle}>
-          {new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           {org && ` · ${org.name}`}
         </p>
       </div>
 
       <div className={`${p.grid4} ${s.dashStatsRow}`}>
         <Link to="/timeline" className={`${p.statCard} ${s.dashStatCardLink}`}>
-          <div className={p.statLabel}>{t('dashboard.next_event')}</div>
+          <div className={p.statLabel}>Prochains événements</div>
           <div className={p.statValue}>{events.length}</div>
-          <div className={p.statSub}>Próximos 30 días</div>
+          <div className={p.statSub}>30 prochains jours</div>
         </Link>
         <Link to="/messages" className={`${p.statCard} ${s.dashStatCardLink}`}>
-          <div className={p.statLabel}>{t('dashboard.unread_messages')}</div>
+          <div className={p.statLabel}>Messages non lus</div>
           <div className={p.statValue}>{unreadMessages}</div>
-          <div className={p.statSub}>{t('dashboard.conversations')}</div>
+          <div className={p.statSub}>Conversations</div>
         </Link>
         <Link to="/notifications" className={`${p.statCard} ${s.dashStatCardLink}`}>
-          <div className={p.statLabel}>{t('dashboard.notifications')}</div>
+          <div className={p.statLabel}>Notifications</div>
           <div className={p.statValue}>{unreadNotifs}</div>
-          <div className={p.statSub}>{t('dashboard.unread')}</div>
+          <div className={p.statSub}>Non lues</div>
         </Link>
         <Link to={org ? `/organization/${org.id}` : '/band'} className={`${p.statCard} ${s.dashStatCardLink}`}>
-          <div className={p.statLabel}>{t('dashboard.org')}</div>
+          <div className={p.statLabel}>Organisation</div>
           <div className={s.dashOrgStatName}>{org?.name ?? '—'}</div>
-          <div className={p.statSub}>{t('dashboard.active')}</div>
+          <div className={p.statSub}>Active</div>
         </Link>
       </div>
 
-      {/* Accesos rápidos — visible solo en mobile via CSS */}
+      {/* Accès rapides — visible uniquement sur mobile via CSS */}
       <div className={s.dashQuickActionsSection}>
-        <div className={s.dashQuickActionsLabel}>Accesos rápidos</div>
+        <div className={s.dashQuickActionsLabel}>Accès rapides</div>
         <div className={s.dashQuickActionsGrid}>
           <Link to="/timeline" className={s.dashQuickActionTile}>
             <span className={s.dashQuickActionIcon}>📅</span>
@@ -127,7 +125,7 @@ export function DashboardPage() {
           </Link>
           <Link to="/finance" className={s.dashQuickActionTile}>
             <span className={s.dashQuickActionIcon}>💰</span>
-            <span>Finanzas</span>
+            <span>Finances</span>
           </Link>
           <Link to="/backline" className={s.dashQuickActionTile}>
             <span className={s.dashQuickActionIcon}>🎸</span>
@@ -135,7 +133,7 @@ export function DashboardPage() {
           </Link>
           <Link to="/convoy" className={s.dashQuickActionTile}>
             <span className={s.dashQuickActionIcon}>🚌</span>
-            <span>Convoy</span>
+            <span>Convoi</span>
           </Link>
         </div>
       </div>
@@ -144,13 +142,13 @@ export function DashboardPage() {
         <div className={s.dashEventsColumn}>
           <div className={`${p.card} ${s.dashCard}`}>
             <div className={s.dashCardHeader}>
-              <span className={s.dashCardLabel}>Próximos eventos</span>
+              <span className={s.dashCardLabel}>Prochains événements</span>
             </div>
 
             {events.length === 0 ? (
               <div className={p.empty}>
-                <div className={p.emptyTitle}>{t('dashboard.no_events')}</div>
-                <div className={p.emptyBody}>{t('dashboard.no_events_hint')}</div>
+                <div className={p.emptyTitle}>Aucun événement prévu</div>
+                <div className={p.emptyBody}>Créez un événement pour le voir apparaître ici.</div>
               </div>
             ) : (
               events.map((ev, i) => {
@@ -183,9 +181,9 @@ export function DashboardPage() {
                       <div className={s.dashEventTitle}>{ev.title}</div>
                       <div className={s.dashEventMeta}>
                         🗓{' '}
-                        {new Date(ev.startTime).toLocaleDateString('es-AR', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        {new Date(ev.startTime).toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' })}
                         {' · '}
-                        {new Date(ev.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(ev.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                       {ev.description && (
                         <div className={s.dashEventDesc}>{ev.description}</div>
@@ -195,7 +193,7 @@ export function DashboardPage() {
                           {daysheet.schedule.slice(0, 4).map((item) => (
                             <div key={item.id} className={s.dashScheduleRow}>
                               <span className={s.dashScheduleTime}>
-                                {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(item.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                               </span>
                               <span className={s.dashScheduleLabel}>{item.title}</span>
                               {item.isCompleted && <span className={s.dashScheduleDone}>✓</span>}
@@ -215,11 +213,11 @@ export function DashboardPage() {
         <div className={s.dashSidebarColumn}>
           <div className={`${p.card} ${s.dashCard}`}>
             <div className={s.dashCardHeader}>
-              <span className={s.dashCardLabel}>{t('nav.messages')}</span>
-              <Link to="/messages" className={s.dashViewAllLink}>{t('common.view_all')} →</Link>
+              <span className={s.dashCardLabel}>Messages</span>
+              <Link to="/messages" className={s.dashViewAllLink}>Tout voir →</Link>
             </div>
             {convos.length === 0 ? (
-              <div className={s.dashSidebarEmpty}>{t('common.no_results')}</div>
+              <div className={s.dashSidebarEmpty}>Aucun résultat</div>
             ) : (
               convos.map((c) => (
                 <div
@@ -247,8 +245,8 @@ export function DashboardPage() {
           {notifs.length > 0 && (
             <div className={`${p.card} ${s.dashCard} ${s.dashNotifsCard}`}>
               <div className={s.dashCardHeader}>
-                <span className={s.dashCardLabel}>{t('messages.notifications_tab')}</span>
-                <Link to="/notifications" className={s.dashViewAllLink}>{t('common.view_all')} →</Link>
+                <span className={s.dashCardLabel}>Notifications</span>
+                <Link to="/notifications" className={s.dashViewAllLink}>Tout voir →</Link>
               </div>
               {notifs.map((n) => (
                 <div key={n.id} className={s.dashNotifRow}>

@@ -16,18 +16,18 @@ import { getActiveOrganization } from '../../../shared/utils/activeOrganization'
 
 
 const EVENT_TYPES: { value: EventType; label: string; icon: string }[] = [
-  { value: 'CONCERT', label: 'Concierto', icon: '🎤' },
-  { value: 'REHEARSAL', label: 'Ensayo', icon: '🎸' },
-  { value: 'AUDITION', label: 'Audición', icon: '🎼' },
-  { value: 'TOUR_DATE', label: 'Gira', icon: '🚌' },
-  { value: 'RECORDING_SESSION', label: 'Grabación', icon: '🎙️' },
+  { value: 'CONCERT', label: 'Concert', icon: '🎤' },
+  { value: 'REHEARSAL', label: 'Répétition', icon: '🎸' },
+  { value: 'AUDITION', label: 'Audition', icon: '🎼' },
+  { value: 'TOUR_DATE', label: 'Tournée', icon: '🚌' },
+  { value: 'RECORDING_SESSION', label: 'Enregistrement', icon: '🎙️' },
 ];
 
 const STEPS = [
-  { label: 'Tipo y Título', sub: 'Tipo de evento, nombre, visibilidad' },
-  { label: 'Fecha y Lugar', sub: 'Horario de inicio, fin y venue' },
-  { label: 'Notas', sub: 'Setlist, daysheet, itinerario' },
-  { label: 'Roster', sub: 'Músicos invitados y confirmación' },
+  { label: 'Type et titre', sub: 'Type d’événement, nom, visibilité' },
+  { label: 'Date et lieu', sub: 'Heure de début, de fin et lieu' },
+  { label: 'Notes', sub: 'Setlist, daysheet, itinéraire' },
+  { label: 'Roster', sub: 'Musiciens invités et confirmation' },
 ];
 
 function toIso(dt: string): string {
@@ -51,10 +51,10 @@ interface Props {
 
 const GEO_COUNTRIES: { code: SupportedCountry; flag: string; label: string }[] = [
   { code: 'FR', flag: '🇫🇷', label: 'France' },
-  { code: 'ES', flag: '🇪🇸', label: 'España' },
+  { code: 'ES', flag: '🇪🇸', label: 'Espagne' },
   { code: 'BE', flag: '🇧🇪', label: 'Belgique' },
-  { code: 'DE', flag: '🇩🇪', label: 'Deutschland' },
-  { code: 'IT', flag: '🇮🇹', label: 'Italia' },
+  { code: 'DE', flag: '🇩🇪', label: 'Allemagne' },
+  { code: 'IT', flag: '🇮🇹', label: 'Italie' },
   { code: 'CA', flag: '🇨🇦', label: 'Canada' },
 ];
 
@@ -179,7 +179,7 @@ function VenueLocationPicker({ selected, onSelect }: VenueSearchProps) {
         className={s.fieldInput}
         value={query}
         onChange={handleNameChange}
-        placeholder={loading ? 'Buscando...' : 'Buscar o crear venue...'}
+        placeholder={loading ? 'Recherche...' : 'Rechercher ou créer un lieu...'}
         style={selected ? { borderColor: '#4A827E', background: '#162220' } : {}}
         onFocus={() => results.length > 0 && setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
@@ -194,7 +194,7 @@ function VenueLocationPicker({ selected, onSelect }: VenueSearchProps) {
           ))}
           {query.trim() && (
             <div className={s.venueItem} onMouseDown={handleCreate}>
-              <span className={s.venueCreate}>+ Crear &quot;{query.trim()}&quot;</span>
+              <span className={s.venueCreate}>+ Créer &quot;{query.trim()}&quot;</span>
             </div>
           )}
         </div>
@@ -217,7 +217,7 @@ function VenueLocationPicker({ selected, onSelect }: VenueSearchProps) {
               <input
                 type="text"
                 className={`${s.fieldInput} ${s.venueAddrInput}`}
-                placeholder="Dirección completa del venue…"
+                placeholder="Adresse complète du lieu…"
                 value={addrQuery}
                 onChange={(e) => { setAddrQuery(e.target.value); searchAddress(e.target.value); }}
                 style={gpsSet ? { borderColor: '#4A827E', paddingRight: '90px' } : {}}
@@ -236,7 +236,7 @@ function VenueLocationPicker({ selected, onSelect }: VenueSearchProps) {
             </div>
           )}
           {!addrLoading && addrQuery.length >= 2 && addrSuggestions.length === 0 && !gpsSet && (
-            <div className={s.venueAddrEmpty}>Sin resultados — escribe más despacio o prueba otra dirección</div>
+            <div className={s.venueAddrEmpty}>Aucun résultat — saisissez plus lentement ou essayez une autre adresse</div>
           )}
         </div>
       )}
@@ -308,10 +308,10 @@ export function CreateEventWizard({ onClose }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      if (!orgId) throw new Error('No hay organización. Verificá tu sesión.');
-      if (!eventType) throw new Error('Seleccioná un tipo de evento.');
+      if (!orgId) throw new Error('Aucune organisation. Vérifiez votre session.');
+      if (!eventType) throw new Error('Sélectionnez un type d’événement.');
       const startIso = toIso(startDt);
-      if (!startIso) throw new Error('Fecha de inicio inválida.');
+      if (!startIso) throw new Error('Date de début invalide.');
 
       const event = await createEvent({
         orgId,
@@ -331,14 +331,14 @@ export function CreateEventWizard({ onClose }: Props) {
         Array.from(selectedIds).map((userId) =>
           addRosterMember(event.id, {
             userId,
-            role: memberRoles[userId] || 'Músico',
+            role: memberRoles[userId] || 'Musicien',
           }).catch(() => {}),
         ),
       );
 
       onClose();
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al crear el evento.');
+      setError(e instanceof Error ? e.message : 'Erreur lors de la création de l’événement.');
     } finally {
       setSubmitting(false);
     }
@@ -350,24 +350,24 @@ export function CreateEventWizard({ onClose }: Props) {
   const activeType = EVENT_TYPES.find((t) => t.value === eventType);
 
   const previewStartLabel = startDt
-    ? new Date(startDt).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' })
+    ? new Date(startDt).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })
     : null;
 
 
   const noteValues = [setlistNotes, daysheetNotes, itineraryNotes];
   const noteSetters = [setSetlistNotes, setDaysheetNotes, setItineraryNotes];
   const notePlaceholders = [
-    '1. Canción de apertura\n2. ...',
-    'Rider técnico, notas de producción...',
-    '15:00 Entrada staff\n16:00 Soundcheck...',
+    '1. Morceau d’ouverture\n2. ...',
+    'Rider technique, notes de production...',
+    '15:00 Arrivée du staff\n16:00 Balances...',
   ];
 
   return (
     <div className={s.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className={s.sidebar}>
         <div className={s.sidebarHeader}>
-          <span className={s.sidebarTitle}>Nuevo Evento</span>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Cerrar">✕</button>
+          <span className={s.sidebarTitle}>Nouvel événement</span>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">✕</button>
         </div>
 
         <div className={s.stepper}>
@@ -394,18 +394,18 @@ export function CreateEventWizard({ onClose }: Props) {
           {!title && !eventType ? (
             <div className={s.previewCardEmpty}>
               <span style={{ fontSize: 28 }}>📋</span>
-              <span>La vista previa aparecerá aquí</span>
+              <span>L’aperçu apparaîtra ici</span>
             </div>
           ) : (
             <>
-              <div className={s.previewLabel}>Vista Previa</div>
+              <div className={s.previewLabel}>Aperçu</div>
               {activeType && (
                 <div className={s.previewType}>
                   <span>{activeType.icon}</span> {activeType.label}
                 </div>
               )}
               <div className={title ? s.previewTitle : `${s.previewTitle} ${s.previewTitleEmpty}`}>
-                {title || 'Sin título…'}
+                {title || 'Sans titre…'}
               </div>
               <div className={s.previewMeta}>
                 {previewStartLabel && (
@@ -423,7 +423,7 @@ export function CreateEventWizard({ onClose }: Props) {
                 {isPublic && (
                   <div className={s.previewMetaRow}>
                     <span className={s.previewMetaIcon}>🌐</span>
-                    Evento público
+                    Événement public
                   </div>
                 )}
               </div>
@@ -436,8 +436,8 @@ export function CreateEventWizard({ onClose }: Props) {
         <div className={s.canvasInner}>
           {step === 0 && (
             <>
-              <h2 className={s.stepHeading}>¿Qué tipo de evento?</h2>
-              <p className={s.stepSub}>Elegí el tipo de actividad que vas a crear.</p>
+              <h2 className={s.stepHeading}>Quel type d’événement ?</h2>
+              <p className={s.stepSub}>Choisissez le type d’activité que vous allez créer.</p>
 
               <div className={s.typeGrid}>
                 {EVENT_TYPES.map((et) => (
@@ -453,25 +453,25 @@ export function CreateEventWizard({ onClose }: Props) {
               </div>
 
               <div className={s.fieldGroup}>
-                <label className={s.fieldLabel}>Nombre del evento</label>
+                <label className={s.fieldLabel}>Nom de l’événement</label>
                 <input
                   type="text"
                   className={s.fieldInput}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ej: Concierto de verano"
+                  placeholder="Ex : Concert d’été"
                   maxLength={120}
                   autoFocus
                 />
               </div>
 
               <div className={s.fieldGroup}>
-                <label className={s.fieldLabel}>Descripción <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— opcional</span></label>
+                <label className={s.fieldLabel}>Description <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— optionnel</span></label>
                 <textarea
                   className={`${s.fieldInput} ${s.fieldTextarea}`}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Descripción breve del evento..."
+                  placeholder="Brève description de l’événement..."
                   maxLength={500}
                   rows={3}
                 />
@@ -484,8 +484,8 @@ export function CreateEventWizard({ onClose }: Props) {
                 aria-checked={isPublic}
               >
                 <div className={s.toggleInfo}>
-                  <div className={s.toggleLabel}>Evento público</div>
-                  <div className={s.toggleSub}>Visible fuera de la organización</div>
+                  <div className={s.toggleLabel}>Événement public</div>
+                  <div className={s.toggleSub}>Visible en dehors de l’organisation</div>
                 </div>
                 <div className={`${s.toggle} ${isPublic ? s.toggleOn : ''}`}>
                   <div className={s.toggleKnob} />
@@ -496,12 +496,12 @@ export function CreateEventWizard({ onClose }: Props) {
 
           {step === 1 && (
             <>
-              <h2 className={s.stepHeading}>Fecha y lugar</h2>
-              <p className={s.stepSub}>Definí cuándo y dónde ocurrirá el evento.</p>
+              <h2 className={s.stepHeading}>Date et lieu</h2>
+              <p className={s.stepSub}>Définissez quand et où aura lieu l’événement.</p>
 
               <div className={s.dateRow}>
                 <div className={s.fieldGroup}>
-                  <label className={s.fieldLabel}>Inicio</label>
+                  <label className={s.fieldLabel}>Début</label>
                   <input
                     type="datetime-local"
                     className={`${s.fieldInput} ${s.fieldDatetime}`}
@@ -510,7 +510,7 @@ export function CreateEventWizard({ onClose }: Props) {
                   />
                 </div>
                 <div className={s.fieldGroup}>
-                  <label className={s.fieldLabel}>Fin <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— opcional</span></label>
+                  <label className={s.fieldLabel}>Fin <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— optionnel</span></label>
                   <input
                     type="datetime-local"
                     className={`${s.fieldInput} ${s.fieldDatetime}`}
@@ -521,7 +521,7 @@ export function CreateEventWizard({ onClose }: Props) {
               </div>
 
               <div className={s.fieldGroup}>
-                <label className={s.fieldLabel}>Venue <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— opcional</span></label>
+                <label className={s.fieldLabel}>Lieu <span style={{ fontWeight: 400, textTransform: 'none', color: '#3A4454' }}>— optionnel</span></label>
                 <VenueLocationPicker selected={selectedVenue} onSelect={setSelectedVenue} />
               </div>
             </>
@@ -529,11 +529,11 @@ export function CreateEventWizard({ onClose }: Props) {
 
           {step === 2 && (
             <>
-              <h2 className={s.stepHeading}>Notas del evento</h2>
-              <p className={s.stepSub}>Setlist, instrucciones de producción e itinerario.</p>
+              <h2 className={s.stepHeading}>Notes de l’événement</h2>
+              <p className={s.stepSub}>Setlist, consignes de production et itinéraire.</p>
 
               <div className={s.noteTabs}>
-                {['Setlist', 'DaySheet', 'Itinerario'].map((tab, i) => (
+                {['Setlist', 'DaySheet', 'Itinéraire'].map((tab, i) => (
                   <button
                     key={tab}
                     className={`${s.noteTab} ${activeNoteTab === i ? s.noteTabActive : ''}`}
@@ -565,21 +565,21 @@ export function CreateEventWizard({ onClose }: Props) {
                   <p className={s.summaryTitle}>{title}</p>
                   <p className={s.summaryMeta}>
                     {activeType?.label}
-                    {startDt && ` · ${new Date(startDt).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' })}`}
+                    {startDt && ` · ${new Date(startDt).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })}`}
                     {selectedVenue && ` · ${selectedVenue.name}`}
                   </p>
                 </div>
               </div>
 
-              <h2 className={s.stepHeading}>Agregar músicos al evento</h2>
-              <p className={s.stepSub}>Seleccioná los miembros de la organización que participarán.</p>
+              <h2 className={s.stepHeading}>Ajouter des musiciens à l’événement</h2>
+              <p className={s.stepSub}>Sélectionnez les membres de l’organisation qui participeront.</p>
 
               {error && <div className={s.errorBanner}>{error}</div>}
 
               {loadingMembers ? (
-                <p style={{ color: '#5A6370', fontSize: 14 }}>Cargando miembros…</p>
+                <p style={{ color: '#5A6370', fontSize: 14 }}>Chargement des membres…</p>
               ) : members.length === 0 ? (
-                <p style={{ color: '#5A6370', fontSize: 14 }}>No hay miembros en la organización.</p>
+                <p style={{ color: '#5A6370', fontSize: 14 }}>Aucun membre dans l’organisation.</p>
               ) : (
                 <div className={s.memberList}>
                   {members.map((m) => {
@@ -604,7 +604,7 @@ export function CreateEventWizard({ onClose }: Props) {
                               setMemberRoles((prev) => ({ ...prev, [m.user.id]: e.target.value }));
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            placeholder="Rol (ej: Guitarra)"
+                            placeholder="Rôle (ex : Guitare)"
                             maxLength={40}
                           />
                         )}
@@ -622,7 +622,7 @@ export function CreateEventWizard({ onClose }: Props) {
             className={s.backBtn}
             onClick={step === 0 ? onClose : goBack}
           >
-            {step === 0 ? 'Cancelar' : '← Anterior'}
+            {step === 0 ? 'Annuler' : '← Précédent'}
           </button>
 
           {step < STEPS.length - 1 ? (
@@ -631,7 +631,7 @@ export function CreateEventWizard({ onClose }: Props) {
               onClick={goNext}
               disabled={!canProceed()}
             >
-              Siguiente →
+              Suivant →
             </button>
           ) : (
             <button
@@ -639,7 +639,7 @@ export function CreateEventWizard({ onClose }: Props) {
               onClick={handleSubmit}
               disabled={submitting}
             >
-              {submitting ? 'Creando…' : '✓ Crear Evento'}
+              {submitting ? 'Création…' : '✓ Créer l’événement'}
             </button>
           )}
         </div>

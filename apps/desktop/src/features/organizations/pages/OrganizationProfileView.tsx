@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   getOrganization,
   getInviteLinks,
@@ -49,7 +48,6 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 
 export function OrganizationProfileView() {
   const { orgId } = useParams<{ orgId: string }>();
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [org, setOrg] = useState<OrganizationDetail | null>(null);
@@ -163,7 +161,7 @@ export function OrganizationProfileView() {
   }
 
   if (loading) return <div className={p.page}><div className={p.spinner} /></div>;
-  if (!org) return <div className={p.page}><p>{t('common.not_found')}</p></div>;
+  if (!org) return <div className={p.page}><p>Introuvable</p></div>;
 
   const createdYear = new Date(org.createdAt).getFullYear();
   const today = new Date();
@@ -174,10 +172,10 @@ export function OrganizationProfileView() {
   const unreadMessages = convos.filter((c) => c.unreadCount > 0).length;
 
   const tabs: { id: TabId; label: string }[] = [
-    { id: 'about', label: t('org_detail.tab_info') },
-    { id: 'members', label: t('org_detail.tab_members') },
-    { id: 'repertoire', label: 'Repertoire' },
-    { id: 'finance', label: t('nav.finance') },
+    { id: 'about', label: 'Infos' },
+    { id: 'members', label: 'Membres' },
+    { id: 'repertoire', label: 'Répertoire' },
+    { id: 'finance', label: 'Finances' },
   ];
 
   return (
@@ -191,7 +189,7 @@ export function OrganizationProfileView() {
           <div
             className={s.orgLogoBox}
             onClick={() => isAdmin && setLogoMode('source')}
-            title={isAdmin ? 'Cambiar logo de la organización' : undefined}
+            title={isAdmin ? 'Changer le logo de l’organisation' : undefined}
           >
             {logoUrl
               ? <img src={logoUrl} alt={org.name} className={s.orgLogoImg} />
@@ -207,8 +205,8 @@ export function OrganizationProfileView() {
             <div className={s.orgMeta}>
               {org.website && <span>🌐 <a href={org.website} target="_blank" rel="noreferrer">{org.website.replace(/^https?:\/\//, '')}</a></span>}
               {org.phone && <span>📞 {org.phone}</span>}
-              <span>👥 {org.members.length} {t('org_detail.tab_members')}</span>
-              <span>{t('org_detail.created_in', { year: createdYear })}</span>
+              <span>👥 {org.members.length} Membres</span>
+              <span>Créée en {createdYear}</span>
             </div>
           </div>
         </div>
@@ -216,41 +214,41 @@ export function OrganizationProfileView() {
           <button
             className={s.bannerEditBtn}
             onClick={() => setBannerMode('source')}
-            title="Cambiar banner de la organización"
+            title="Changer la bannière de l’organisation"
           >
-            📷 Cambiar banner
+            📷 Changer la bannière
           </button>
         )}
       </div>
 
       <div className={s.actionBar}>
         <button className={s.btnPrimary} onClick={() => navigate(`/organization/${orgId}/members`)}>
-          Gestionar Equipo
+          Gérer l’équipe
         </button>
-        <button className={s.btnSecondary}>{t('org_detail.edit_profile')} ✏</button>
-        <button className={s.btnSecondary}>{t('org_detail.export_rider')} 📄</button>
+        <button className={s.btnSecondary}>Modifier le profil ✏</button>
+        <button className={s.btnSecondary}>Exporter le rider 📄</button>
       </div>
 
       <div className={s.dashStats}>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('dashboard.next_event')}</div>
+          <div className={p.statLabel}>Prochains événements</div>
           <div className={p.statValue}>{events.length}</div>
-          <div className={p.statSub}>{t('dashboard.next_14_days')}</div>
+          <div className={p.statSub}>14 prochains jours</div>
         </div>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('dashboard.unread_messages')}</div>
+          <div className={p.statLabel}>Messages non lus</div>
           <div className={p.statValue}>{unreadMessages}</div>
-          <div className={p.statSub}>{t('dashboard.conversations')}</div>
+          <div className={p.statSub}>Conversations</div>
         </div>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('dashboard.notifications')}</div>
+          <div className={p.statLabel}>Notifications</div>
           <div className={p.statValue}>{notifs.length}</div>
-          <div className={p.statSub}>{t('dashboard.unread')}</div>
+          <div className={p.statSub}>Non lues</div>
         </div>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('dashboard.today_event')}</div>
-          <div className={p.statValue} style={{ fontSize: 14, fontWeight: 600 }}>{todayEvent ? todayEvent.title : t('dashboard.no_events')}</div>
-          <div className={p.statSub}>{todayEvent ? new Date(todayEvent.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+          <div className={p.statLabel}>Événement du jour</div>
+          <div className={p.statValue} style={{ fontSize: 14, fontWeight: 600 }}>{todayEvent ? todayEvent.title : 'Aucun événement'}</div>
+          <div className={p.statSub}>{todayEvent ? new Date(todayEvent.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
         </div>
       </div>
 
@@ -272,13 +270,13 @@ export function OrganizationProfileView() {
             <>
               {org.description && (
                 <div className={p.card}>
-                  <h3 className={s.sectionTitle}>{t('org_detail.biography_section')}</h3>
+                  <h3 className={s.sectionTitle}>Biographie</h3>
                   <p className={s.bodyText}>{org.description}</p>
                 </div>
               )}
 
               <div className={`${p.card} ${s.mt}`}>
-                <h3 className={s.sectionTitle}>{t('org_detail.team_section')}</h3>
+                <h3 className={s.sectionTitle}>Équipe</h3>
                 {org.members.map((m) => {
                   const initials = m.user.displayName.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
                   return (
@@ -303,11 +301,11 @@ export function OrganizationProfileView() {
               </div>
               <div className={`${p.card} ${s.mt}`}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-                  <h3 className={s.sectionTitle}>{t('nav.messages')}</h3>
-                  <button className={s.viewAllLink} onClick={() => navigate('/messages')}>{t('common.view_all')} →</button>
+                  <h3 className={s.sectionTitle}>Messages</h3>
+                  <button className={s.viewAllLink} onClick={() => navigate('/messages')}>Tout voir →</button>
                 </div>
                 {convos.length === 0
-                  ? <p className={s.emptyText}>No results</p>
+                  ? <p className={s.emptyText}>Aucun résultat</p>
                   : convos.map((c) => (
                     <div key={c.userId} className={s.convoRow} onClick={() => navigate(`/messages/direct/${c.userId}`)} role="button" tabIndex={0}
                       onKeyDown={(e) => e.key === 'Enter' && navigate(`/messages/direct/${c.userId}`)}>
@@ -326,17 +324,17 @@ export function OrganizationProfileView() {
           {tab === 'members' && (
             <div className={p.card}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
-                <h3 className={s.sectionTitle} style={{ marginBottom: 0 }}>{t('org_detail.team_section')}</h3>
+                <h3 className={s.sectionTitle} style={{ marginBottom: 0 }}>Équipe</h3>
                 <button className={s.viewAllLink} onClick={() => navigate(`/organization/${orgId}/members`)}>
-                  Gestionar equipo completo →
+                  Gérer toute l’équipe →
                 </button>
               </div>
               <table className={p.table}>
                 <thead>
                   <tr>
-                    <th className={p.th}>{t('common.name')}</th>
-                    <th className={p.th}>{t('common.role')}</th>
-                    <th className={p.th}>{t('common.joined')}</th>
+                    <th className={p.th}>Nom</th>
+                    <th className={p.th}>Rôle</th>
+                    <th className={p.th}>A rejoint</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -346,7 +344,7 @@ export function OrganizationProfileView() {
                       <td className={p.td}>
                         <span className={s.roleBadge} style={{ background: ROLE_COLOR[m.role] }}>{m.role}</span>
                       </td>
-                      <td className={p.td}>{new Date(m.joinedAt).toLocaleDateString()}</td>
+                      <td className={p.td}>{new Date(m.joinedAt).toLocaleDateString('fr-FR')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -356,36 +354,36 @@ export function OrganizationProfileView() {
 
           {(tab === 'repertoire' || tab === 'finance') && (
             <div className={p.card}>
-              <p className={s.emptyText}>{t('common.no_results')}</p>
+              <p className={s.emptyText}>Aucun résultat</p>
             </div>
           )}
         </div>
 
         <aside className={s.sidebar}>
           <div className={p.card}>
-            <h4 className={s.sidebarTitle}>{t('org_detail.admin_panel')}</h4>
+            <h4 className={s.sidebarTitle}>Panneau d’administration</h4>
             <div className={s.adminActions}>
               <button className={s.adminBtn} onClick={() => setShowInviteModal(true)}>
-                Invitar por correo
+                Inviter par e-mail
               </button>
-              <button className={s.adminBtn}>{t('org_detail.upload_assets')}</button>
-              <button className={s.adminBtn}>{t('org_detail.band_settings')}</button>
+              <button className={s.adminBtn}>Importer des ressources</button>
+              <button className={s.adminBtn}>Paramètres du groupe</button>
             </div>
           </div>
 
           {links.length > 0 && (
             <div className={`${p.card} ${s.mt}`}>
-              <h4 className={s.sidebarTitle}>{t('org_detail.active_links')}</h4>
+              <h4 className={s.sidebarTitle}>Liens actifs</h4>
               {links.map((link) => {
                 const days = Math.max(0, Math.round((new Date(link.expiresAt).getTime() - Date.now()) / 86400000));
                 return (
                   <div key={link.id} className={s.linkCard}>
                     <div className={s.linkInfo}>
                       <span className={s.linkToken}>🔗 /join/{link.token.slice(0, 12)}…</span>
-                      <span className={s.linkMeta}>{t('org_detail.role_expiry', { role: link.role, days })}</span>
+                      <span className={s.linkMeta}>{link.role} · expire dans {days} j</span>
                     </div>
                     <button className={s.revokeBtn} onClick={() => handleRevoke(link.id)}>
-                      {t('org_detail.revoke')}
+                      Révoquer
                     </button>
                   </div>
                 );
@@ -394,19 +392,19 @@ export function OrganizationProfileView() {
           )}
 
           <div className={`${p.card} ${s.mt}`}>
-            <h4 className={s.sidebarTitle}>{t('org_detail.resources_summary')}</h4>
+            <h4 className={s.sidebarTitle}>Résumé des ressources</h4>
             <div className={s.resourceList}>
               <div className={s.resourceItem}>
                 <span>🎼</span>
-                <span>{t('org_detail.songs_count', { count: 0 })}</span>
+                <span>0 morceaux</span>
               </div>
               <div className={s.resourceItem}>
                 <span>🎪</span>
-                <span>{t('org_detail.events_count', { count: events.length })}</span>
+                <span>{events.length} événements</span>
               </div>
               <div className={s.resourceItem}>
                 <span>🚌</span>
-                <span>{t('org_detail.convoy_count', { count: 0 })}</span>
+                <span>0 convois</span>
               </div>
             </div>
           </div>
