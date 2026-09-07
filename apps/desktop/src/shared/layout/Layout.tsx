@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation } from '@regieart/api';
+import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
 import { CreateSongWizard } from '../../features/songs';
@@ -8,6 +8,7 @@ import { CreateOrganizationModal } from '../../features/organizations/pages/Crea
 import { InviteModal } from '../../features/organizations/pages/MembersPage';
 import type { EmailInvitation } from '@regieart/types';
 import { setActiveOrganization } from '../utils/activeOrganization';
+import { clearProfileMediaCache } from '../utils/profileMediaCache';
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
 import s from './Layout.module.scss';
@@ -128,6 +129,8 @@ export function Layout() {
 
   function handleSignOut() {
     localStorage.removeItem('regieart_tokens');
+    clearProfileMediaCache();
+    clearImageCache();
     navigate('/login', { replace: true });
   }
 

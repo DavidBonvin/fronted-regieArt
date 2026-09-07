@@ -1,0 +1,155 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: rgba(10, 12, 13, 0.82);
+  backdrop-filter: blur(10px);
+  animation: veil 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: min(1040px, 100%);
+  max-height: 100%;
+  animation: rise 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+}
+.captionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.captionSub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.avatarFrame {
+  width: min(62vh, 460px);
+  height: min(62vh, 460px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 32px 80px -24px rgba(0, 0, 0, 0.9);
+}
+.avatarFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bannerFrame {
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 32px 80px -24px rgba(0, 0, 0, 0.9);
+}
+.bannerFrame img {
+  display: block;
+  max-width: min(1040px, 88vw);
+  max-height: 62vh;
+  object-fit: contain;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.3); }
+  &:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}
+
+.btnPrimary {
+  composes: btn;
+  background: var(--action-brand);
+  border-color: transparent;
+
+  &:hover { background: var(--action-brand-dim); border-color: transparent; }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(255, 255, 255, 0.18); }
+  &:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}
+
+@keyframes veil {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.94); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .shell { animation: none; }
+}
+
+@media (max-width: 767px) {
+  .overlay { padding: 16px; }
+  .avatarFrame { width: min(72vw, 320px); height: min(72vw, 320px); }
+  .bannerFrame img { max-width: 92vw; }
+  .closeBtn { top: 12px; right: 12px; }
+  .btn, .btnPrimary { flex: 1 1 auto; justify-content: center; }
+}

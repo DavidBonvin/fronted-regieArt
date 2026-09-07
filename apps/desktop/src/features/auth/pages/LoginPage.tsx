@@ -1,6 +1,7 @@
 import React, { useId, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginWithPassword } from '@regieart/api';
+import { loginWithPassword, clearImageCache } from '@regieart/api';
+import { clearProfileMediaCache } from '../../../shared/utils/profileMediaCache';
 import s from './LoginPage.module.scss';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,6 +61,9 @@ export function LoginPage() {
     setError('');
     try {
       await loginWithPassword(email, password);
+      // A different account may have left cached images behind.
+      clearProfileMediaCache();
+      clearImageCache();
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'E-mail ou mot de passe incorrect.');

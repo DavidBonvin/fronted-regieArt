@@ -6,14 +6,16 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { getUserById, getUserSkills } from '@regieart/api';
+import { getUserById, getUserSkills, getUserProfileUrls, resolveImageUrl } from '@regieart/api';
 import type { UserPublic, UserSkill } from '@regieart/types';
 import { useTheme } from '../../../shared/theme';
+import { ProfileMediaViewer } from '../components/ProfileMediaViewer';
 import type { ThemeColors } from '@regieart/ui';
 import type { RootStackParamList } from '../../../navigation';
 
@@ -37,12 +39,21 @@ export function MusicianProfileScreen({ route }: Props) {
   const [user, setUser] = useState<UserPublic | null>(null);
   const [skills, setSkills] = useState<UserSkill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   const loadData = useCallback(async () => {
+    setAvatarUrl(null);
     const [u, sk] = await Promise.all([getUserById(userId), getUserSkills(userId)]);
     setUser(u);
     setSkills(sk);
     navigation.setOptions({ title: u.displayName });
+
+    const urls = await getUserProfileUrls(userId).catch(() => ({ avatarUrl: null, bannerUrl: null }));
+    if (urls.avatarUrl) {
+      const signed = await resolveImageUrl(urls.avatarUrl).catch(() => null);
+      setAvatarUrl(signed);
+    }
   }, [userId, navigation]);
 
   useEffect(() => {
@@ -71,9 +82,17 @@ export function MusicianProfileScreen({ route }: Props) {
     <SafeAreaView style={s.root}>
       <ScrollView contentContainerStyle={s.scroll}>
         <View style={s.hero}>
-          <View style={s.avatar}>
-            <Text style={s.avatarText}>{initials}</Text>
-          </View>
+          <Pressable
+            style={s.avatar}
+            onPress={avatarUrl ? () => setViewerOpen(true) : undefined}
+            accessibilityRole={avatarUrl ? 'button' : undefined}
+            accessibilityLabel={avatarUrl ? `Ver la foto de ${user.displayName}` : undefined}
+          >
+            {avatarUrl
+              ? <Image source={{ uri: avatarUrl }} style={s.avatarImg} />
+              : <Text style={s.avatarText}>{initials}</Text>
+            }
+          </Pressable>
           <Text style={s.displayName}>{user.displayName}</Text>
           {user.city || user.country ? (
             <Text style={s.location}>{[user.city, user.country].filter(Boolean).join(', ')}</Text>
@@ -123,6 +142,17 @@ export function MusicianProfileScreen({ route }: Props) {
           </View>
         )}
       </ScrollView>
+
+      <ProfileMediaViewer
+        visible={viewerOpen}
+        src={avatarUrl}
+        kind="avatar"
+        userName={user.displayName}
+        theme={theme}
+        canEdit={false}
+        onEdit={() => {}}
+        onClose={() => setViewerOpen(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -134,17 +164,19 @@ function makeStyles(theme: ThemeColors) {
     scroll: { padding: 20, paddingBottom: 40 },
     hero: { alignItems: 'center', marginBottom: 20 },
     avatar: {
-      width: 88,
-      height: 88,
-      borderRadius: 44,
+      width: 112,
+      height: 112,
+      borderRadius: 56,
       backgroundColor: theme.surfaceRaised,
       borderWidth: 2,
       borderColor: theme.actionBrand,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
       marginBottom: 12,
     },
-    avatarText: { fontSize: 32, fontWeight: '700', color: theme.actionBrand },
+    avatarImg: { width: '100%', height: '100%' },
+    avatarText: { fontSize: 40, fontWeight: '700', color: theme.actionBrand },
     displayName: { fontSize: 24, fontWeight: '700', color: theme.textHeading, letterSpacing: -0.3, marginBottom: 4 },
     location: { fontSize: 14, color: theme.textSecondary, marginBottom: 8 },
     bio: { fontSize: 14, color: theme.textSecondary, textAlign: 'center', lineHeight: 20, paddingHorizontal: 20 },

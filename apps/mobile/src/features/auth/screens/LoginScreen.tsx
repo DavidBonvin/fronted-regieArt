@@ -13,7 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { loginWithPassword } from '@regieart/api';
+import { loginWithPassword, clearImageCache } from '@regieart/api';
+import { clearProfileMediaCache } from '../../../shared/utils/profileMediaCache';
 import { useTheme } from '../../../shared/theme';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,6 +43,9 @@ export function LoginScreen({ navigation }: Props) {
     setError(null);
     try {
       await loginWithPassword(email.trim(), password);
+      // A different account may have left cached images behind.
+      await clearProfileMediaCache();
+      clearImageCache();
       navigation.replace('OrgSelector');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

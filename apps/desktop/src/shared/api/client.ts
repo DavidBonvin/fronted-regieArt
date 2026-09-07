@@ -1,5 +1,6 @@
 import { initApiClient } from '@regieart/api';
 import type { TokenStorageAdapter, StoredTokens, FileReaderAdapter } from '@regieart/api';
+import { clearProfileMediaCache } from '../utils/profileMediaCache';
 
 const tokenAdapter: TokenStorageAdapter = {
   async getTokens(): Promise<StoredTokens | null> {
@@ -88,6 +89,7 @@ initApiClient({
   tokenAdapter,
   fileReaderAdapter,
   onSessionExpired: () => {
+    clearProfileMediaCache();
     window.location.href = '/login';
   },
 });

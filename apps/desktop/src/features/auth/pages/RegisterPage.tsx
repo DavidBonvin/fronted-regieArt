@@ -1,6 +1,7 @@
 import React, { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, loginWithPassword, updateMe } from '@regieart/api';
+import { registerUser, loginWithPassword, updateMe, clearImageCache } from '@regieart/api';
+import { clearProfileMediaCache } from '../../../shared/utils/profileMediaCache';
 import s from './RegisterPage.module.scss';
 
 const HERO_FEATURES = [
@@ -38,6 +39,9 @@ export function RegisterPage() {
     try {
       await registerUser({ email, password, firstName, lastName });
       await loginWithPassword(email, password);
+      // A different account may have left cached images behind.
+      clearProfileMediaCache();
+      clearImageCache();
       if (displayName) {
         await updateMe({ displayName, firstName, lastName });
       }

@@ -13,7 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { registerUser, loginWithPassword, getMe, updateMe } from '@regieart/api';
+import { registerUser, loginWithPassword, getMe, updateMe, clearImageCache } from '@regieart/api';
+import { clearProfileMediaCache } from '../../../shared/utils/profileMediaCache';
 import { useTheme } from '../../../shared/theme';
 import type { RootStackParamList } from '../../../navigation';
 import type { ThemeColors } from '@regieart/ui';
@@ -56,6 +57,10 @@ export function RegisterScreen({ navigation }: Props) {
       await registerUser({ email: email.trim(), password, firstName: displayName.trim() });
 
       await loginWithPassword(email.trim(), password);
+
+      // A different account may have left cached images behind.
+      await clearProfileMediaCache();
+      clearImageCache();
 
       await getMe();
 

@@ -19,14 +19,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getMe, getMySkills, getMyProfileUrls, updateMe, addSkill, removeSkill,
   listSkillCategories, searchAssets, getDownloadUrl, logout, getConfig, uploadFile,
-  resolveImageUrl,
+  resolveImageUrl, clearImageCache,
 } from '@regieart/api';
 import type { User, UserSkill, SkillCategory, ExpertiseLevel, Asset } from '@regieart/types';
 import { useTheme } from '../../../shared/theme';
+import {
+  avatarCacheKey, bannerCacheKey, readProfileMedia, writeProfileMedia, removeProfileMedia,
+  clearProfileMediaCache,
+} from '../../../shared/utils/profileMediaCache';
+import { ProfileMediaViewer } from '../components/ProfileMediaViewer';
+import type { ProfileMediaKind } from '../components/ProfileMediaViewer';
 import type { ThemeColors } from '@regieart/ui';
 import type { RootStackParamList } from '../../../navigation';
 
@@ -54,8 +59,14 @@ const ASSET_ICONS: Partial<Record<string, string>> = {
 
 const EXPERTISE_LEVELS: ExpertiseLevel[] = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL'];
 
-const AVATAR_CACHE_KEY = '@regieart:myAvatarCache';
-const BANNER_CACHE_KEY = '@regieart:myBannerCache';
+function blobToDataUri(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new (globalThis as any).FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 export function ProfileScreen() {
   const { theme } = useTheme();
@@ -75,13 +86,9 @@ export function ProfileScreen() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [bannerPickerMode, setBannerPickerMode] = useState<null | 'main' | 'r2'>(null);
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<ProfileMediaKind | null>(null);
 
   const loadData = useCallback(async () => {
-    const cached = await AsyncStorage.getItem(AVATAR_CACHE_KEY).catch(() => null);
-    if (cached) setAvatarUrl(cached);
-    const cachedBanner = await AsyncStorage.getItem(BANNER_CACHE_KEY).catch(() => null);
-    if (cachedBanner) setBannerUrl(cachedBanner);
-
     const [u, sk, media] = await Promise.all([
       getMe(),
       getMySkills(),
@@ -91,40 +98,45 @@ export function ProfileScreen() {
     setSkills(sk);
     setAssets(media.assets ?? []);
 
-    if (!cached || !cachedBanner) {
-      const urls = await getMyProfileUrls().catch(() => ({ avatarUrl: null, bannerUrl: null }));
-      if (!cached && urls.avatarUrl) {
-        resolveImageUrl(urls.avatarUrl)
-          .then((signed) => fetch(signed!))
-          .then((r) => r.blob())
-          .then((blob) => new Promise<string>((res, rej) => {
-            const reader = new (globalThis as any).FileReader();
-            reader.onloadend = () => res(reader.result as string);
-            reader.onerror = rej;
-            reader.readAsDataURL(blob);
-          }))
-          .then((dataUri) => {
-            AsyncStorage.setItem(AVATAR_CACHE_KEY, dataUri).catch(() => {});
-            setAvatarUrl(dataUri);
-          })
-          .catch(() => {});
-      }
-      if (!cachedBanner && urls.bannerUrl) {
-        resolveImageUrl(urls.bannerUrl)
-          .then((signed) => fetch(signed!))
-          .then((r) => r.blob())
-          .then((blob) => new Promise<string>((res, rej) => {
-            const reader = new (globalThis as any).FileReader();
-            reader.onloadend = () => res(reader.result as string);
-            reader.onerror = rej;
-            reader.readAsDataURL(blob);
-          }))
-          .then((dataUri) => {
-            AsyncStorage.setItem(BANNER_CACHE_KEY, dataUri).catch(() => {});
-            setBannerUrl(dataUri);
-          })
-          .catch(() => {});
-      }
+    const aKey = avatarCacheKey(u.id);
+    const bKey = bannerCacheKey(u.id);
+
+    // Show the cache of THIS user only, then revalidate against the server.
+    const cached = await readProfileMedia(aKey);
+    setAvatarUrl(cached);
+    const cachedBanner = await readProfileMedia(bKey);
+    setBannerUrl(cachedBanner);
+
+    const urls = await getMyProfileUrls().catch(() => ({ avatarUrl: null, bannerUrl: null }));
+
+    if (urls.avatarUrl) {
+      resolveImageUrl(urls.avatarUrl)
+        .then((signed) => fetch(signed!))
+        .then((r) => r.blob())
+        .then(blobToDataUri)
+        .then((dataUri) => {
+          writeProfileMedia(aKey, dataUri);
+          setAvatarUrl(dataUri);
+        })
+        .catch(() => {});
+    } else {
+      await removeProfileMedia(aKey);
+      setAvatarUrl(null);
+    }
+
+    if (urls.bannerUrl) {
+      resolveImageUrl(urls.bannerUrl)
+        .then((signed) => fetch(signed!))
+        .then((r) => r.blob())
+        .then(blobToDataUri)
+        .then((dataUri) => {
+          writeProfileMedia(bKey, dataUri);
+          setBannerUrl(dataUri);
+        })
+        .catch(() => {});
+    } else {
+      await removeProfileMedia(bKey);
+      setBannerUrl(null);
     }
   }, []);
 
@@ -148,6 +160,10 @@ export function ProfileScreen() {
       // eslint-disable-next-line no-empty
       try { await getConfig().tokenAdapter.clearTokens(); } catch { /* ignore */ }
     }
+    await clearProfileMediaCache();
+    clearImageCache();
+    setAvatarUrl(null);
+    setBannerUrl(null);
     navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
   }
 
@@ -175,6 +191,17 @@ export function ProfileScreen() {
   const initials = user.displayName.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
   const totalYearsExp = skills.reduce((max, sk) => Math.max(max, sk.yearsExp ?? 0), 0);
 
+  // With a picture the tap opens the viewer; without one it goes straight to the upload flow.
+  function handleAvatarPress() {
+    if (avatarUrl) setViewer('avatar');
+    else setAvatarPickerMode('main');
+  }
+
+  function handleBannerPress() {
+    if (bannerUrl) setViewer('banner');
+    else setBannerPickerMode('main');
+  }
+
   return (
     <SafeAreaView style={s.root} edges={['top']}>
       <View style={s.topNav}>
@@ -190,9 +217,9 @@ export function ProfileScreen() {
       >
         <Pressable
           style={s.banner}
-          onPress={() => setBannerPickerMode('main')}
+          onPress={handleBannerPress}
           accessibilityRole="button"
-          accessibilityLabel="Cambiar banner de perfil"
+          accessibilityLabel={bannerUrl ? 'Ver el banner del perfil' : 'Añadir un banner de perfil'}
         >
           {bannerUrl && (
             <Image
@@ -201,19 +228,33 @@ export function ProfileScreen() {
               resizeMode="cover"
             />
           )}
-          <View style={[s.bannerGradient, bannerUrl ? s.bannerGradientDark : null]} />
-          <View style={s.bannerEditHint}>
+          <View style={bannerUrl ? s.bannerScrim : s.bannerGradient} />
+          <Pressable
+            style={s.bannerEditHint}
+            onPress={() => setBannerPickerMode('main')}
+            accessibilityRole="button"
+            accessibilityLabel="Cambiar el banner del perfil"
+          >
             <Text style={s.bannerEditHintText}>📷</Text>
-          </View>
+          </Pressable>
         </Pressable>
 
         <View style={s.headerRow}>
-          <Pressable style={s.avatarWrap} onPress={() => setAvatarPickerMode('main')} accessibilityRole="button">
-            {avatarUrl
-              ? <Image source={{ uri: avatarUrl }} style={s.avatar} />
-              : <View style={s.avatar}><Text style={s.avatarText}>{initials}</Text></View>
-            }
-            <View style={s.avatarEditBadge}><Text style={s.avatarEditBadgeText}>✎</Text></View>
+          <Pressable
+            style={s.avatarWrap}
+            onPress={handleAvatarPress}
+            accessibilityRole="button"
+            accessibilityLabel={avatarUrl ? 'Ver la foto de perfil' : 'Añadir una foto de perfil'}
+          >
+            <View style={s.avatar}>
+              {avatarUrl
+                ? <Image source={{ uri: avatarUrl }} style={s.avatarImg} />
+                : <Text style={s.avatarText}>{initials}</Text>
+              }
+            </View>
+            <View style={s.avatarEditBadge}>
+              <Text style={s.avatarEditBadgeText}>{avatarUrl ? '⤢' : '✎'}</Text>
+            </View>
           </Pressable>
           <View style={s.statsRow}>
             <View style={s.statItem}>
@@ -333,7 +374,7 @@ export function ProfileScreen() {
         <AvatarPickerModal
           theme={theme} t={t}
           onUploaded={async (dataUri) => {
-            await AsyncStorage.setItem(AVATAR_CACHE_KEY, dataUri).catch(() => {});
+            if (user) await writeProfileMedia(avatarCacheKey(user.id), dataUri);
             setAvatarUrl(dataUri);
             setAvatarPickerMode(null);
           }}
@@ -353,7 +394,7 @@ export function ProfileScreen() {
         <BannerPickerModal
           theme={theme} t={t}
           onUploaded={async (dataUri) => {
-            await AsyncStorage.setItem(BANNER_CACHE_KEY, dataUri).catch(() => {});
+            if (user) await writeProfileMedia(bannerCacheKey(user.id), dataUri);
             setBannerUrl(dataUri);
             setBannerPickerMode(null);
           }}
@@ -368,13 +409,9 @@ export function ProfileScreen() {
             try {
               const res = await fetch(url);
               const blob = await res.blob();
-              const reader = new (globalThis as any).FileReader();
-              reader.onloadend = async () => {
-                const dataUri = reader.result as string;
-                await AsyncStorage.setItem(BANNER_CACHE_KEY, dataUri).catch(() => {});
-                setBannerUrl(dataUri);
-              };
-              reader.readAsDataURL(blob);
+              const dataUri = await blobToDataUri(blob);
+              if (user) await writeProfileMedia(bannerCacheKey(user.id), dataUri);
+              setBannerUrl(dataUri);
             } catch { setBannerUrl(url); }
             setBannerPickerMode(null);
           }}
@@ -399,6 +436,22 @@ export function ProfileScreen() {
           onClose={() => setShowSkillModal(false)}
         />
       )}
+
+      <ProfileMediaViewer
+        visible={viewer !== null}
+        src={viewer === 'avatar' ? avatarUrl : bannerUrl}
+        kind={viewer ?? 'avatar'}
+        userName={user.displayName}
+        theme={theme}
+        canEdit
+        onEdit={() => {
+          const kind = viewer;
+          setViewer(null);
+          if (kind === 'avatar') setAvatarPickerMode('main');
+          else setBannerPickerMode('main');
+        }}
+        onClose={() => setViewer(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -815,9 +868,9 @@ function makeStyles(theme: ThemeColors) {
     topNavUsername: { fontSize: 16, fontWeight: '700', color: theme.textHeading, flex: 1 },
     topNavBtn: { padding: 6 },
     topNavBtnText: { fontSize: 20, color: theme.textSecondary },
-    banner: { height: 140, overflow: 'hidden', position: 'relative' },
+    banner: { height: 190, overflow: 'hidden', position: 'relative' },
     bannerGradient: { ...StyleSheet.absoluteFillObject, backgroundColor: theme.actionBrand, opacity: 0.25 },
-    bannerGradientDark: { opacity: 0.35 },
+    bannerScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.12)' },
     bannerEditHint: {
       position: 'absolute', bottom: 8, right: 12,
       flexDirection: 'row', alignItems: 'center',
@@ -826,18 +879,24 @@ function makeStyles(theme: ThemeColors) {
       borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
     },
     bannerEditHintText: { fontSize: 16, color: '#fff' },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginTop: -32, marginBottom: 12, gap: 16 },
-    avatarWrap: { borderRadius: 44, borderWidth: 3, borderColor: theme.surfaceApp, alignSelf: 'flex-start', position: 'relative' },
-    avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: theme.actionBrand, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-    avatarEditBadge: { position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, borderRadius: 11, backgroundColor: theme.surfaceCard, borderWidth: 2, borderColor: theme.surfaceApp, alignItems: 'center', justifyContent: 'center' },
-    avatarEditBadgeText: { fontSize: 11, color: theme.textSecondary },
+    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginTop: -44, marginBottom: 12, gap: 16 },
+    avatarWrap: { alignSelf: 'flex-start', position: 'relative' },
+    avatar: {
+      width: 108, height: 108, borderRadius: 54,
+      borderWidth: 4, borderColor: theme.surfaceApp,
+      backgroundColor: theme.actionBrand,
+      alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+    },
+    avatarImg: { width: '100%', height: '100%' },
+    avatarEditBadge: { position: 'absolute', bottom: 2, right: 2, width: 28, height: 28, borderRadius: 14, backgroundColor: theme.surfaceCard, borderWidth: 2, borderColor: theme.surfaceApp, alignItems: 'center', justifyContent: 'center' },
+    avatarEditBadgeText: { fontSize: 13, color: theme.textSecondary },
     avatarPickerOption: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.borderSubtle },
     avatarPickerIcon: { fontSize: 28, width: 36, textAlign: 'center' },
     avatarPickerInfo: { flex: 1 },
     avatarPickerTitle: { fontSize: 15, fontWeight: '600', color: theme.textHeading },
     avatarPickerSub: { fontSize: 12, color: theme.textMuted, marginTop: 2 },
-    avatarText: { fontSize: 26, fontWeight: '800', color: '#fff' },
-    statsRow: { flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: 38 },
+    avatarText: { fontSize: 38, fontWeight: '800', color: '#fff' },
+    statsRow: { flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: 46 },
     statItem: { flex: 1, alignItems: 'center' },
     statNum: { fontSize: 20, fontWeight: '700', color: theme.textHeading, letterSpacing: -0.3 },
     statLabel: { fontSize: 11, color: theme.textMuted, marginTop: 2, textAlign: 'center' },

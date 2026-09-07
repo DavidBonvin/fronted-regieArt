@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getMe, getMySkills, getMyProfileUrls, updateMe, addSkill, removeSkill,
-  listSkillCategories, searchAssets, getUserById, getUserSkills, resolveImageUrl,
+  listSkillCategories, searchAssets, getUserById, getUserSkills, getUserProfileUrls, resolveImageUrl,
 } from '@regieart/api';
 import type { User, UserPublic, UserSkill, SkillCategory, ExpertiseLevel, Asset } from '@regieart/types';
 import {
@@ -11,11 +11,13 @@ import {
   BannerSourceModal, BannerCropModal, BannerR2GalleryModal, runBannerUpload,
 } from './AvatarFlowModals';
 import type { AvatarFlowMode, BannerFlowMode } from './AvatarFlowModals';
+import { ProfileMediaViewer } from './ProfileMediaViewer';
+import type { ProfileMediaKind } from './ProfileMediaViewer';
+import {
+  avatarCacheKey, bannerCacheKey, readProfileMedia, writeProfileMedia, removeProfileMedia,
+} from '../../../shared/utils/profileMediaCache';
 import p from '../../../shared/layout/page.module.scss';
 import s from './MusicianProfilePage.module.scss';
-
-const AVATAR_CACHE_KEY = 'regieart:myAvatarCache';
-const BANNER_CACHE_KEY = 'regieart:myBannerCache';
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -76,12 +78,9 @@ export function MusicianProfilePage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSkillModal, setShowSkillModal] = useState(false);
 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(() => {
-    try { return localStorage.getItem(AVATAR_CACHE_KEY); } catch { return null; }
-  });
-  const [bannerUrl, setBannerUrl] = useState<string | null>(() => {
-    try { return localStorage.getItem(BANNER_CACHE_KEY); } catch { return null; }
-  });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<ProfileMediaKind | null>(null);
 
   const [bannerMode, setBannerMode] = useState<BannerFlowMode>(null);
   const [bannerCropSrc, setBannerCropSrc] = useState<string | null>(null);
@@ -94,11 +93,13 @@ export function MusicianProfilePage() {
 
   useEffect(() => {
     if (!userId) return;
+    let cancelled = false;
+    setAvatarUrl(null);
+    setBannerUrl(null);
     const userPromise = isOwn ? getMe() : getUserById(userId);
     const skillsPromise = isOwn ? getMySkills() : getUserSkills(userId);
-    const urlsPromise = isOwn
-      ? getMyProfileUrls().catch(() => ({ avatarUrl: null, bannerUrl: null }))
-      : Promise.resolve({ avatarUrl: null, bannerUrl: null });
+    const urlsPromise = (isOwn ? getMyProfileUrls() : getUserProfileUrls(userId))
+      .catch(() => ({ avatarUrl: null, bannerUrl: null }));
     Promise.all([
       userPromise,
       skillsPromise,
@@ -106,39 +107,56 @@ export function MusicianProfilePage() {
       urlsPromise,
     ])
       .then(([u, sk, media, urls]) => {
+        if (cancelled) return;
         setUser(u); setSkills(sk); setAssets(media.assets ?? []);
-        const hasCachedAvatar = Boolean(localStorage.getItem(AVATAR_CACHE_KEY));
-        if (!hasCachedAvatar && urls.avatarUrl) {
+
+        const aKey = avatarCacheKey(u.id);
+        const bKey = bannerCacheKey(u.id);
+
+        // Show the cache of THIS user only, then revalidate against the server.
+        const cachedAvatar = readProfileMedia(aKey);
+        if (cachedAvatar) setAvatarUrl(cachedAvatar);
+        const cachedBanner = readProfileMedia(bKey);
+        if (cachedBanner) setBannerUrl(cachedBanner);
+
+        if (urls.avatarUrl) {
           resolveImageUrl(urls.avatarUrl)
             .then((signedUrl) => fetch(signedUrl!))
             .then((r) => r.blob())
             .then(blobToDataUrl)
             .then((dataUrl) => {
-              try { localStorage.setItem(AVATAR_CACHE_KEY, dataUrl); } catch { /* ignore */ }
-              setAvatarUrl(dataUrl);
+              writeProfileMedia(aKey, dataUrl);
+              if (!cancelled) setAvatarUrl(dataUrl);
             })
             .catch(() => {});
+        } else {
+          removeProfileMedia(aKey);
+          setAvatarUrl(null);
         }
-        const hasBannerCache = Boolean(localStorage.getItem(BANNER_CACHE_KEY));
-        if (!hasBannerCache && urls.bannerUrl) {
+
+        if (urls.bannerUrl) {
           resolveImageUrl(urls.bannerUrl)
             .then((signedUrl) => fetch(signedUrl!))
             .then((r) => r.blob())
             .then(blobToDataUrl)
             .then((dataUrl) => {
-              try { localStorage.setItem(BANNER_CACHE_KEY, dataUrl); } catch { /* ignore */ }
-              setBannerUrl(dataUrl);
+              writeProfileMedia(bKey, dataUrl);
+              if (!cancelled) setBannerUrl(dataUrl);
             })
             .catch(() => {});
+        } else {
+          removeProfileMedia(bKey);
+          setBannerUrl(null);
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [userId, isOwn]);
 
   async function handleBannerBlob(blob: Blob) {
     const dataUrl = await blobToDataUrl(blob);
     setBannerUrl(dataUrl);
-    try { localStorage.setItem(BANNER_CACHE_KEY, dataUrl); } catch { /* ignore */ }
+    if (user) writeProfileMedia(bannerCacheKey(user.id), dataUrl);
     setBannerMode('uploading');
     setBannerProgress(0);
     setBannerStep(0);
@@ -154,7 +172,7 @@ export function MusicianProfilePage() {
   async function handleUploadBlob(blob: Blob) {
     const dataUrl = await blobToDataUrl(blob);
     setAvatarUrl(dataUrl);
-    try { localStorage.setItem(AVATAR_CACHE_KEY, dataUrl); } catch { /* ignore */ }
+    if (user) writeProfileMedia(avatarCacheKey(user.id), dataUrl);
 
     setAvatarMode('uploading');
     setUploadProgress(0);
@@ -197,48 +215,82 @@ export function MusicianProfilePage() {
   const totalYears = skills.reduce((max, sk) => Math.max(max, sk.yearsExp ?? 0), 0);
   const memberships = 'memberships' in user ? user.memberships : [];
 
+  const avatarActionable = Boolean(avatarUrl) || isOwn;
+  const bannerActionable = Boolean(bannerUrl) || isOwn;
+
+  // With a picture the click opens the viewer; without one it goes straight to the upload flow.
+  function handleAvatarClick() {
+    if (avatarUrl) setViewer('avatar');
+    else if (isOwn) setAvatarMode('source');
+  }
+
+  function handleBannerClick() {
+    if (bannerUrl) setViewer('banner');
+    else if (isOwn) setBannerMode('source');
+  }
+
   return (
     <div className={s.root}>
       <div
-        className={s.banner}
-        style={bannerUrl ? { backgroundImage: `url("${bannerUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+        className={`${s.banner} ${bannerActionable ? s.bannerClickable : ''}`}
+        role={bannerActionable ? 'button' : undefined}
+        tabIndex={bannerActionable ? 0 : undefined}
+        aria-label={bannerUrl ? 'Agrandir la bannière' : 'Ajouter une bannière'}
+        onClick={bannerActionable ? handleBannerClick : undefined}
+        onKeyDown={bannerActionable
+          ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleBannerClick(); } }
+          : undefined}
       >
-        <div className={s.bannerOverlay} />
+        {bannerUrl
+          ? <>
+              <img src={bannerUrl} className={s.bannerImg} alt="" />
+              <div className={s.bannerScrim} />
+              <span className={s.bannerViewHint}>⤢ Agrandir</span>
+            </>
+          : <div className={s.bannerOverlay} />
+        }
         {isOwn && (
           <button
             className={s.bannerEditBtn}
-            onClick={() => setBannerMode('source')}
+            onClick={(e) => { e.stopPropagation(); setBannerMode('source'); }}
             title="Changer la bannière"
           >
-            📷 Changer la bannière du profil
+            📷 {bannerUrl ? 'Changer la bannière du profil' : 'Ajouter une bannière'}
           </button>
         )}
       </div>
 
       <div className={s.heroWrap}>
         <div className={s.heroLeft}>
-          <div className={s.avatarWrap}>
-            {avatarUrl
-              ? <img
-                  src={avatarUrl}
-                  className={s.avatarImg}
-                  alt={user.displayName}
-                  onError={() => {
-                    try { localStorage.removeItem(AVATAR_CACHE_KEY); } catch { /* ignore */ }
-                    setAvatarUrl(null);
-                  }}
-                />
-              : <div className={s.avatarCircle}>{initials}</div>
-            }
-            {isOwn && (
-              <button
-                className={s.avatarEditOverlay}
-                onClick={() => setAvatarMode('source')}
-                title="Changer la photo de profil"
-              >
-                <span className={s.avatarCamIcon}>📷</span>
-                <span className={s.avatarCamText}>Changer la photo</span>
-              </button>
+          <div
+            className={`${s.avatarWrap} ${avatarActionable ? s.avatarClickable : ''}`}
+            role={avatarActionable ? 'button' : undefined}
+            tabIndex={avatarActionable ? 0 : undefined}
+            aria-label={avatarUrl ? 'Agrandir la photo de profil' : 'Ajouter une photo de profil'}
+            onClick={avatarActionable ? handleAvatarClick : undefined}
+            onKeyDown={avatarActionable
+              ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleAvatarClick(); } }
+              : undefined}
+          >
+            <div className={s.avatarInner}>
+              {avatarUrl
+                ? <img
+                    src={avatarUrl}
+                    className={s.avatarImg}
+                    alt={user.displayName}
+                    onError={() => {
+                      removeProfileMedia(avatarCacheKey(user.id));
+                      setAvatarUrl(null);
+                    }}
+                  />
+                : <span className={s.avatarInitials}>{initials}</span>
+              }
+            </div>
+            {avatarActionable && (
+              <div className={s.avatarEditOverlay} aria-hidden>
+                <span className={s.avatarCamIcon}>{avatarUrl ? '⤢' : '📷'}</span>
+                <span className={s.avatarCamText}>{avatarUrl ? 'Agrandir' : 'Ajouter'}</span>
+              </div>
             )}
           </div>
           <div className={s.heroMeta}>
@@ -263,7 +315,9 @@ export function MusicianProfilePage() {
         {isOwn ? (
           <>
             <button className={s.actionBtn} onClick={() => setShowEditModal(true)}>✏ Modifier le profil</button>
-            <button className={s.actionBtn} onClick={() => setAvatarMode('source')}>📷 Changer la photo de profil</button>
+            <button className={s.actionBtn} onClick={() => setAvatarMode('source')}>
+              📷 {avatarUrl ? 'Changer la photo de profil' : 'Ajouter une photo de profil'}
+            </button>
             <button className={s.actionBtn} onClick={() => setShowSkillModal(true)}>Ajouter une compétence</button>
             <button className={s.actionBtnSecondary}>Exporter le CV</button>
           </>
@@ -363,7 +417,7 @@ export function MusicianProfilePage() {
           onSelect={(url) => {
             setBannerUrl(url);
             fetch(url).then(r => r.blob()).then(blobToDataUrl)
-              .then(d => { try { localStorage.setItem(BANNER_CACHE_KEY, d); } catch { /* ignore */ } setBannerUrl(d); })
+              .then(d => { writeProfileMedia(bannerCacheKey(user.id), d); setBannerUrl(d); })
               .catch(() => {});
             setBannerMode(null);
           }}
@@ -406,7 +460,7 @@ export function MusicianProfilePage() {
               .then((r) => r.blob())
               .then(blobToDataUrl)
               .then((dataUrl) => {
-                try { localStorage.setItem(AVATAR_CACHE_KEY, dataUrl); } catch { /* ignore */ }
+                writeProfileMedia(avatarCacheKey(user.id), dataUrl);
                 setAvatarUrl(dataUrl);
               })
               .catch(() => {});
@@ -417,6 +471,22 @@ export function MusicianProfilePage() {
       )}
       {avatarMode === 'uploading' && (
         <AvatarUploadingModal progress={uploadProgress} step={uploadStep} />
+      )}
+
+      {viewer && (
+        <ProfileMediaViewer
+          src={(viewer === 'avatar' ? avatarUrl : bannerUrl)!}
+          kind={viewer}
+          userName={user.displayName}
+          canEdit={isOwn}
+          onEdit={() => {
+            const kind = viewer;
+            setViewer(null);
+            if (kind === 'avatar') setAvatarMode('source');
+            else setBannerMode('source');
+          }}
+          onClose={() => setViewer(null)}
+        />
       )}
       {showEditModal && isOwn && 'phone' in user && (
         <EditProfileModal user={user as User} onSave={handleSaveProfile} onClose={() => setShowEditModal(false)} />
