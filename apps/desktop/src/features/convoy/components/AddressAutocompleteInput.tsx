@@ -60,7 +60,7 @@ export function AddressAutocompleteInput({
           value={value}
           onChange={handleChange}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
-          placeholder={placeholder ?? 'Escriba una dirección…'}
+          placeholder={placeholder ?? 'Saisissez une adresse…'}
           autoComplete="off"
         />
         {isLoading && <span className={s.spinner} />}
@@ -78,7 +78,7 @@ export function AddressAutocompleteInput({
                 </li>
               ))
             : !isLoading && (
-                <li className={s.dropdownEmpty}>Sin resultados</li>
+                <li className={s.dropdownEmpty}>Aucun résultat</li>
               )}
         </ul>
       )}

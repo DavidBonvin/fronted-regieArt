@@ -1,17 +1,15 @@
 import React, { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { registerUser, loginWithPassword, updateMe } from '@regieart/api';
 import s from './RegisterPage.module.scss';
 
 const HERO_FEATURES = [
-  { icon: '✔', label: 'Acceso a DaySheets y cronogramas' },
-  { icon: '✔', label: 'Asignación de backline e inventario' },
-  { icon: '✔', label: 'Recibos y pagos de viáticos (Per Diem)' },
+  { icon: '✔', label: 'Accès aux DaySheets et aux plannings' },
+  { icon: '✔', label: 'Attribution du backline et de l’inventaire' },
+  { icon: '✔', label: 'Reçus et paiements des per diem' },
 ];
 
 export function RegisterPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const firstNameId = useId();
@@ -32,8 +30,8 @@ export function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!firstName || !lastName || !email || !password) { setError(t('errors.required_fields')); return; }
-    if (!acceptTerms) { setError('Debes aceptar los Términos de Servicio para continuar.'); return; }
+    if (!firstName || !lastName || !email || !password) { setError('Veuillez remplir tous les champs obligatoires.'); return; }
+    if (!acceptTerms) { setError('Vous devez accepter les Conditions d’utilisation pour continuer.'); return; }
 
     setLoading(true);
     setError('');
@@ -62,7 +60,7 @@ export function RegisterPage() {
             <span className={s.heroLogoName}>RégieArt</span>
           </div>
           <h1 className={s.heroTagline}>
-            Crea tu perfil de músico profesional y conecta con tu organización.
+            Créez votre profil de musicien professionnel et connectez-vous à votre organisation.
           </h1>
           <ul className={s.heroFeatures}>
             {HERO_FEATURES.map((f) => (
@@ -80,19 +78,19 @@ export function RegisterPage() {
       <div className={s.panel}>
         <div className={s.panelInner}>
           <div className={s.panelHeader}>
-            <h2 className={s.panelTitle}>{t('auth.register_title_desktop')}</h2>
-            <p className={s.panelSubtitle}>{t('auth.register_subtitle_desktop')}</p>
+            <h2 className={s.panelTitle}>Créer un nouveau compte</h2>
+            <p className={s.panelSubtitle}>Commencez à gérer la logistique de vos concerts.</p>
           </div>
 
           {/* Google */}
           <button type="button" className={s.socialBtn}>
             <span className={s.socialBtnG}>G</span>
-            <span>{t('auth.register_google')}</span>
+            <span>S’inscrire avec Google</span>
           </button>
 
           <div className={s.divider}>
             <span className={s.dividerLine} />
-            <span className={s.dividerLabel}>{t('auth.or')}</span>
+            <span className={s.dividerLabel}>OU</span>
             <span className={s.dividerLine} />
           </div>
 
@@ -100,27 +98,27 @@ export function RegisterPage() {
             {/* First + Last name row */}
             <div className={s.fieldRow}>
               <div className={s.field}>
-                <label className={s.label} htmlFor={firstNameId}>{t('auth.first_name')}</label>
+                <label className={s.label} htmlFor={firstNameId}>Prénom</label>
                 <input
                   id={firstNameId}
                   className={s.input}
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder={t('auth.first_name_placeholder')}
+                  placeholder="Jean-Pierre"
                   autoComplete="given-name"
                   autoFocus
                 />
               </div>
               <div className={s.field}>
-                <label className={s.label} htmlFor={lastNameId}>{t('auth.last_name')}</label>
+                <label className={s.label} htmlFor={lastNameId}>Nom de famille</label>
                 <input
                   id={lastNameId}
                   className={s.input}
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder={t('auth.last_name_placeholder')}
+                  placeholder="Leblanc"
                   autoComplete="family-name"
                 />
               </div>
@@ -128,7 +126,7 @@ export function RegisterPage() {
 
             {/* Display name */}
             <div className={s.field}>
-              <label className={s.label} htmlFor={displayNameId}>{t('auth.display_name')}</label>
+              <label className={s.label} htmlFor={displayNameId}>Nom artistique / Alias</label>
               <div className={s.inputWrap}>
                 <input
                   id={displayNameId}
@@ -136,7 +134,7 @@ export function RegisterPage() {
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder={t('auth.display_name_placeholder')}
+                  placeholder="ex. Jean-Pierre Leblanc"
                   autoComplete="nickname"
                 />
                 <span className={s.inputIcon} aria-hidden>👤</span>
@@ -145,7 +143,7 @@ export function RegisterPage() {
 
             {/* Email */}
             <div className={s.field}>
-              <label className={s.label} htmlFor={emailId}>{t('auth.email_label')}</label>
+              <label className={s.label} htmlFor={emailId}>Adresse e-mail</label>
               <div className={s.inputWrap}>
                 <input
                   id={emailId}
@@ -153,7 +151,7 @@ export function RegisterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('auth.email_placeholder')}
+                  placeholder="votre@email.com"
                   autoComplete="email"
                 />
                 <span className={s.inputIcon} aria-hidden>✉</span>
@@ -162,7 +160,7 @@ export function RegisterPage() {
 
             {/* Password */}
             <div className={s.field}>
-              <label className={s.label} htmlFor={passwordId}>{t('auth.password_label')}</label>
+              <label className={s.label} htmlFor={passwordId}>Mot de passe</label>
               <div className={s.inputWrap}>
                 <input
                   id={passwordId}
@@ -177,7 +175,7 @@ export function RegisterPage() {
                   type="button"
                   className={s.eyeBtn}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? '🙈' : '👁'}
                 </button>
@@ -194,18 +192,18 @@ export function RegisterPage() {
                 checked={acceptTerms}
                 onChange={(e) => setAcceptTerms(e.target.checked)}
               />
-              <span>{t('auth.accept_terms')}</span>
+              <span>J’accepte les Conditions d’utilisation et la Politique de confidentialité</span>
             </label>
 
             <button className={s.primaryBtn} type="submit" disabled={loading}>
-              {loading ? <span className={s.spinner} /> : t('auth.create_account').toUpperCase()}
+              {loading ? <span className={s.spinner} /> : 'CRÉER UN COMPTE'}
             </button>
           </form>
 
           <p className={s.loginLink}>
-            {t('auth.already_have_account')}{' '}
+            Vous avez déjà un compte ?{' '}
             <button type="button" className={s.loginAnchor} onClick={() => navigate('/login')}>
-              {t('auth.sign_in')}
+              Se connecter
             </button>
           </p>
 

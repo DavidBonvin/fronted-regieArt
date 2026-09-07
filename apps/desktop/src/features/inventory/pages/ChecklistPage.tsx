@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { getEventAssignments, getMyOrganizations } from '@regieart/api';
 import type { InstrumentAssignment } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
@@ -9,7 +8,6 @@ import { getActiveOrganization } from '../../../shared/utils/activeOrganization'
 
 export function ChecklistPage() {
   const { daysheetId } = useParams<{ daysheetId: string }>();
-  const { t } = useTranslation();
   const [assignments, setAssignments] = useState<InstrumentAssignment[]>([]);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -27,7 +25,7 @@ export function ChecklistPage() {
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{t('checklist.screen_title')}</h1>
+      <h1 className={p.pageTitle}>Checklist du matériel</h1>
 
       <div className={s.progressBar}>
         <div className={s.progressFill} style={{ width: `${progress}%` }} />
@@ -35,7 +33,7 @@ export function ChecklistPage() {
       <div className={s.progressLabel}>{checked.size}/{assignments.length} — {progress}%</div>
 
       {loading ? <div className={p.spinner} /> : assignments.length === 0 ? (
-        <div className={p.empty}><div className={p.emptyTitle}>{t('common.no_results')}</div></div>
+        <div className={p.empty}><div className={p.emptyTitle}>Aucun résultat</div></div>
       ) : (
         <div className={p.card}>
           {assignments.map((a) => {
@@ -43,7 +41,7 @@ export function ChecklistPage() {
             return (
               <div key={a.id} className={`${s.row} ${done ? s.done : ''}`} onClick={() => setChecked((prev) => { const n = new Set(prev); done ? n.delete(a.id) : n.add(a.id); return n; })}>
                 <div className={`${s.check} ${done ? s.checked : ''}`}>{done && '✓'}</div>
-                <div className={s.item}>{a.instrument?.name ?? t('checklist.unknown_item')}</div>
+                <div className={s.item}>{a.instrument?.name ?? 'Élément inconnu'}</div>
                 <div className={s.assignee}>{a.user?.displayName ?? ''}</div>
               </div>
             );

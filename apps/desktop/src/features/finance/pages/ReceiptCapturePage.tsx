@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { createEntry, listCategories, getMyOrganizations, listEvents } from '@regieart/api';
 import type { Event, FinanceCategory } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
@@ -10,19 +9,19 @@ import { getActiveOrganization } from '../../../shared/utils/activeOrganization'
 const CURRENCIES = ['EUR','USD','GBP','ARS','MXN','CLP','COP'];
 
 const CATEGORY_META: Record<string, { icon: string; label: string }> = {
-  travel: { icon: '🚗', label: 'Transporte' },
-  transporte: { icon: '🚗', label: 'Transporte' },
-  accommodation: { icon: '🛏️', label: 'Alojamiento' },
-  alojamiento: { icon: '🛏️', label: 'Alojamiento' },
-  food: { icon: '🍽️', label: 'Comida' },
-  comida: { icon: '🍽️', label: 'Comida' },
-  equipment: { icon: '🎛️', label: 'Equipamiento' },
-  equipamiento: { icon: '🎛️', label: 'Equipamiento' },
+  travel: { icon: '🚗', label: 'Transport' },
+  transporte: { icon: '🚗', label: 'Transport' },
+  accommodation: { icon: '🛏️', label: 'Hébergement' },
+  alojamiento: { icon: '🛏️', label: 'Hébergement' },
+  food: { icon: '🍽️', label: 'Repas' },
+  comida: { icon: '🍽️', label: 'Repas' },
+  equipment: { icon: '🎛️', label: 'Équipement' },
+  equipamiento: { icon: '🎛️', label: 'Équipement' },
   marketing: { icon: '📣', label: 'Marketing' },
-  fees: { icon: '🧾', label: 'Honorarios' },
-  honorarios: { icon: '🧾', label: 'Honorarios' },
-  other: { icon: '📦', label: 'Otros' },
-  otros: { icon: '📦', label: 'Otros' },
+  fees: { icon: '🧾', label: 'Honoraires' },
+  honorarios: { icon: '🧾', label: 'Honoraires' },
+  other: { icon: '📦', label: 'Autres' },
+  otros: { icon: '📦', label: 'Autres' },
 };
 
 function categoryMeta(category: FinanceCategory) {
@@ -37,7 +36,6 @@ function eventIcon(type: Event['type']) {
 }
 
 export function ReceiptCapturePage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [orgId, setOrgId] = useState('');
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
@@ -63,8 +61,8 @@ export function ReceiptCapturePage() {
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
 
   async function handleSave() {
-    if (!form.amount || !orgId) { setError(t('errors.required_fields')); return; }
-    if (!Number.isFinite(parseFloat(form.amount))) { setError(t('errors.invalid_amount')); return; }
+    if (!form.amount || !orgId) { setError('Veuillez remplir tous les champs obligatoires.'); return; }
+    if (!Number.isFinite(parseFloat(form.amount))) { setError('Le montant doit être un nombre valide.'); return; }
     setSaving(true);
     setError('');
     try {
@@ -79,26 +77,26 @@ export function ReceiptCapturePage() {
         date: form.date,
       } as any);
       navigate('/finance');
-    } catch { setError(t('errors.generic')); }
+    } catch { setError('Une erreur est survenue. Veuillez réessayer.'); }
     finally { setSaving(false); }
   }
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{t('finance_form.add_title')}</h1>
+      <h1 className={p.pageTitle}>Ajouter une écriture</h1>
 
       <div className={`${p.card} ${s.form}`}>
         <div className={s.typeToggle}>
           {(['EXPENSE','INCOME'] as const).map((tp) => (
-            <button key={tp} className={`${s.typeBtn} ${form.type===tp ? s.active : ''}`} onClick={() => setForm((f) => ({ ...f, type: tp }))}>{tp}</button>
+            <button key={tp} className={`${s.typeBtn} ${form.type===tp ? s.active : ''}`} onClick={() => setForm((f) => ({ ...f, type: tp }))}>{tp === 'EXPENSE' ? 'Dépense' : 'Revenu'}</button>
           ))}
         </div>
 
         <div className={s.row2}>
-          <label className={s.label}>{t('finance_form.amount_label')}
+          <label className={s.label}>Montant
             <input className={s.input} type="number" min="0" step="0.01" value={form.amount} onChange={set('amount')} />
           </label>
-          <label className={s.label}>{t('finance_form.currency_label')}
+          <label className={s.label}>Devise
             <select className={s.select} value={form.currency} onChange={set('currency')}>
               {CURRENCIES.map((c) => <option className={s.option} key={c}>{c}</option>)}
             </select>
@@ -106,9 +104,9 @@ export function ReceiptCapturePage() {
         </div>
 
         <div className={s.label}>
-          <span>{t('finance_form.category_label')}</span>
+          <span>Catégorie</span>
           {categories.length > 0 ? (
-            <div className={s.categoryGrid} role="radiogroup" aria-label={t('finance_form.category_label')}>
+            <div className={s.categoryGrid} role="radiogroup" aria-label="Catégorie">
               {categories.map((category) => {
                 const meta = categoryMeta(category);
                 const selected = form.categoryId === category.id;
@@ -127,30 +125,30 @@ export function ReceiptCapturePage() {
               })}
             </div>
           ) : (
-            <span className={s.categoryEmpty}>No hay categorías disponibles para esta organización.</span>
+            <span className={s.categoryEmpty}>Aucune catégorie disponible pour cette organisation.</span>
           )}
         </div>
 
-        <label className={s.label}>{'Asignar a'}
+        <label className={s.label}>Affecter à
           <select className={s.select} value={form.eventId} onChange={set('eventId')}>
-            <option className={s.option} value="">🏢 Finanzas generales de la organización</option>
+            <option className={s.option} value="">🏢 Finances générales de l’organisation</option>
             {events.map((event) => <option className={s.option} key={event.id} value={event.id}>{eventIcon(event.type)} {event.title}</option>)}
           </select>
         </label>
 
-        <label className={s.label}>{t('finance_form.description_label')}
+        <label className={s.label}>Description
           <input className={s.input} value={form.description} onChange={set('description')} />
         </label>
 
-        <label className={s.label}>{t('finance_form.date_label')}
+        <label className={s.label}>Date
           <input className={s.input} type="date" value={form.date} onChange={set('date')} />
         </label>
 
         {error && <div style={{ color:'var(--status-error)', fontSize:13 }}>{error}</div>}
 
         <div className={s.actions}>
-          <button className={p.btnSecondary} onClick={() => navigate(-1)}>{t('common.cancel')}</button>
-          <button className={p.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? t('common.saving') : t('common.save')}</button>
+          <button className={p.btnSecondary} onClick={() => navigate(-1)}>Annuler</button>
+          <button className={p.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? 'Enregistrement...' : 'Enregistrer'}</button>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { getMyOrganizations, getOrganizationMembers } from '@regieart/api';
 import type { OrganizationMember } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
@@ -8,8 +7,11 @@ import s from './BandChatPage.module.scss';
 import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
+const ROLE_LABEL: Record<string, string> = {
+  OWNER: 'Propriétaire', ADMIN: 'Administrateur', MEMBER: 'Membre', EXTERNAL_TECH: 'Technicien externe',
+};
+
 export function BandChatPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const activeOrgId = useActiveOrganizationId();
   const [members, setMembers] = useState<OrganizationMember[]>([]);
@@ -25,8 +27,8 @@ export function BandChatPage() {
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{t('messages.band_chat_title')}</h1>
-      <p className={p.pageSubtitle} style={{ marginBottom:20 }}>{t('messages.band_chat_subtitle')}</p>
+      <h1 className={p.pageTitle}>Messages du groupe</h1>
+      <p className={p.pageSubtitle} style={{ marginBottom:20 }}>Sélectionnez un membre pour démarrer une conversation.</p>
 
       {loading ? <div className={p.spinner} /> : (
         <div className={p.card}>
@@ -35,7 +37,7 @@ export function BandChatPage() {
               <div className={s.avatar}>{(m.user.displayName?.[0] ?? '?').toUpperCase()}</div>
               <div className={s.info}>
                 <div className={s.name}>{m.user.displayName}</div>
-                <div className={s.role}>{m.role}</div>
+                <div className={s.role}>{ROLE_LABEL[m.role] ?? m.role}</div>
               </div>
               <div className={s.arrow}>→</div>
             </div>

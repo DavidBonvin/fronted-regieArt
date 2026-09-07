@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { getSong, createSong, updateSong, getMyOrganizations } from '@regieart/api';
 import type { Song } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
@@ -11,7 +10,6 @@ const KEYS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B','Cm','C#m','D
 
 export function UploadScorePage() {
   const { songId } = useParams<{ songId: string }>();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const isNew = !songId || songId === 'new';
 
@@ -63,33 +61,33 @@ export function UploadScorePage() {
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{isNew ? t('upload_score.add_title') : t('common.edit')}</h1>
+      <h1 className={p.pageTitle}>{isNew ? 'Ajouter un morceau' : 'Modifier'}</h1>
 
       <div className={`${p.card} ${s.form}`}>
-        <label className={s.label}>{t('upload_score.title_label')} *
+        <label className={s.label}>Titre *
           <input className={s.input} value={form.title} onChange={set('title')} />
         </label>
-        <label className={s.label}>{t('upload_score.composer_label')}
+        <label className={s.label}>Compositeur
           <input className={s.input} value={form.composer} onChange={set('composer')} />
         </label>
         <div className={s.row2}>
-          <label className={s.label}>{t('upload_score.key_label')}
+          <label className={s.label}>Tonalité
             <select className={s.select} value={form.musicalKey} onChange={set('musicalKey')}>
-              <option value="">{t('common.none')}</option>
+              <option value="">Aucune</option>
               {KEYS.map((k) => <option key={k} value={k}>{k}</option>)}
             </select>
           </label>
-          <label className={s.label}>{t('upload_score.tempo_label')}
+          <label className={s.label}>Tempo (BPM)
             <input className={s.input} type="number" min={20} max={300} value={form.tempo} onChange={set('tempo')} />
           </label>
         </div>
-        <label className={s.label}>{t('upload_score.notes_label')}
+        <label className={s.label}>Notes
           <textarea className={s.textarea} rows={4} value={form.notes} onChange={set('notes')} />
         </label>
         <div className={s.actions}>
-          <button className={p.btnSecondary} onClick={() => navigate(-1)}>{t('common.cancel')}</button>
+          <button className={p.btnSecondary} onClick={() => navigate(-1)}>Annuler</button>
           <button className={p.btnPrimary} onClick={handleSave} disabled={saving || !form.title}>
-            {saving ? t('common.saving') : t('common.save')}
+            {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </div>
       </div>

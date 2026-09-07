@@ -7,9 +7,9 @@ import s from './VehicleFormModal.module.scss';
 const COUNTRIES: { code: SupportedCountry; flag: string; label: string }[] = [
   { code: 'FR', flag: '🇫🇷', label: 'France' },
   { code: 'BE', flag: '🇧🇪', label: 'Belgique' },
-  { code: 'ES', flag: '🇪🇸', label: 'España' },
-  { code: 'DE', flag: '🇩🇪', label: 'Deutschland' },
-  { code: 'IT', flag: '🇮🇹', label: 'Italia' },
+  { code: 'ES', flag: '🇪🇸', label: 'Espagne' },
+  { code: 'DE', flag: '🇩🇪', label: 'Allemagne' },
+  { code: 'IT', flag: '🇮🇹', label: 'Italie' },
   { code: 'CA', flag: '🇨🇦', label: 'Canada' },
 ];
 
@@ -70,8 +70,8 @@ export function VehicleFormModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) { setError('El nombre del vehículo es obligatorio.'); return; }
-    if (!origin.trim()) { setError("La adresse d'origine est obligatoire."); return; }
+    if (!name.trim()) { setError('Le nom du véhicule est obligatoire.'); return; }
+    if (!origin.trim()) { setError('L’adresse d’origine est obligatoire.'); return; }
     setSaving(true);
     setError('');
     try {
@@ -102,7 +102,7 @@ export function VehicleFormModal({
       }
       onCreated(vehicle);
     } catch (err: unknown) {
-      let msg = 'Error al crear el vehículo';
+      let msg = 'Erreur lors de la création du véhicule';
       if (err && typeof err === 'object' && 'response' in err) {
         try {
           const body = await (err as { response: Response }).response.json() as { message?: string | string[] };
@@ -139,7 +139,7 @@ export function VehicleFormModal({
                 <input
                   ref={firstRef}
                   className={s.input}
-                  placeholder="Van 1 - Musiciens, Camión Backline…"
+                  placeholder="Van 1 - Musiciens, Camion Backline…"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -148,7 +148,7 @@ export function VehicleFormModal({
                 <label className={s.label}>Chauffeur désigné</label>
                 <input
                   className={s.input}
-                  placeholder="Nombre del conductor"
+                  placeholder="Nom du chauffeur"
                   value={driverName}
                   onChange={(e) => setDriverName(e.target.value)}
                 />
@@ -199,7 +199,7 @@ export function VehicleFormModal({
                     updatePickup(i, { address: r.label, lat: r.lat, lng: r.lng })
                   }
                   country={country}
-                  placeholder="Dirección del punto de recogida"
+                  placeholder="Adresse du point de ramassage"
                 />
                 <input
                   type="time"
@@ -227,7 +227,7 @@ export function VehicleFormModal({
             <div className={s.sectionTitle}>4. Destination (automatique depuis l'événement)</div>
             <div className={s.venueBox}>
               🏟️{' '}
-              {venueAddress ?? 'Venue de l\'événement (coordonnées GPS depuis le backend)'}
+              {venueAddress ?? 'Lieu de l\'événement (coordonnées GPS depuis le backend)'}
             </div>
           </div>
 

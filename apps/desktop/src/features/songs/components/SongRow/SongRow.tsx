@@ -46,7 +46,7 @@ export function SongRow({
         className={s.drag}
         {...attributes}
         {...listeners}
-        title="Arrastrar"
+        title="Déplacer"
         onClick={(e) => e.stopPropagation()}
       >
         <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
@@ -67,7 +67,7 @@ export function SongRow({
           e.stopPropagation();
           onPlay();
         }}
-        aria-label={isCurrentlyPlaying ? 'Pausar' : 'Reproducir'}
+        aria-label={isCurrentlyPlaying ? 'Pause' : 'Lecture'}
       >
         {isCurrentlyPlaying ? '⏸' : '▶'}
       </button>

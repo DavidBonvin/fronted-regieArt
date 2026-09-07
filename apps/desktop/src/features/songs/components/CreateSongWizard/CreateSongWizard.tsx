@@ -6,13 +6,13 @@ import s from './CreateSongWizard.module.scss';
 import { getActiveOrganization } from '../../../../shared/utils/activeOrganization';
 
 const MUSICAL_KEYS = [
-  'Do', 'Do#', 'Re♭', 'Re', 'Re#', 'Mi♭', 'Mi',
+  'Do', 'Do#', 'Ré♭', 'Ré', 'Ré#', 'Mi♭', 'Mi',
   'Fa', 'Fa#', 'Sol♭', 'Sol', 'Sol#', 'La♭', 'La', 'La#', 'Si♭', 'Si',
 ];
 
 const GENRES = [
-  'Pop', 'Rock', 'Jazz', 'Clásico', 'Folk',
-  'Electrónica', 'Reggaeton', 'Salsa', 'Cumbia', 'Otro',
+  'Pop', 'Rock', 'Jazz', 'Classique', 'Folk',
+  'Électronique', 'Reggaeton', 'Salsa', 'Cumbia', 'Autre',
 ];
 
 interface WizardState {
@@ -63,10 +63,10 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
   }
 
   async function handleSave() {
-    if (!w.title.trim()) { setError('El título es requerido'); return; }
-    if (!orgId) { setError('No se encontró organización'); return; }
-    if (w.tempo && !Number.isFinite(Number(w.tempo))) { setError('El tempo no es un número válido.'); return; }
-    if (w.durationSeconds && !Number.isFinite(Number(w.durationSeconds))) { setError('La duración no es un número válido.'); return; }
+    if (!w.title.trim()) { setError('Le titre est obligatoire'); return; }
+    if (!orgId) { setError('Aucune organisation trouvée'); return; }
+    if (w.tempo && !Number.isFinite(Number(w.tempo))) { setError('Le tempo n’est pas un nombre valide.'); return; }
+    if (w.durationSeconds && !Number.isFinite(Number(w.durationSeconds))) { setError('La durée n’est pas un nombre valide.'); return; }
     setSaving(true);
     setError(null);
     try {
@@ -91,7 +91,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
       onCreated?.();
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al crear la canción');
+      setError(e instanceof Error ? e.message : 'Erreur lors de la création du morceau');
       setSaving(false);
     }
   }
@@ -101,7 +101,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
   const preview = (
     <div className={s.preview}>
       <div className={s.previewIcon}>♪</div>
-      <div className={s.previewTitle}>{w.title || 'Nueva Canción'}</div>
+      <div className={s.previewTitle}>{w.title || 'Nouveau morceau'}</div>
       {w.composer && <div className={s.previewSub}>{w.composer}</div>}
       <div className={s.previewChips}>
         {w.musicalKey && <span className={s.chip}>{w.musicalKey}</span>}
@@ -119,15 +119,15 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
       <div className={s.modal}>
         <div className={s.sidebar}>
           <div className={s.sidebarTop}>
-            <div className={s.sidebarTitle}>Nueva Canción</div>
-            <div className={s.sidebarSub}>Agregar al repertorio</div>
+            <div className={s.sidebarTitle}>Nouveau morceau</div>
+            <div className={s.sidebarSub}>Ajouter au répertoire</div>
           </div>
 
           <div className={s.steps}>
             {[
-              { n: 1, label: 'Información', sub: 'Datos técnicos' },
-              { n: 2, label: 'Archivos', sub: 'Audio y partituras' },
-              { n: 3, label: 'Finalizar', sub: 'Notas y guardar' },
+              { n: 1, label: 'Informations', sub: 'Données techniques' },
+              { n: 2, label: 'Fichiers', sub: 'Audio et partitions' },
+              { n: 3, label: 'Finaliser', sub: 'Notes et enregistrement' },
             ].map(({ n, label, sub }) => (
               <div
                 key={n}
@@ -147,7 +147,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
         </div>
 
         <div className={s.content}>
-          <button className={s.closeBtn} onClick={onClose} aria-label="Cerrar">✕</button>
+          <button className={s.closeBtn} onClick={onClose} aria-label="Fermer">✕</button>
 
           <div className={s.formArea}>
             {step === 1 && <Step1 w={w} upd={upd} />}
@@ -158,7 +158,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
           <div className={s.nav}>
             {step > 1 ? (
               <button className={s.btnBack} onClick={() => setStep((p) => p - 1)}>
-                ← Atrás
+                ← Précédent
               </button>
             ) : (
               <div />
@@ -169,7 +169,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
                 onClick={() => canNext && setStep((p) => p + 1)}
                 disabled={!canNext}
               >
-                Siguiente →
+                Suivant →
               </button>
             ) : (
               <button
@@ -177,7 +177,7 @@ export function CreateSongWizard({ onClose, onCreated }: Props) {
                 onClick={handleSave}
                 disabled={saving || !w.title.trim()}
               >
-                {saving ? 'Guardando…' : '✓ Guardar Canción'}
+                {saving ? 'Enregistrement…' : '✓ Enregistrer le morceau'}
               </button>
             )}
           </div>
@@ -196,63 +196,63 @@ function Step1({
 }) {
   return (
     <div className={s.stepForm}>
-      <h2 className={s.stepHeading}>Información Técnica</h2>
-      <p className={s.stepDesc}>Ingresa los datos musicales de la canción.</p>
+      <h2 className={s.stepHeading}>Informations techniques</h2>
+      <p className={s.stepDesc}>Saisissez les données musicales du morceau.</p>
 
       <div className={s.field}>
-        <label className={s.label}>Título *</label>
+        <label className={s.label}>Titre *</label>
         <input
           className={s.input}
           value={w.title}
           onChange={(e) => upd('title', e.target.value)}
-          placeholder="Ej: La Flor de la Vida"
+          placeholder="Ex : La Fleur de la Vie"
           autoFocus
         />
       </div>
 
       <div className={s.row2}>
         <div className={s.field}>
-          <label className={s.label}>Compositor</label>
+          <label className={s.label}>Compositeur</label>
           <input
             className={s.input}
             value={w.composer}
             onChange={(e) => upd('composer', e.target.value)}
-            placeholder="Ej: Carlos Vives"
+            placeholder="Ex : Claude Debussy"
           />
         </div>
         <div className={s.field}>
-          <label className={s.label}>Arreglista</label>
+          <label className={s.label}>Arrangeur</label>
           <input
             className={s.input}
             value={w.arranger}
             onChange={(e) => upd('arranger', e.target.value)}
-            placeholder="Ej: Juan Pérez"
+            placeholder="Ex : Jean Dupont"
           />
         </div>
       </div>
 
       <div className={s.row2}>
         <div className={s.field}>
-          <label className={s.label}>Género</label>
+          <label className={s.label}>Genre</label>
           <select
             className={s.select}
             value={w.genre}
             onChange={(e) => upd('genre', e.target.value)}
           >
-            <option value="">Seleccionar…</option>
+            <option value="">Sélectionner…</option>
             {GENRES.map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Tonalidad</label>
+          <label className={s.label}>Tonalité</label>
           <select
             className={s.select}
             value={w.musicalKey}
             onChange={(e) => upd('musicalKey', e.target.value)}
           >
-            <option value="">Seleccionar…</option>
+            <option value="">Sélectionner…</option>
             {MUSICAL_KEYS.map((k) => (
               <option key={k} value={k}>{k}</option>
             ))}
@@ -270,18 +270,18 @@ function Step1({
             max={300}
             value={w.tempo}
             onChange={(e) => upd('tempo', e.target.value)}
-            placeholder="Ej: 120"
+            placeholder="Ex : 120"
           />
         </div>
         <div className={s.field}>
-          <label className={s.label}>Duración (segundos)</label>
+          <label className={s.label}>Durée (secondes)</label>
           <input
             className={s.input}
             type="number"
             min={1}
             value={w.durationSeconds}
             onChange={(e) => upd('durationSeconds', e.target.value)}
-            placeholder="Ej: 240"
+            placeholder="Ex : 240"
           />
         </div>
       </div>
@@ -312,12 +312,12 @@ function Step2({
 
   return (
     <div className={s.stepForm}>
-      <h2 className={s.stepHeading}>Archivos</h2>
+      <h2 className={s.stepHeading}>Fichiers</h2>
       <p className={s.stepDesc}>
-        Sube la pista de audio y/o la partitura. Ambos son opcionales.
+        Importez la piste audio et/ou la partition. Les deux sont facultatifs.
       </p>
 
-      <div className={s.dropzoneLabel}>Pista de Audio</div>
+      <div className={s.dropzoneLabel}>Piste audio</div>
       <div
         className={`${s.dropzone} ${w.audioFile ? s.dropzoneHasFile : ''}`}
         onDragOver={(e) => e.preventDefault()}
@@ -350,7 +350,7 @@ function Step2({
         ) : (
           <div className={s.dropzoneHint}>
             <span className={s.dropzoneIcon}>🎵</span>
-            <span>Arrastra un archivo de audio o haz clic para seleccionar</span>
+            <span>Glissez un fichier audio ou cliquez pour sélectionner</span>
             <span className={s.dropzoneSub}>MP3, WAV, FLAC, AAC…</span>
           </div>
         )}
@@ -361,7 +361,7 @@ function Step2({
         </div>
       )}
 
-      <div className={s.dropzoneLabel} style={{ marginTop: 20 }}>Partitura (PDF)</div>
+      <div className={s.dropzoneLabel} style={{ marginTop: 20 }}>Partition (PDF)</div>
       <div
         className={`${s.dropzone} ${w.pdfFile ? s.dropzoneHasFile : ''}`}
         onDragOver={(e) => e.preventDefault()}
@@ -394,8 +394,8 @@ function Step2({
         ) : (
           <div className={s.dropzoneHint}>
             <span className={s.dropzoneIcon}>📄</span>
-            <span>Arrastra el PDF o haz clic para seleccionar</span>
-            <span className={s.dropzoneSub}>Solo archivos PDF</span>
+            <span>Glissez le PDF ou cliquez pour sélectionner</span>
+            <span className={s.dropzoneSub}>Fichiers PDF uniquement</span>
           </div>
         )}
       </div>
@@ -421,44 +421,44 @@ function Step3({
 }) {
   return (
     <div className={s.stepForm}>
-      <h2 className={s.stepHeading}>Notas y Resumen</h2>
-      <p className={s.stepDesc}>Agrega instrucciones o notas adicionales y revisa el resumen.</p>
+      <h2 className={s.stepHeading}>Notes et récapitulatif</h2>
+      <p className={s.stepDesc}>Ajoutez des consignes ou des notes supplémentaires et vérifiez le récapitulatif.</p>
 
       <div className={s.field}>
-        <label className={s.label}>Notas de la canción</label>
+        <label className={s.label}>Notes du morceau</label>
         <textarea
           className={s.textarea}
           value={w.notes}
           onChange={(e) => upd('notes', e.target.value)}
-          placeholder="Indicaciones de ensayo, estructura, etc."
+          placeholder="Consignes de répétition, structure, etc."
           rows={4}
         />
       </div>
 
       <div className={s.summary}>
-        <div className={s.summaryTitle}>Resumen</div>
+        <div className={s.summaryTitle}>Récapitulatif</div>
         <div className={s.summaryGrid}>
-          <span className={s.summaryKey}>Título</span>
+          <span className={s.summaryKey}>Titre</span>
           <span className={s.summaryVal}>{w.title || '—'}</span>
-          <span className={s.summaryKey}>Compositor</span>
+          <span className={s.summaryKey}>Compositeur</span>
           <span className={s.summaryVal}>{w.composer || '—'}</span>
-          <span className={s.summaryKey}>Tonalidad</span>
+          <span className={s.summaryKey}>Tonalité</span>
           <span className={s.summaryVal}>{w.musicalKey || '—'}</span>
           <span className={s.summaryKey}>Tempo</span>
           <span className={s.summaryVal}>{w.tempo ? `${w.tempo} bpm` : '—'}</span>
-          <span className={s.summaryKey}>Género</span>
+          <span className={s.summaryKey}>Genre</span>
           <span className={s.summaryVal}>{w.genre || '—'}</span>
           <span className={s.summaryKey}>Audio</span>
-          <span className={s.summaryVal}>{w.audioFile?.name ?? 'Sin archivo'}</span>
-          <span className={s.summaryKey}>Partitura</span>
-          <span className={s.summaryVal}>{w.pdfFile?.name ?? 'Sin archivo'}</span>
+          <span className={s.summaryVal}>{w.audioFile?.name ?? 'Aucun fichier'}</span>
+          <span className={s.summaryKey}>Partition</span>
+          <span className={s.summaryVal}>{w.pdfFile?.name ?? 'Aucun fichier'}</span>
         </div>
       </div>
 
       {error && <div className={s.errorMsg}>{error}</div>}
       {saving && (
         <div className={s.savingMsg}>
-          Subiendo archivos y guardando…
+          Envoi des fichiers et enregistrement…
           {w.audioProgress > 0 && w.audioProgress < 100 && (
             <span> Audio: {w.audioProgress}%</span>
           )}

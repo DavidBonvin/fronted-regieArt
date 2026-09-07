@@ -54,8 +54,8 @@ export function StudioPanel({ song }: StudioPanelProps) {
     return (
       <div className={s.empty}>
         <div className={s.emptyIcon}>♪</div>
-        <div className={s.emptyTitle}>Selecciona una canción</div>
-        <div className={s.emptyText}>Elige una canción de la lista para reproducirla</div>
+        <div className={s.emptyTitle}>Sélectionnez un morceau</div>
+        <div className={s.emptyText}>Choisissez un morceau dans la liste pour le lire</div>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function StudioPanel({ song }: StudioPanelProps) {
           <div className={s.songTitle}>{song.title}</div>
           <div className={s.songMeta}>
             {[song.composer, song.arranger].filter(Boolean).join(' · ') ||
-              'Sin compositor'}
+              'Sans compositeur'}
           </div>
         </div>
         <div className={s.badges}>
@@ -86,13 +86,13 @@ export function StudioPanel({ song }: StudioPanelProps) {
 
       <div className={s.stats}>
         {[
-          { val: song.musicalKey ?? '—', lbl: 'Tonalidad' },
+          { val: song.musicalKey ?? '—', lbl: 'Tonalité' },
           { val: song.tempo ?? '—', lbl: 'BPM' },
           {
             val: song.durationSeconds ? fmt(song.durationSeconds) : '—',
-            lbl: 'Duración',
+            lbl: 'Durée',
           },
-          { val: song.genre ?? '—', lbl: 'Género' },
+          { val: song.genre ?? '—', lbl: 'Genre' },
         ].map(({ val, lbl }) => (
           <div key={lbl} className={s.stat}>
             <div className={s.statVal}>{val}</div>
@@ -108,7 +108,7 @@ export function StudioPanel({ song }: StudioPanelProps) {
             className={`${s.tab} ${tab === t ? s.tabActive : ''}`}
             onClick={() => setTab(t)}
           >
-            {t === 'wave' ? 'Audio' : t === 'notes' ? 'Notas' : 'Archivos'}
+            {t === 'wave' ? 'Audio' : t === 'notes' ? 'Notes' : 'Fichiers'}
           </button>
         ))}
       </div>
@@ -117,9 +117,9 @@ export function StudioPanel({ song }: StudioPanelProps) {
         <div className={s.waveContent}>
           <div ref={waveRef} className={s.waveform} />
 
-          {loadingAudio && <p className={s.hint}>Cargando audio…</p>}
+          {loadingAudio && <p className={s.hint}>Chargement de l’audio…</p>}
           {audioError && !loadingAudio && (
-            <p className={s.hint}>Sin audio adjunto</p>
+            <p className={s.hint}>Aucun audio joint</p>
           )}
 
           {isCurrentSong && !loadingAudio && (
@@ -173,7 +173,7 @@ export function StudioPanel({ song }: StudioPanelProps) {
           {song.notes ? (
             <p className={s.noteText}>{song.notes}</p>
           ) : (
-            <p className={s.emptyTab}>Sin notas para esta canción</p>
+            <p className={s.emptyTab}>Aucune note pour ce morceau</p>
           )}
         </div>
       )}
@@ -187,10 +187,10 @@ export function StudioPanel({ song }: StudioPanelProps) {
               target="_blank"
               rel="noreferrer"
             >
-              📄 Ver Partitura (PDF)
+              📄 Voir la partition (PDF)
             </a>
           ) : (
-            <p className={s.emptyTab}>Sin archivos adjuntos</p>
+            <p className={s.emptyTab}>Aucun fichier joint</p>
           )}
         </div>
       )}

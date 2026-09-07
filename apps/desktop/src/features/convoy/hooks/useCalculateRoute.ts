@@ -25,7 +25,7 @@ export function useCalculateRoute(
       setState({ isLoading: false, error: null, errorStatus: null });
       return result;
     } catch (err: unknown) {
-      let msg = 'Error al calcular la ruta';
+      let msg = 'Erreur lors du calcul de l’itinéraire';
       let status: number | null = null;
       if (err && typeof err === 'object' && 'response' in err) {
         const httpErr = err as { response: Response };

@@ -32,20 +32,20 @@ export function AvatarSourceModal({ onFile, onWebcam, onR2, onClose }: AvatarSou
     <div className={s.overlay} onClick={onClose}>
       <div className={s.modal} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Actualizar Foto de Perfil</span>
+          <span className={s.modalTitle}>Mettre à jour la photo de profil</span>
           <button className={s.closeBtn} onClick={onClose}>✕</button>
         </div>
         <p className={s.modalSub}>
-          Selecciona cómo deseas cargar tu nueva imagen para el perfil de RégieArt.
+          Choisissez comment importer votre nouvelle image pour votre profil RégieArt.
         </p>
 
         <div className={s.optionsList}>
           <button className={s.optionCard} onClick={() => fileInputRef.current?.click()}>
             <span className={s.optionIcon}>📁</span>
             <div className={s.optionInfo}>
-              <span className={s.optionTitle}>Cargar desde el Equipo</span>
+              <span className={s.optionTitle}>Importer depuis l’ordinateur</span>
               <span className={s.optionSub}>
-                Selecciona una foto (JPG, PNG, WebP) desde tus archivos locales.
+                Sélectionnez une photo (JPG, PNG, WebP) depuis vos fichiers locaux.
               </span>
             </div>
             <span className={s.optionArrow}>›</span>
@@ -54,9 +54,9 @@ export function AvatarSourceModal({ onFile, onWebcam, onR2, onClose }: AvatarSou
           <button className={s.optionCard} onClick={onR2}>
             <span className={s.optionIcon}>☁️</span>
             <div className={s.optionInfo}>
-              <span className={s.optionTitle}>Seleccionar de la Galería de RégieArt</span>
+              <span className={s.optionTitle}>Choisir dans la galerie RégieArt</span>
               <span className={s.optionSub}>
-                Elige entre las fotos e imágenes subidas en tus bandas y eventos.
+                Choisissez parmi les photos et images importées dans vos groupes et événements.
               </span>
             </div>
             <span className={s.optionArrow}>›</span>
@@ -65,9 +65,9 @@ export function AvatarSourceModal({ onFile, onWebcam, onR2, onClose }: AvatarSou
           <button className={s.optionCard} onClick={onWebcam}>
             <span className={s.optionIcon}>📸</span>
             <div className={s.optionInfo}>
-              <span className={s.optionTitle}>Usar Cámara Web (WebCam)</span>
+              <span className={s.optionTitle}>Utiliser la webcam</span>
               <span className={s.optionSub}>
-                Toma una fotografía al instante con la cámara de tu computadora.
+                Prenez une photo instantanément avec la caméra de votre ordinateur.
               </span>
             </div>
             <span className={s.optionArrow}>›</span>
@@ -84,7 +84,7 @@ export function AvatarSourceModal({ onFile, onWebcam, onR2, onClose }: AvatarSou
 
         <div className={s.modalFooter}>
           <div />
-          <button className={s.cancelBtn} onClick={onClose}>Cancelar</button>
+          <button className={s.cancelBtn} onClick={onClose}>Annuler</button>
         </div>
       </div>
     </div>
@@ -267,7 +267,7 @@ export function AvatarCropModal({
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modalWide} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Ajustar y Encuadrar Fotografía</span>
+          <span className={s.modalTitle}>Ajuster et cadrer la photo</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
@@ -285,18 +285,18 @@ export function AvatarCropModal({
               onMouseLeave={handleMouseUp}
               onWheel={handleWheel}
             />
-            <p className={s.cropHint}>Arrastra para mover · Rueda para zoom</p>
+            <p className={s.cropHint}>Glissez pour déplacer · Molette pour zoomer</p>
           </div>
 
           <div className={s.cropPreviewCol}>
-            <p className={s.previewLabel}>PREVISUALIZACIÓN EN VIVO</p>
+            <p className={s.previewLabel}>APERÇU EN DIRECT</p>
             <div className={s.previewCircleWrap}>
               <canvas ref={previewRef} width={128} height={128} className={s.previewCanvas} />
             </div>
             <div className={s.previewName}>{userName}</div>
             {userRole && <div className={s.previewRole}>{userRole}</div>}
             <p className={s.previewHint}>
-              Así te verán tus compañeros en los DaySheets y en el Roster de la banda.
+              Voilà comment vos collègues vous verront dans les DaySheets et le roster du groupe.
             </p>
           </div>
         </div>
@@ -311,17 +311,17 @@ export function AvatarCropModal({
           />
           <button className={s.controlBtn} onClick={() => { scaleRef.current = Math.min(4, scaleRef.current + 0.1); setSliderScale(scaleRef.current); draw(); }}>+</button>
           <span className={s.controlSep} />
-          <span className={s.controlLabel}>Rotación:</span>
+          <span className={s.controlLabel}>Rotation :</span>
           <button className={s.controlBtn} onClick={() => rotate(-90)}>⟲ 90°</button>
           <button className={s.controlBtn} onClick={() => rotate(90)}>⟳ 90°</button>
-          <button className={s.controlBtn} onClick={resetTransform}>🔄 Reset</button>
+          <button className={s.controlBtn} onClick={resetTransform}>🔄 Réinitialiser</button>
         </div>
 
         <div className={s.modalFooter}>
-          <button className={s.changeImgBtn} onClick={onChangeImage}>📂 Cambiar Imagen</button>
+          <button className={s.changeImgBtn} onClick={onChangeImage}>📂 Changer d'image</button>
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
-            <button className={s.primaryBtn} onClick={handleSave}>GUARDAR Y SUBIR ✓</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
+            <button className={s.primaryBtn} onClick={handleSave}>ENREGISTRER ET IMPORTER ✓</button>
           </div>
         </div>
       </div>
@@ -362,7 +362,7 @@ export function WebcamCaptureModal({ onCapture, onCancel }: WebcamCaptureModalPr
       setDevices(vids);
       if (!deviceId && vids[0]) setSelectedId(vids[0].deviceId);
     } catch {
-      setError('No se pudo acceder a la cámara. Verifica los permisos del navegador.');
+      setError('Impossible d’accéder à la caméra. Vérifiez les autorisations du navigateur.');
     }
   }, []);
 
@@ -391,7 +391,7 @@ export function WebcamCaptureModal({ onCapture, onCancel }: WebcamCaptureModalPr
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modal} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Tomar Foto con WebCam</span>
+          <span className={s.modalTitle}>Prendre une photo avec la webcam</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
@@ -407,7 +407,7 @@ export function WebcamCaptureModal({ onCapture, onCancel }: WebcamCaptureModalPr
 
           {devices.length > 1 && (
             <div className={s.webcamDeviceRow}>
-              <label className={s.webcamDeviceLabel}>Dispositivo de Cámara:</label>
+              <label className={s.webcamDeviceLabel}>Caméra :</label>
               <select
                 className={s.webcamDeviceSelect}
                 value={selectedId}
@@ -415,7 +415,7 @@ export function WebcamCaptureModal({ onCapture, onCancel }: WebcamCaptureModalPr
               >
                 {devices.map((d) => (
                   <option key={d.deviceId} value={d.deviceId}>
-                    {d.label || `Cámara ${d.deviceId.slice(0, 8)}…`}
+                    {d.label || `Caméra ${d.deviceId.slice(0, 8)}…`}
                   </option>
                 ))}
               </select>
@@ -426,9 +426,9 @@ export function WebcamCaptureModal({ onCapture, onCancel }: WebcamCaptureModalPr
         <div className={s.modalFooter}>
           <div />
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
             <button className={s.primaryBtn} onClick={handleCapture} disabled={!ready || !!error}>
-              📸 TOMAR FOTO
+              📸 PRENDRE LA PHOTO
             </button>
           </div>
         </div>
@@ -488,12 +488,12 @@ export function R2GalleryModal({ onSelect, onCancel }: R2GalleryModalProps) {
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modalWide} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Seleccionar Imagen de RégieArt</span>
+          <span className={s.modalTitle}>Choisir une image RégieArt</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
         <div className={s.r2TabBar}>
-          {([['avatars', 'Mis Avatares'], ['all', 'Subidas R2']] as [R2Tab, string][]).map(
+          {([['avatars', 'Mes avatars'], ['all', 'Imports R2']] as [R2Tab, string][]).map(
             ([key, label]) => (
               <button
                 key={key}
@@ -511,7 +511,7 @@ export function R2GalleryModal({ onSelect, onCancel }: R2GalleryModalProps) {
             <div className={s.r2Loading}><div className={s.spinnerEl} /></div>
           ) : assets.length === 0 ? (
             <div className={s.r2Empty}>
-              No tienes imágenes subidas aún. Usa &quot;Cargar desde el Equipo&quot; para subir tu primera foto.
+              Vous n’avez encore importé aucune image. Utilisez &quot;Importer depuis l’ordinateur&quot; pour ajouter votre première photo.
             </div>
           ) : (
             assets.map((asset) => (
@@ -541,9 +541,9 @@ export function R2GalleryModal({ onSelect, onCancel }: R2GalleryModalProps) {
         <div className={s.modalFooter}>
           <div />
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
             <button className={s.primaryBtn} onClick={handleUse} disabled={!selected}>
-              USAR COMO AVATAR ✓
+              UTILISER COMME AVATAR ✓
             </button>
           </div>
         </div>
@@ -554,9 +554,9 @@ export function R2GalleryModal({ onSelect, onCancel }: R2GalleryModalProps) {
 
 
 const UPLOAD_STEPS = [
-  'Generando presigned URL seguras...',
-  'Transferencia binaria en proceso...',
-  'Confirmando y actualizando perfil...',
+  'Génération des URL présignées sécurisées...',
+  'Transfert binaire en cours...',
+  'Confirmation et mise à jour du profil...',
 ];
 
 interface AvatarUploadingModalProps {
@@ -569,13 +569,13 @@ export function AvatarUploadingModal({ progress, step }: AvatarUploadingModalPro
     <div className={s.overlay}>
       <div className={s.modal}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Subiendo Fotografía de Perfil...</span>
+          <span className={s.modalTitle}>Import de la photo de profil...</span>
         </div>
 
         <div className={s.uploadingBody}>
           <div className={s.uploadSpinner} />
           <p className={s.uploadingLabel}>
-            Optimizando y subiendo directamente a Cloudflare R2...
+            Optimisation et envoi direct vers Cloudflare R2...
           </p>
           <div className={s.progressTrack}>
             <div className={s.progressFill} style={{ width: `${progress}%` }} />
@@ -660,20 +660,20 @@ export function BannerSourceModal({ onFile, onR2, onClose }: BannerSourceModalPr
     <div className={s.overlay} onClick={onClose}>
       <div className={s.modal} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Cambiar Banner de Perfil</span>
+          <span className={s.modalTitle}>Changer la bannière du profil</span>
           <button className={s.closeBtn} onClick={onClose}>✕</button>
         </div>
         <p className={s.modalSub}>
-          Selecciona la imagen para tu cabecera. Proporción recomendada: 16:5.
+          Sélectionnez l’image de votre en-tête. Proportion recommandée : 16:5.
         </p>
 
         <div className={s.optionsList}>
           <button className={s.optionCard} onClick={() => fileInputRef.current?.click()}>
             <span className={s.optionIcon}>📁</span>
             <div className={s.optionInfo}>
-              <span className={s.optionTitle}>Cargar desde el Equipo</span>
+              <span className={s.optionTitle}>Importer depuis l’ordinateur</span>
               <span className={s.optionSub}>
-                Selecciona una imagen (JPG, PNG, WebP) de tus archivos locales.
+                Sélectionnez une image (JPG, PNG, WebP) depuis vos fichiers locaux.
               </span>
             </div>
             <span className={s.optionArrow}>›</span>
@@ -682,9 +682,9 @@ export function BannerSourceModal({ onFile, onR2, onClose }: BannerSourceModalPr
           <button className={s.optionCard} onClick={onR2}>
             <span className={s.optionIcon}>☁️</span>
             <div className={s.optionInfo}>
-              <span className={s.optionTitle}>Seleccionar de la Galería de RégieArt</span>
+              <span className={s.optionTitle}>Choisir dans la galerie RégieArt</span>
               <span className={s.optionSub}>
-                Elige entre banners e imágenes subidas en tus bandas y eventos.
+                Choisissez parmi les bannières et images importées dans vos groupes et événements.
               </span>
             </div>
             <span className={s.optionArrow}>›</span>
@@ -701,7 +701,7 @@ export function BannerSourceModal({ onFile, onR2, onClose }: BannerSourceModalPr
 
         <div className={s.modalFooter}>
           <div />
-          <button className={s.cancelBtn} onClick={onClose}>Cancelar</button>
+          <button className={s.cancelBtn} onClick={onClose}>Annuler</button>
         </div>
       </div>
     </div>
@@ -847,7 +847,7 @@ export function BannerCropModal({ imageSrc, onConfirm, onChangeImage, onCancel }
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modalWide} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Ajustar Banner de Perfil</span>
+          <span className={s.modalTitle}>Ajuster la bannière du profil</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
@@ -864,10 +864,10 @@ export function BannerCropModal({ imageSrc, onConfirm, onChangeImage, onCancel }
             onMouseLeave={handleMouseUp}
             onWheel={handleWheel}
           />
-          <p className={s.cropHint}>Arrastra para mover · Rueda para zoom</p>
+          <p className={s.cropHint}>Glissez pour déplacer · Molette pour zoomer</p>
 
           <div className={s.bannerPreviewWrap}>
-            <p className={s.previewLabel}>PREVISUALIZACIÓN EN VIVO</p>
+            <p className={s.previewLabel}>APERÇU EN DIRECT</p>
             <canvas ref={previewRef} width={320} height={100} className={s.bannerPreviewCanvas} />
           </div>
         </div>
@@ -878,17 +878,17 @@ export function BannerCropModal({ imageSrc, onConfirm, onChangeImage, onCancel }
           <input type="range" min={0.15} max={4} step={0.01} value={sliderScale} className={s.zoomSlider} onChange={handleSliderChange} />
           <button className={s.controlBtn} onClick={() => { scaleRef.current = Math.min(4, scaleRef.current + 0.1); setSliderScale(scaleRef.current); draw(); }}>+</button>
           <span className={s.controlSep} />
-          <span className={s.controlLabel}>Rotación:</span>
+          <span className={s.controlLabel}>Rotation :</span>
           <button className={s.controlBtn} onClick={() => rotate(-90)}>⟲ 90°</button>
           <button className={s.controlBtn} onClick={() => rotate(90)}>⟳ 90°</button>
-          <button className={s.controlBtn} onClick={resetTransform}>🔄 Reset</button>
+          <button className={s.controlBtn} onClick={resetTransform}>🔄 Réinitialiser</button>
         </div>
 
         <div className={s.modalFooter}>
-          <button className={s.changeImgBtn} onClick={onChangeImage}>📂 Cambiar Imagen</button>
+          <button className={s.changeImgBtn} onClick={onChangeImage}>📂 Changer d'image</button>
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
-            <button className={s.primaryBtn} onClick={handleSave}>GUARDAR Y SUBIR ✓</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
+            <button className={s.primaryBtn} onClick={handleSave}>ENREGISTRER ET IMPORTER ✓</button>
           </div>
         </div>
       </div>
@@ -940,7 +940,7 @@ export function BannerR2GalleryModal({ onSelect, onCancel }: BannerR2GalleryModa
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modalWide} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Seleccionar Banner de RégieArt</span>
+          <span className={s.modalTitle}>Choisir une bannière RégieArt</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
@@ -949,7 +949,7 @@ export function BannerR2GalleryModal({ onSelect, onCancel }: BannerR2GalleryModa
             <div className={s.r2Loading}><div className={s.spinnerEl} /></div>
           ) : assets.length === 0 ? (
             <div className={s.r2Empty}>
-              No tienes imágenes subidas aún. Usa &quot;Cargar desde el Equipo&quot; para subir tu primer banner.
+              Vous n’avez encore importé aucune image. Utilisez &quot;Importer depuis l’ordinateur&quot; pour ajouter votre première bannière.
             </div>
           ) : (
             assets.map((asset) => (
@@ -971,9 +971,9 @@ export function BannerR2GalleryModal({ onSelect, onCancel }: BannerR2GalleryModa
         <div className={s.modalFooter}>
           <div />
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
             <button className={s.primaryBtn} onClick={handleUse} disabled={!selected}>
-              USAR COMO BANNER ✓
+              UTILISER COMME BANNIÈRE ✓
             </button>
           </div>
         </div>
@@ -1063,7 +1063,7 @@ export function OrgR2GalleryModal({ orgId, onSelect, onCancel }: OrgR2GalleryMod
     <div className={s.overlay} onClick={onCancel}>
       <div className={s.modalWide} onClick={(e) => e.stopPropagation()}>
         <div className={s.modalHeader}>
-          <span className={s.modalTitle}>Seleccionar Imagen de Organización</span>
+          <span className={s.modalTitle}>Choisir une image de l’organisation</span>
           <button className={s.closeBtn} onClick={onCancel}>✕</button>
         </div>
 
@@ -1072,7 +1072,7 @@ export function OrgR2GalleryModal({ orgId, onSelect, onCancel }: OrgR2GalleryMod
             <div className={s.r2Loading}><div className={s.spinnerEl} /></div>
           ) : assets.length === 0 ? (
             <div className={s.r2Empty}>
-              No hay imágenes para esta organización aún. Sube la primera desde tu equipo.
+              Aucune image pour cette organisation pour l’instant. Importez la première depuis votre ordinateur.
             </div>
           ) : (
             assets.map((asset) => (
@@ -1094,13 +1094,13 @@ export function OrgR2GalleryModal({ orgId, onSelect, onCancel }: OrgR2GalleryMod
         <div className={s.modalFooter}>
           <div />
           <div className={s.footerRight}>
-            <button className={s.cancelBtn} onClick={onCancel}>Cancelar</button>
+            <button className={s.cancelBtn} onClick={onCancel}>Annuler</button>
             <button
               className={s.primaryBtn}
               onClick={() => { if (selected && thumbs[selected.id]) onSelect(thumbs[selected.id]); }}
               disabled={!selected}
             >
-              USAR IMAGEN ✓
+              UTILISER L’IMAGE ✓
             </button>
           </div>
         </div>

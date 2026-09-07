@@ -20,7 +20,7 @@ export function useConvoySummary(eventId: string) {
       setState({
         vehicles: [],
         isLoading: false,
-        error: err instanceof Error ? err.message : 'Error al cargar el convoy',
+        error: err instanceof Error ? err.message : 'Erreur lors du chargement du convoi',
       });
     }
   }, [eventId]);

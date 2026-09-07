@@ -1,13 +1,11 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { searchUsers } from '@regieart/api';
 import type { UserPublic } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
 import s from './TalentSearchPage.module.scss';
 
 export function TalentSearchPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
@@ -29,29 +27,29 @@ export function TalentSearchPage() {
 
   return (
     <div className={p.page}>
-      <h1 className={p.pageTitle}>{t('talent_search.screen_title')}</h1>
+      <h1 className={p.pageTitle}>Recherche de talents</h1>
 
       <div className={s.searchBar}>
         <input
           className={s.input}
-          placeholder={t('talent_search.name_placeholder')}
+          placeholder="Nom du musicien…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && doSearch()}
         />
         <input
           className={s.input}
-          placeholder={t('talent_search.city_placeholder')}
+          placeholder="Ville…"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && doSearch()}
         />
-        <button className={p.btnPrimary} onClick={doSearch}>{t('talent_search.search_btn')}</button>
+        <button className={p.btnPrimary} onClick={doSearch}>Rechercher</button>
       </div>
 
       {loading ? <div className={p.spinner} /> : (
         searched && results.length === 0 ? (
-          <div className={p.empty}><div className={p.emptyTitle}>{t('common.no_results')}</div></div>
+          <div className={p.empty}><div className={p.emptyTitle}>Aucun résultat</div></div>
         ) : (
           <div className={s.grid}>
             {results.map((u) => (

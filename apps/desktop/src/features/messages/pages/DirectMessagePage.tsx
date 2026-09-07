@@ -48,7 +48,7 @@ export function DirectMessagePage() {
               return (
                 <div key={m.id} className={`${s.bubble} ${mine ? s.mine : s.theirs}`}>
                   <div className={s.text}>{m.content}</div>
-                  <div className={s.ts}>{new Date(m.createdAt).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</div>
+                  <div className={s.ts}>{new Date(m.createdAt).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}</div>
                 </div>
               );
             })}
@@ -57,14 +57,14 @@ export function DirectMessagePage() {
           <div className={s.composer}>
             <input
               className={s.input}
-              placeholder={t('messages.input_placeholder')}
+              placeholder="Écrire un message…"
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               disabled={sending}
             />
             <button className={p.btnPrimary} onClick={handleSend} disabled={sending || !text.trim()}>
-              {t('messages.send_btn')}
+              Envoyer
             </button>
           </div>
         </>

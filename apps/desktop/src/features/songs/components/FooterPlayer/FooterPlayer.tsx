@@ -22,7 +22,7 @@ export function FooterPlayer() {
           <div className={s.songSub}>
             {player.currentSong.composer ??
               player.currentSong.musicalKey ??
-              'Repertorio'}
+              'Répertoire'}
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@ export function FooterPlayer() {
         <button
           className={s.ctrlBtnMain}
           onClick={player.togglePlay}
-          aria-label={player.isPlaying ? 'Pausar' : 'Reproducir'}
+          aria-label={player.isPlaying ? 'Pause' : 'Lecture'}
         >
           {player.isPlaying ? '⏸' : '▶'}
         </button>
@@ -72,7 +72,7 @@ export function FooterPlayer() {
       <button
         className={s.stopBtn}
         onClick={player.stop}
-        title="Detener y cerrar"
+        title="Arrêter et fermer"
       >
         ✕
       </button>

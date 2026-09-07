@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { listEvents } from '@regieart/api';
 import type { Event, ConvoySummaryItem, RouteResult } from '@regieart/types';
 import { useConvoySummary } from '../hooks/useConvoySummary';
@@ -36,9 +35,9 @@ function VehicleRouteCard({
   }
 
   const departure = vehicle.suggestedDepartureAt
-    ? new Date(vehicle.suggestedDepartureAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    ? new Date(vehicle.suggestedDepartureAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
     : null;
-  const arrival = new Date(eventStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const arrival = new Date(eventStartTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   const distance = routeResult?.totalDistanceKm ?? vehicle.routeDistanceKm;
   const duration = routeResult?.totalDurationMin ?? vehicle.routeDurationMin;
 
@@ -62,7 +61,7 @@ function VehicleRouteCard({
           <span>{vehicle.name}</span>
           {vehicle.routeCalculated
             ? <span className={s.badgeReady}>🟢 Route prête</span>
-            : <span className={s.badgePending}>⚠️ Sans route</span>
+            : <span className={s.badgePending}>⚠️ Sans itinéraire</span>
           }
           {routeResult?.cached && <span className={s.badgeCache}>⚡ Cache Redis</span>}
         </div>
@@ -93,12 +92,12 @@ function VehicleRouteCard({
             {duration != null && (
               <div className={s.metric}>
                 <span className={s.metricVal}>{formatDuration(duration)}</span>
-                <span className={s.metricLabel}>Duración estimada</span>
+                <span className={s.metricLabel}>Durée estimée</span>
               </div>
             )}
             <div className={s.metric}>
               <span className={s.metricVal}>{arrival}</span>
-              <span className={s.metricLabel}>Llegada requerida</span>
+              <span className={s.metricLabel}>Arrivée requise</span>
             </div>
             {departure && (
               <div className={s.metric}>
@@ -111,7 +110,7 @@ function VehicleRouteCard({
           {departure && (
             <div className={s.departureCallout}>
               <span className={s.departureCalloutIcon}>⏱</span>
-              <span><strong>Salí a las {departure}</strong><small>para llegar a tiempo a las {arrival}. El cálculo incluye la duración estimada del trayecto.</small></span>
+              <span><strong>Partez à {departure}</strong><small>pour arriver à l’heure à {arrival}. Le calcul inclut la durée estimée du trajet.</small></span>
             </div>
           )}
 
@@ -153,7 +152,7 @@ function VehicleRouteCard({
               </div>
             )}
             <button className={s.btnRecalc} onClick={handleCalculate} disabled={isLoading}>
-              {isLoading ? '⏳ Calculando…' : '🔄 Recalcular ruta'}
+              {isLoading ? '⏳ Calcul en cours…' : '🔄 Recalculer l’itinéraire'}
             </button>
             <button className={s.btnWarn}>⚠️ Signaler un Retard</button>
           </div>
@@ -163,12 +162,12 @@ function VehicleRouteCard({
         <div className={s.noRouteBox}>
           {errorStatus === 400 ? (
             <div className={s.errorBanner}>
-              ⚠️ El lugar del show no tiene coordenadas GPS configuradas. Edita el evento para habilitar el cálculo de ruta.
+              ⚠️ Le lieu du concert n’a pas de coordonnées GPS configurées. Modifiez l’événement pour activer le calcul d’itinéraire.
             </div>
           ) : errorStatus === 503 ? (
             <div className={s.errorBanner}>
-              🔌 Servicio de rutas OSRM no disponible temporalmente.{' '}
-              <button className={s.retryLink} onClick={handleCalculate}>Reintentar</button>
+              🔌 Service d’itinéraires OSRM temporairement indisponible.{' '}
+              <button className={s.retryLink} onClick={handleCalculate}>Réessayer</button>
             </div>
           ) : error ? (
             <div className={s.errorBanner}>{error}</div>
@@ -185,8 +184,8 @@ function VehicleRouteCard({
               disabled={isLoading}
             >
               {isLoading
-                ? <><span className={s.dotSpinner} /> Calculant la route…</>
-                : '📍 Calcular ruta y salida sugerida'}
+                ? <><span className={s.dotSpinner} /> Calcul de l’itinéraire…</>
+                : '📍 Calculer l’itinéraire et le départ suggéré'}
             </button>
           )}
         </div>
@@ -277,7 +276,6 @@ function EventConvoyCard({ event }: { event: Event }) {
 // ─── ConvoyPage ───────────────────────────────────────────────────────────────
 
 export function ConvoyPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const activeOrgId = useActiveOrganizationId();
   const [events, setEvents] = useState<Event[]>([]);
@@ -295,10 +293,10 @@ export function ConvoyPage() {
   return (
     <div className={s.root}>
       <button className={s.backLink} onClick={() => navigate(-1)}>
-        ← Volver
+        ← Retour
       </button>
       <header className={s.pageHeader}>
-        <h1 className={s.pageTitle}>{t('nav.convoy')}</h1>
+        <h1 className={s.pageTitle}>Convoi</h1>
         <p className={s.pageSubtitle}>
           Gérez les véhicules, les itinéraires et les départs de l'ensemble de vos événements
         </p>

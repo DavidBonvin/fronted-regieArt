@@ -95,8 +95,8 @@ function RepertoireInner() {
     <div className={s.page}>
       <div className={s.toolbar}>
         <div className={s.toolbarLeft}>
-          <h1 className={s.title}>Repertorio</h1>
-          <span className={s.count}>{filtered.length} canciones</span>
+          <h1 className={s.title}>Répertoire</h1>
+          <span className={s.count}>{filtered.length} morceaux</span>
         </div>
         <div className={s.toolbarRight}>
           <div className={s.searchWrap}>
@@ -105,11 +105,11 @@ function RepertoireInner() {
               className={s.search}
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Buscar por título, compositor…"
+              placeholder="Rechercher par titre, compositeur…"
             />
           </div>
           <button className={s.btnAdd} onClick={() => setShowWizard(true)}>
-            + Subir Canción
+            + Ajouter un morceau
           </button>
         </div>
       </div>
@@ -117,18 +117,18 @@ function RepertoireInner() {
       <div className={s.body}>
         <div className={s.listCol}>
           {loading ? (
-            <div className={s.center}>Cargando…</div>
+            <div className={s.center}>Chargement…</div>
           ) : filtered.length === 0 ? (
             <div className={s.center}>
               <div className={s.emptyIcon}>♪</div>
               <p className={s.emptyMsg}>
                 {search
-                  ? 'Sin resultados para esa búsqueda'
-                  : 'No hay canciones en el repertorio'}
+                  ? 'Aucun résultat pour cette recherche'
+                  : 'Aucun morceau dans le répertoire'}
               </p>
               {!search && (
                 <button className={s.btnAddAlt} onClick={() => setShowWizard(true)}>
-                  + Agregar primera canción
+                  + Ajouter le premier morceau
                 </button>
               )}
             </div>

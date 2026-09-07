@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { listEntries, getMyOrganizations, listEvents } from '@regieart/api';
 import type { Event, FinanceEntry, Organization } from '@regieart/types';
 import p from '../../../shared/layout/page.module.scss';
@@ -8,8 +7,13 @@ import s from './FinancePage.module.scss';
 import { getActiveOrganization } from '../../../shared/utils/activeOrganization';
 import { useActiveOrganizationId } from '../../../shared/utils/useActiveOrganizationId';
 
+const STATUS_LABEL: Record<string, string> = {
+  PENDING: 'En attente',
+  APPROVED: 'Approuvé',
+  REJECTED: 'Refusé',
+};
+
 export function FinancePage() {
-  const { t } = useTranslation();
   const activeOrgId = useActiveOrganizationId();
   const [entries, setEntries] = useState<FinanceEntry[]>([]);
     const [organization, setOrganization] = useState<Organization | null>(null);
@@ -71,7 +75,7 @@ export function FinancePage() {
 
     function formatEventTotals(eventId: string) {
       const totals = eventTotals.get(eventId);
-      if (!totals || totals.size === 0) return 'Sin movimientos';
+      if (!totals || totals.size === 0) return 'Aucun mouvement';
       return [...totals.entries()].map(([currency, total]) => `${total >= 0 ? '+' : ''}${total.toFixed(2)} ${currency}`).join(' · ');
     }
 
@@ -82,19 +86,19 @@ export function FinancePage() {
     <div className={p.page}>
       <div className={`${p.pageHeader} ${s.header}`}>
         <div>
-          <h1 className={p.pageTitle}>{t('nav.finance')}</h1>
+          <h1 className={p.pageTitle}>Finances</h1>
         </div>
-        <Link to="/finance/receipt" className={p.btnPrimary}>+ {t('finance_form.add_title')}</Link>
+        <Link to="/finance/receipt" className={p.btnPrimary}>+ Ajouter une écriture</Link>
       </div>
 
-      <div className={s.financeScopes} aria-label="Seleccionar ámbito financiero">
+      <div className={s.financeScopes} aria-label="Sélectionner le périmètre financier">
         <button
           type="button"
           className={`${s.financeScope} ${selectedScope === 'general' ? s.financeScopeActive : ''}`}
           onClick={() => setSelectedScope('general')}
         >
           <span className={s.financeScopeIcon}>🏢</span>
-          <span><strong>{organization?.name ?? 'Organización'}</strong><small>Finanzas generales</small></span>
+          <span><strong>{organization?.name ?? 'Organisation'}</strong><small>Finances générales</small></span>
         </button>
         {events.map((event) => (
           <button
@@ -111,15 +115,15 @@ export function FinancePage() {
 
       <div className={`${p.grid3} ${s.statsRow}`}>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('finance.income_label')}</div>
+          <div className={p.statLabel}>Revenus</div>
           <div className={`${p.statValue} ${s.income}`}>{formatTotals(income)}</div>
         </div>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('finance.expenses_label')}</div>
+          <div className={p.statLabel}>Dépenses</div>
           <div className={`${p.statValue} ${s.expense}`}>{formatTotals(expense)}</div>
         </div>
         <div className={p.statCard}>
-          <div className={p.statLabel}>{t('finance.balance_label')}</div>
+          <div className={p.statLabel}>Solde</div>
           <div className={`${p.statValue} ${[...balance.values()].every((value) => value >= 0) ? s.income : s.expense}`}>
             {formatTotals(balance, true)}
           </div>
@@ -131,34 +135,34 @@ export function FinancePage() {
           <table className={p.table}>
             <thead>
               <tr>
-                <th className={p.th}>{t('finance.date_label')}</th>
-                <th className={p.th}>{t('finance.description_label')}</th>
-                <th className={p.th}>{t('finance.type_label')}</th>
-                <th className={p.th}>{t('finance.amount_label')}</th>
-                <th className={p.th}>{t('finance.status_label')}</th>
+                <th className={p.th}>Date</th>
+                <th className={p.th}>Description</th>
+                <th className={p.th}>Type</th>
+                <th className={p.th}>Montant</th>
+                <th className={p.th}>Statut</th>
               </tr>
             </thead>
             <tbody>
               {visibleEntries.map((e) => (
                 <tr key={e.id} className={p.tr}>
-                  <td className={p.td} data-label={t('finance.date_label')}>{new Date(e.date).toLocaleDateString()}</td>
-                  <td className={p.td} data-label={t('finance.description_label')}>{e.description ?? e.category?.name ?? '—'}</td>
-                  <td className={p.td} data-label={t('finance.type_label')}>
+                  <td className={p.td} data-label="Date">{new Date(e.date).toLocaleDateString('fr-FR')}</td>
+                  <td className={p.td} data-label="Description">{e.description ?? e.category?.name ?? '—'}</td>
+                  <td className={p.td} data-label="Type">
                     <span className={`${p.chip} ${e.type === 'INCOME' ? p.chipOk : p.chipNeutral}`}>
-                      {e.type}
+                      {e.type === 'INCOME' ? 'Revenu' : 'Dépense'}
                     </span>
                   </td>
-                  <td className={`${p.td} ${e.type === 'INCOME' ? s.income : s.expense}`} data-label={t('finance.amount_label')}>
+                  <td className={`${p.td} ${e.type === 'INCOME' ? s.income : s.expense}`} data-label="Montant">
                     {e.type === 'INCOME' ? '+' : '−'}{parseFloat(e.amount).toFixed(2)} {e.currency}
                   </td>
-                  <td className={p.td} data-label={t('finance.status_label')}>
-                    <span className={`${p.chip} ${statusClass(e.status)}`}>{e.status}</span>
+                  <td className={p.td} data-label="Statut">
+                    <span className={`${p.chip} ${statusClass(e.status)}`}>{STATUS_LABEL[e.status] ?? e.status}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {visibleEntries.length === 0 && <div className={p.empty}><div className={p.emptyTitle}>{t('common.no_results')}</div></div>}
+          {visibleEntries.length === 0 && <div className={p.empty}><div className={p.emptyTitle}>Aucun résultat</div></div>}
         </div>
       )}
     </div>

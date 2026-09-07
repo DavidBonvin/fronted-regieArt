@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   getMe, getMySkills, getMyProfileUrls, updateMe, addSkill, removeSkill,
   listSkillCategories, searchAssets, getUserById, getUserSkills, resolveImageUrl,
@@ -38,6 +37,25 @@ const LEVEL_COLOR: Record<string, string> = {
 
 const EXPERTISE_LEVELS: ExpertiseLevel[] = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL'];
 
+const LEVEL_LABEL: Record<string, string> = {
+  BEGINNER: 'Débutant',
+  INTERMEDIATE: 'Intermédiaire',
+  ADVANCED: 'Avancé',
+  PROFESSIONAL: 'Professionnel',
+};
+
+const PROFILE_FIELD_LABEL: Record<string, string> = {
+  displayName: 'Nom affiché',
+  bio: 'Biographie',
+  city: 'Ville',
+  country: 'Pays',
+  phone: 'Téléphone',
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  OWNER: 'Propriétaire', ADMIN: 'Administrateur', MEMBER: 'Membre', EXTERNAL_TECH: 'Technicien externe',
+};
+
 const ASSET_ICONS: Record<string, string> = {
   'music-score': '📄',
   'reference-video': '🎬',
@@ -47,7 +65,6 @@ const ASSET_ICONS: Record<string, string> = {
 
 export function MusicianProfilePage() {
   const { userId } = useParams<{ userId: string }>();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const isOwn = userId === 'me';
 
@@ -174,7 +191,7 @@ export function MusicianProfilePage() {
   });
 
   if (loading) return <div className={p.spinner} style={{ margin: '48px auto' }} />;
-  if (!user) return <div className={p.page}><div className={p.card}><span className={s.empty}>{t('common.not_found')}</span></div></div>;
+  if (!user) return <div className={p.page}><div className={p.card}><span className={s.empty}>Introuvable</span></div></div>;
 
   const initials = user.displayName.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
   const totalYears = skills.reduce((max, sk) => Math.max(max, sk.yearsExp ?? 0), 0);
@@ -191,9 +208,9 @@ export function MusicianProfilePage() {
           <button
             className={s.bannerEditBtn}
             onClick={() => setBannerMode('source')}
-            title="Cambiar banner"
+            title="Changer la bannière"
           >
-            📷 Cambiar banner de perfil
+            📷 Changer la bannière du profil
           </button>
         )}
       </div>
@@ -217,10 +234,10 @@ export function MusicianProfilePage() {
               <button
                 className={s.avatarEditOverlay}
                 onClick={() => setAvatarMode('source')}
-                title="Cambiar foto de perfil"
+                title="Changer la photo de profil"
               >
                 <span className={s.avatarCamIcon}>📷</span>
-                <span className={s.avatarCamText}>Cambiar foto</span>
+                <span className={s.avatarCamText}>Changer la photo</span>
               </button>
             )}
           </div>
@@ -234,24 +251,24 @@ export function MusicianProfilePage() {
           </div>
         </div>
         <div className={s.heroStats}>
-          <div className={s.statBox}><span className={s.statNum}>{memberships.length}</span><span className={s.statLabel}>{t('profile.bands_label')}</span></div>
+          <div className={s.statBox}><span className={s.statNum}>{memberships.length}</span><span className={s.statLabel}>Groupes</span></div>
           <div className={s.statDivider} />
-          <div className={s.statBox}><span className={s.statNum}>{skills.length}</span><span className={s.statLabel}>Skills</span></div>
+          <div className={s.statBox}><span className={s.statNum}>{skills.length}</span><span className={s.statLabel}>Compétences</span></div>
           <div className={s.statDivider} />
-          <div className={s.statBox}><span className={s.statNum}>{totalYears}</span><span className={s.statLabel}>Años exp.</span></div>
+          <div className={s.statBox}><span className={s.statNum}>{totalYears}</span><span className={s.statLabel}>Années exp.</span></div>
         </div>
       </div>
 
       <div className={s.actionBar}>
         {isOwn ? (
           <>
-            <button className={s.actionBtn} onClick={() => setShowEditModal(true)}>✏ {t('profile.edit_profile')}</button>
-            <button className={s.actionBtn} onClick={() => setAvatarMode('source')}>📷 Cambiar Foto de Perfil</button>
-            <button className={s.actionBtn} onClick={() => setShowSkillModal(true)}>{t('profile.add_skill')}</button>
-            <button className={s.actionBtnSecondary}>{t('profile.export_cv')}</button>
+            <button className={s.actionBtn} onClick={() => setShowEditModal(true)}>✏ Modifier le profil</button>
+            <button className={s.actionBtn} onClick={() => setAvatarMode('source')}>📷 Changer la photo de profil</button>
+            <button className={s.actionBtn} onClick={() => setShowSkillModal(true)}>Ajouter une compétence</button>
+            <button className={s.actionBtnSecondary}>Exporter le CV</button>
           </>
         ) : (
-          <button className={s.actionBtnPrimary} onClick={() => navigate(`/messages/direct/${userId}`)}>{t('profile.message_btn')}</button>
+          <button className={s.actionBtnPrimary} onClick={() => navigate(`/messages/direct/${userId}`)}>Envoyer un message</button>
         )}
       </div>
 
@@ -259,18 +276,18 @@ export function MusicianProfilePage() {
         <aside className={s.aside}>
           {skills.length > 0 && (
             <div className={s.card}>
-              <div className={s.sectionTitle}>{t('profile.skills_section')}</div>
+              <div className={s.sectionTitle}>Compétences</div>
               <div className={s.skillList}>
                 {skills.map((sk) => (
                   <div key={sk.id} className={s.skillRow}>
                     <div className={s.skillDot} style={{ background: LEVEL_COLOR[sk.expertiseLevel] }} />
                     <div className={s.skillInfo}>
                       <span className={s.skillName}>{sk.skillCategory?.name ?? ''}</span>
-                      <span className={s.skillLevel} style={{ color: LEVEL_COLOR[sk.expertiseLevel] }}>{sk.expertiseLevel}</span>
-                      {sk.yearsExp ? <span className={s.skillYears}>{sk.yearsExp}y</span> : null}
+                      <span className={s.skillLevel} style={{ color: LEVEL_COLOR[sk.expertiseLevel] }}>{LEVEL_LABEL[sk.expertiseLevel] ?? sk.expertiseLevel}</span>
+                      {sk.yearsExp ? <span className={s.skillYears}>{sk.yearsExp} ans</span> : null}
                     </div>
                     {isOwn && (
-                      <button className={s.skillDelete} onClick={() => handleRemoveSkill(sk.id)} title="Remove">✕</button>
+                      <button className={s.skillDelete} onClick={() => handleRemoveSkill(sk.id)} title="Supprimer">✕</button>
                     )}
                   </div>
                 ))}
@@ -280,7 +297,7 @@ export function MusicianProfilePage() {
 
           {memberships.length > 0 && (
             <div className={s.card}>
-              <div className={s.sectionTitle}>{t('profile.orgs_section')}</div>
+              <div className={s.sectionTitle}>Organisations</div>
               <div className={s.orgList}>
                 {memberships.map((m: { organization: { id: string; name: string }; role: string }) => (
                   <div key={m.organization.id} className={s.orgRow}
@@ -292,7 +309,7 @@ export function MusicianProfilePage() {
                       {m.organization.name.split(' ').slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('')}
                     </div>
                     <span className={s.orgName}>{m.organization.name}</span>
-                    <span className={s.roleChip} data-role={m.role}>{m.role}</span>
+                    <span className={s.roleChip} data-role={m.role}>{ROLE_LABEL[m.role] ?? m.role}</span>
                   </div>
                 ))}
               </div>
@@ -305,12 +322,12 @@ export function MusicianProfilePage() {
             <div className={s.mediaTabs}>
               {(['gallery', 'scores', 'videos'] as MediaTab[]).map((tab) => (
                 <button key={tab} className={`${s.mediaTab} ${mediaTab === tab ? s.mediaTabActive : ''}`} onClick={() => setMediaTab(tab)}>
-                  {tab === 'gallery' ? `🔲 ${t('profile.tab_grid')}` : tab === 'scores' ? `📄 ${t('profile.tab_scores')}` : `🎬 ${t('profile.tab_videos')}`}
+                  {tab === 'gallery' ? '🔲 Galerie' : tab === 'scores' ? '📄 Partitions' : '🎬 Vidéos'}
                 </button>
               ))}
             </div>
             {filteredAssets.length === 0
-              ? <div className={s.emptyMedia}>{t('profile.no_media')}</div>
+              ? <div className={s.emptyMedia}>Aucun média</div>
               : (
                 <div className={s.assetGrid}>
                   {filteredAssets.map((a) => (
@@ -402,18 +419,17 @@ export function MusicianProfilePage() {
         <AvatarUploadingModal progress={uploadProgress} step={uploadStep} />
       )}
       {showEditModal && isOwn && 'phone' in user && (
-        <EditProfileModal user={user as User} t={t} onSave={handleSaveProfile} onClose={() => setShowEditModal(false)} />
+        <EditProfileModal user={user as User} onSave={handleSaveProfile} onClose={() => setShowEditModal(false)} />
       )}
       {showSkillModal && isOwn && (
-        <AddSkillModal t={t} onAdd={handleAddSkill} onClose={() => setShowSkillModal(false)} />
+        <AddSkillModal onAdd={handleAddSkill} onClose={() => setShowSkillModal(false)} />
       )}
     </div>
   );
 }
 
-function EditProfileModal({ user, t, onSave, onClose }: {
+function EditProfileModal({ user, onSave, onClose }: {
   user: User;
-  t: ReturnType<typeof import('react-i18next').useTranslation>['t'];
   onSave: (dto: Record<string, string>) => Promise<void>;
   onClose: () => void;
 }) {
@@ -424,19 +440,19 @@ function EditProfileModal({ user, t, onSave, onClose }: {
   return (
     <div className={s.modalOverlay} onClick={onClose}>
       <div className={s.modalBox} onClick={(e) => e.stopPropagation()}>
-        <div className={s.modalTitle}>{t('profile.edit_title')}</div>
+        <div className={s.modalTitle}>Modifier le profil</div>
         {(['displayName', 'bio', 'city', 'country', 'phone'] as const).map((k) => (
           <div key={k} className={s.modalField}>
-            <label className={s.modalLabel}>{t(`profile.field_${k === 'displayName' ? 'display_name' : k}`)}</label>
+            <label className={s.modalLabel}>{PROFILE_FIELD_LABEL[k]}</label>
             {k === 'bio'
               ? <textarea className={s.modalInput} value={form[k]} onChange={field(k)} rows={3} />
               : <input className={s.modalInput} value={form[k]} onChange={field(k)} />}
           </div>
         ))}
         <div className={s.modalFooter}>
-          <button className={s.modalCancelBtn} onClick={onClose}>{t('common.cancel')}</button>
+          <button className={s.modalCancelBtn} onClick={onClose}>Annuler</button>
           <button className={s.modalSaveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? t('profile.saving_profile') : t('profile.save_profile')}
+            {saving ? 'Enregistrement…' : 'Enregistrer le profil'}
           </button>
         </div>
       </div>
@@ -444,8 +460,7 @@ function EditProfileModal({ user, t, onSave, onClose }: {
   );
 }
 
-function AddSkillModal({ t, onAdd, onClose }: {
-  t: ReturnType<typeof import('react-i18next').useTranslation>['t'];
+function AddSkillModal({ onAdd, onClose }: {
   onAdd: (skill: UserSkill) => Promise<void>;
   onClose: () => void;
 }) {
@@ -460,7 +475,7 @@ function AddSkillModal({ t, onAdd, onClose }: {
   useEffect(() => {
     listSkillCategories()
       .then(setCategories)
-      .catch(() => setCategoryError('No se pudieron cargar las categorías. Intenta de nuevo.'))
+      .catch(() => setCategoryError('Impossible de charger les catégories. Veuillez réessayer.'))
       .finally(() => setLoadingCategories(false));
   }, []);
 
@@ -475,17 +490,17 @@ function AddSkillModal({ t, onAdd, onClose }: {
   return (
     <div className={s.modalOverlay} onClick={onClose}>
       <div className={s.modalBox} onClick={(e) => e.stopPropagation()}>
-        <div className={s.modalTitle}>{t('skills.add_btn')}</div>
+        <div className={s.modalTitle}>Ajouter une compétence</div>
         <div className={s.modalField}>
-          <label className={s.modalLabel}>{t('skills.pick_category')}</label>
+          <label className={s.modalLabel}>Choisir une catégorie</label>
           {loadingCategories ? (
-            <div className={s.categoryStatus}>Cargando categorías…</div>
+            <div className={s.categoryStatus}>Chargement des catégories…</div>
           ) : categoryError ? (
             <div className={s.categoryStatusError}>{categoryError}</div>
           ) : categories.length === 0 ? (
-            <div className={s.categoryStatusError}>No hay categorías disponibles.</div>
+            <div className={s.categoryStatusError}>Aucune catégorie disponible.</div>
           ) : (
-            <div className={s.catGrid} role="group" aria-label={t('skills.pick_category')}>
+            <div className={s.catGrid} role="group" aria-label="Choisir une catégorie">
               {categories.map((c) => {
                 const isSelected = selected?.id === c.id;
                 return (
@@ -504,27 +519,27 @@ function AddSkillModal({ t, onAdd, onClose }: {
               })}
             </div>
           )}
-          {selected && <div className={s.selectedCategory}>Categoría elegida: <strong>{selected.name}</strong></div>}
+          {selected && <div className={s.selectedCategory}>Catégorie choisie : <strong>{selected.name}</strong></div>}
         </div>
         <div className={s.modalField}>
-          <label className={s.modalLabel}>Nivel</label>
+          <label className={s.modalLabel}>Niveau</label>
           <div className={s.levelRow}>
             {EXPERTISE_LEVELS.map((lv) => (
               <button key={lv} className={`${s.levelChip} ${level === lv ? s.levelChipActive : ''}`}
                 style={level === lv ? { background: LEVEL_COLOR[lv], borderColor: LEVEL_COLOR[lv] } : {}}
-                onClick={() => setLevel(lv)}>{t(`profile.expertise_levels.${lv}`)}
+                onClick={() => setLevel(lv)}>{LEVEL_LABEL[lv]}
               </button>
             ))}
           </div>
         </div>
         <div className={s.modalField}>
-          <label className={s.modalLabel}>Años de experiencia</label>
+          <label className={s.modalLabel}>Années d’expérience</label>
           <input className={s.modalInput} type="number" value={years} onChange={(e) => setYears(e.target.value)} placeholder="5" />
         </div>
         <div className={s.modalFooter}>
-          <button className={s.modalCancelBtn} onClick={onClose}>{t('common.cancel')}</button>
+          <button className={s.modalCancelBtn} onClick={onClose}>Annuler</button>
           <button className={s.modalSaveBtn} onClick={handleAdd} disabled={!selected || saving}>
-            {saving ? t('common.loading') : t('profile.add_skill')}
+            {saving ? 'Chargement...' : 'Ajouter une compétence'}
           </button>
         </div>
       </div>
