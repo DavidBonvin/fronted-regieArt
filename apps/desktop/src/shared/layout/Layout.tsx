@@ -9,6 +9,8 @@ import { InviteModal } from '../../features/organizations/pages/MembersPage';
 import type { EmailInvitation } from '@regieart/types';
 import { setActiveOrganization } from '../utils/activeOrganization';
 import { clearProfileMediaCache } from '../utils/profileMediaCache';
+import { notificationTarget } from '../utils/notificationTarget';
+import { playNotificationChime, isNotificationMuted, setNotificationMuted } from '../utils/notificationSound';
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
 import { SignOutConfirmModal } from './SignOutConfirmModal';
@@ -69,6 +71,7 @@ export function Layout() {
   const [showCreateOrganization, setShowCreateOrganization] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [muted, setMuted] = useState(isNotificationMuted);
 
   function handleCreateAction(id: string) {
     setShowGlobalCreate(false);
@@ -82,6 +85,7 @@ export function Layout() {
   }
   const notifBtnRef = useRef<HTMLButtonElement>(null);
   const notifPopoverRef = useRef<HTMLDivElement>(null);
+  const knownNotifIds = useRef<Set<string> | null>(null);
 
   const unread = notifs.filter((n) => !n.isRead).length;
 
@@ -90,6 +94,7 @@ export function Layout() {
       setUser(me);
       setAllOrgs(orgs);
       setNotifs(notifsRes.notifications);
+      knownNotifIds.current = new Set(notifsRes.notifications.map((n) => n.id));
       const savedId = localStorage.getItem('regieart_active_org_id');
       const active = (savedId ? orgs.find((o) => o.id === savedId) : null) ?? orgs[0] ?? null;
       setOrg(active);
@@ -114,6 +119,37 @@ export function Layout() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showNotifPopover]);
+
+  // Poll for new notifications and chime once per genuinely new unread one.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      listNotifications({ limit: 15 })
+        .then((res) => {
+          const seen = knownNotifIds.current;
+          const arriving = res.notifications.filter((n) => !n.isRead);
+          if (seen && arriving.some((n) => !seen.has(n.id))) playNotificationChime();
+          knownNotifIds.current = new Set(res.notifications.map((n) => n.id));
+          setNotifs(res.notifications);
+        })
+        .catch(() => {});
+    }, 30_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  function openNotification(n: Notification) {
+    setShowNotifPopover(false);
+    if (!n.isRead) void handleMarkRead(n.id);
+    const target = notificationTarget(n);
+    if (target) navigate(target);
+  }
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    setNotificationMuted(next);
+    if (!next) playNotificationChime();
+  }
 
   function handleOrgSelect(selected: Organization) {
     setOrg(selected);
@@ -309,6 +345,14 @@ export function Layout() {
                   <div ref={notifPopoverRef} className={s.notifPopover}>
                     <div className={s.notifPopoverHead}>
                       <span className={s.notifPopoverTitle}>Notifications</span>
+                      <button
+                        className={s.notifMuteBtn}
+                        onClick={toggleMute}
+                        aria-pressed={muted}
+                        title={muted ? 'Activer le son' : 'Couper le son'}
+                      >
+                        {muted ? '🔕' : '🔔'}
+                      </button>
                       {unread > 0 && (
                         <button className={s.markAllBtn} onClick={handleMarkAll}>
                           Tout marquer comme lu
@@ -326,7 +370,15 @@ export function Layout() {
                             <div
                               key={n.id}
                               className={`${s.notifItem} ${!n.isRead ? s.notifUnread : ''}`}
-                              onClick={() => !n.isRead && !isNewInvite && void handleMarkRead(n.id)}
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => !isNewInvite && openNotification(n)}
+                              onKeyDown={(e) => {
+                                if (!isNewInvite && (e.key === 'Enter' || e.key === ' ')) {
+                                  e.preventDefault();
+                                  openNotification(n);
+                                }
+                              }}
                             >
                               <div className={s.notifItemDot}>
                                 {!n.isRead && <span className={s.unreadDot} />}

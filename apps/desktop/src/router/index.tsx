@@ -9,7 +9,7 @@ import { RepertoirePage, ScoreViewerPage, UploadScorePage } from '../features/so
 import { FinancePage, ExpensesPage, ReceiptCapturePage } from '../features/finance';
 import { ConvoyPage, PassengersPage } from '../features/convoy';
 import { BacklinePage, ChecklistPage, QRScannerPage } from '../features/inventory';
-import { BandChatPage, DirectMessagePage, NotificationsPage } from '../features/messages';
+import { MessagesPage, NotificationsPage } from '../features/messages';
 import { BandManagementPage, InvitationsPage, OrganizationProfileView, MembersPage, InvitationPublicPage } from '../features/organizations';
 import { EventDetailPage } from '../features/events';
 import { IconsPage } from '../features/icons';
@@ -63,8 +63,8 @@ export const router = createBrowserRouter([
           { path: '/backline', element: <BacklinePage /> },
           { path: '/inventory/:daysheetId/checklist', element: <ChecklistPage /> },
           { path: '/inventory/scanner', element: <QRScannerPage /> },
-          { path: '/messages', element: <BandChatPage /> },
-          { path: '/messages/direct/:userId', element: <DirectMessagePage /> },
+          { path: '/messages', element: <MessagesPage /> },
+          { path: '/messages/direct/:userId', element: <MessagesPage /> },
           { path: '/notifications', element: <NotificationsPage /> },
           { path: '/band', element: <BandManagementPage /> },
           { path: '/organization/:orgId', element: <OrganizationProfileView /> },

@@ -381,12 +381,28 @@ export function MusicianProfilePage() {
               ))}
             </div>
             {filteredAssets.length === 0
-              ? <div className={s.emptyMedia}>Aucun média</div>
+              ? (
+                <div className={s.emptyMedia}>
+                  <span className={s.emptyMediaIcon} aria-hidden>
+                    {mediaTab === 'scores' ? '📄' : mediaTab === 'videos' ? '🎬' : '🔲'}
+                  </span>
+                  <span className={s.emptyMediaTitle}>
+                    {mediaTab === 'scores' ? 'Aucune partition' : mediaTab === 'videos' ? 'Aucune vidéo' : 'Aucun média'}
+                  </span>
+                  <span className={s.emptyMediaHint}>
+                    {isOwn
+                      ? 'Les fichiers que vous importez dans vos groupes et vos événements apparaîtront ici.'
+                      : 'Ce profil n’a encore rien publié dans cette catégorie.'}
+                  </span>
+                </div>
+              )
               : (
                 <div className={s.assetGrid}>
                   {filteredAssets.map((a) => (
-                    <div key={a.id} className={s.assetCell} style={{ background: assetBg(a.assetType) }}>
-                      <span className={s.assetIcon}>{ASSET_ICONS[a.assetType] ?? '📁'}</span>
+                    <div key={a.id} className={s.assetCell}>
+                      <div className={s.assetThumb} style={{ background: assetBg(a.assetType) }}>
+                        <span className={s.assetIcon}>{ASSET_ICONS[a.assetType] ?? '📁'}</span>
+                      </div>
                       <span className={s.assetName}>{a.displayName ?? a.originalName}</span>
                     </div>
                   ))}

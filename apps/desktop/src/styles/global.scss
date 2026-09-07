@@ -7,8 +7,10 @@
   @include theme.palette;
   @include theme.theme-light;
   font-family: 'Archivo', system-ui, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
+
+[data-theme="dark"] { color-scheme: dark; }
 
 *, *::before, *::after { box-sizing: border-box; }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { initApiClient } from '../config'
-import { loginWithPassword, refreshAccessToken, logout } from './keycloak'
+import { loginWithPassword, refreshAccessToken, logout, toStoredTokens } from './keycloak'
 
 const mockTokenAdapter = {
   getTokens: vi.fn(async () => null),
@@ -24,11 +24,13 @@ const baseConfig = {
 }
 
 const tokenResponse = {
-  access_token: 'access-abc',
-  refresh_token: 'refresh-xyz',
-  expires_in: 300,
-  refresh_expires_in: 1800,
-  token_type: 'Bearer',
+  success: true,
+  data: {
+    accessToken: 'access-abc',
+    refreshToken: 'refresh-xyz',
+    expiresIn: 300,
+    refreshExpiresIn: 1800,
+  },
 }
 
 const mockFetch = vi.fn()
@@ -58,29 +60,79 @@ describe('keycloak', () => {
       )
     })
 
-    it('posts to the correct Keycloak token endpoint', async () => {
+    it('posts to the backend login endpoint', async () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => tokenResponse })
       await loginWithPassword('user@test.com', 'secret')
-      const [url] = mockFetch.mock.calls[0]
-      expect(url).toBe('https://auth.example.com/realms/test-realm/protocol/openid-connect/token')
+      const [url, init] = mockFetch.mock.calls[0]
+      expect(url).toBe('https://api.example.com/v1/auth/login')
+      expect(init.method).toBe('POST')
+      expect(JSON.parse(init.body)).toEqual({ email: 'user@test.com', password: 'secret' })
     })
 
-    it('throws with status code on failed login', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 401, text: async () => 'Unauthorized' })
-      await expect(loginWithPassword('bad@test.com', 'wrong')).rejects.toThrow('Login failed (401)')
+    it('surfaces the backend error message on failed login', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => ({ error: { message: 'Identifiants invalides' } }),
+      })
+      await expect(loginWithPassword('bad@test.com', 'wrong')).rejects.toThrow('Identifiants invalides')
+    })
+
+    it('falls back to a generic message when the body carries no detail', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 401, json: async () => ({}) })
+      await expect(loginWithPassword('bad@test.com', 'wrong')).rejects.toThrow(/incorrect/i)
     })
   })
 
   describe('refreshAccessToken', () => {
-    it('returns new token response on success', async () => {
+    it('returns the new token payload on success', async () => {
       mockFetch.mockResolvedValueOnce({ ok: true, json: async () => tokenResponse })
       const result = await refreshAccessToken('valid-refresh-token')
-      expect(result.access_token).toBe('access-abc')
+      expect(result.accessToken).toBe('access-abc')
+      expect(result.refreshToken).toBe('refresh-xyz')
     })
 
-    it('throws on failed refresh', async () => {
-      mockFetch.mockResolvedValueOnce({ ok: false, status: 400, json: async () => ({}) })
-      await expect(refreshAccessToken('expired-token')).rejects.toThrow('Token refresh failed')
+    it('posts to the backend refresh endpoint', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => tokenResponse })
+      await refreshAccessToken('valid-refresh-token')
+      const [url, init] = mockFetch.mock.calls[0]
+      expect(url).toBe('https://api.example.com/v1/auth/refresh')
+      expect(JSON.parse(init.body)).toEqual({ refreshToken: 'valid-refresh-token' })
+    })
+
+    it('reports the status and body when the refresh is rejected', async () => {
+      mockFetch.mockResolvedValueOnce({ ok: false, status: 400, text: async () => 'invalid_grant' })
+      await expect(refreshAccessToken('expired-token')).rejects.toThrow(
+        'Token refresh failed (HTTP 400): invalid_grant',
+      )
+    })
+
+    it('rejects an incomplete payload instead of storing empty tokens', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, data: { accessToken: 'only-access' } }),
+      })
+      await expect(refreshAccessToken('valid-refresh-token')).rejects.toThrow('incomplete payload')
+    })
+  })
+
+  describe('toStoredTokens', () => {
+    it('converts lifetimes into absolute timestamps', () => {
+      const before = Date.now()
+      const tokens = toStoredTokens({
+        accessToken: 'a', refreshToken: 'r', expiresIn: 300, refreshExpiresIn: 1800,
+      })
+      expect(tokens.expiresAt).toBeGreaterThanOrEqual(before + 300_000)
+      expect(tokens.refreshExpiresAt).toBeGreaterThanOrEqual(before + 1_800_000)
+    })
+
+    it('falls back to defaults when lifetimes are missing', () => {
+      const tokens = toStoredTokens({
+        accessToken: 'a', refreshToken: 'r',
+      } as unknown as Parameters<typeof toStoredTokens>[0])
+      expect(Number.isFinite(tokens.expiresAt)).toBe(true)
+      expect(Number.isFinite(tokens.refreshExpiresAt)).toBe(true)
+      expect(tokens.expiresAt).toBeGreaterThan(Date.now())
     })
   })
 

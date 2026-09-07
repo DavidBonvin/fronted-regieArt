@@ -1,10 +1,13 @@
 ﻿import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { listNotifications, markNotificationRead, markAllNotificationsRead } from '@regieart/api';
 import type { Notification } from '@regieart/types';
+import { notificationTarget } from '../../../shared/utils/notificationTarget';
 import p from '../../../shared/layout/page.module.scss';
 import s from './NotificationsPage.module.scss';
 
 export function NotificationsPage() {
+  const navigate = useNavigate();
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,6 +25,12 @@ export function NotificationsPage() {
     setNotifs((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
   }
 
+  function handleOpen(n: Notification) {
+    if (!n.isRead) void handleRead(n.id);
+    const target = notificationTarget(n);
+    if (target) navigate(target);
+  }
+
   const unread = notifs.filter((n) => !n.isRead).length;
 
   return (
@@ -37,7 +46,16 @@ export function NotificationsPage() {
           {notifs.length === 0 ? (
             <div className={p.empty}><div className={p.emptyTitle}>Aucune notification</div></div>
           ) : notifs.map((n) => (
-            <div key={n.id} className={`${s.row} ${!n.isRead ? s.unread : ''}`} onClick={() => !n.isRead && handleRead(n.id)}>
+            <div
+              key={n.id}
+              className={`${s.row} ${!n.isRead ? s.unread : ''}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleOpen(n)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpen(n); }
+              }}
+            >
               {!n.isRead && <div className={s.dot} />}
               <div className={s.body}>
                 <div className={s.title}>{n.title}</div>

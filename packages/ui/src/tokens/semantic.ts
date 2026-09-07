@@ -85,45 +85,45 @@ export const darkTheme: ThemeColors = {
 };
 
 export const lightTheme: ThemeColors = {
-  surfaceApp:        '#F6F8F9',
+  surfaceApp:        '#F4F2EE',
   surfaceCard:       '#FFFFFF',
-  surfaceRaised:     '#E9EDF0',
-  surfaceOverlay:    'rgba(246, 248, 249, 0.88)',
-  surfaceHighlight:  '#E9EDF0',
+  surfaceRaised:     '#ECE9E3',
+  surfaceOverlay:    'rgba(244, 242, 238, 0.92)',
+  surfaceHighlight:  '#ECE9E3',
 
   textHeading:       '#181B1E',
   textBody:          '#23272A',
-  textSecondary:     '#565D63',
-  textMuted:         '#8C949B',
+  textSecondary:     '#42484D',
+  textMuted:         '#5F676D',
   textOnAction:      '#FFFFFF',
 
   actionBrand:       '#4A827E',
   actionBrandDim:    '#396866',
-  actionSecondary:   '#E9EDF0',
+  actionSecondary:   '#ECE9E3',
   actionDanger:      '#D32F2F',
 
-  borderDefault:     '#D2D8DD',
-  borderSubtle:      '#E9EDF0',
+  borderDefault:     '#D5D0C7',
+  borderSubtle:      '#E5E1DA',
   borderFocus:       '#4A827E',
   borderDanger:      '#D32F2F',
 
   statusOk:          '#396866',
   statusOkSurface:   '#E2F1ED',
-  statusPending:     '#D97706',
+  statusPending:     '#B45309',
   statusPendingSurface: '#FEF3C7',
   statusError:       '#D32F2F',
   statusErrorSurface: '#FDE3E3',
 
   navBackground:     '#FFFFFF',
   navIconActive:     '#4A827E',
-  navIconRest:       '#8C949B',
-  navBorder:         '#E9EDF0',
+  navIconRest:       '#5F676D',
+  navBorder:         '#E5E1DA',
   navFab:            '#4A827E',
 
   inputBackground:   '#FFFFFF',
   inputText:         '#181B1E',
-  inputPlaceholder:  '#8C949B',
-  inputBorder:       '#D2D8DD',
+  inputPlaceholder:  '#6B7379',
+  inputBorder:       '#D5D0C7',
   inputBorderFocus:  '#4A827E',
 };
 

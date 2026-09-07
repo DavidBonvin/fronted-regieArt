@@ -1,3 +1,2 @@
-export { BandChatPage } from './pages/BandChatPage';
-export { DirectMessagePage } from './pages/DirectMessagePage';
+export { MessagesPage } from './pages/MessagesPage';
 export { NotificationsPage } from './pages/NotificationsPage';

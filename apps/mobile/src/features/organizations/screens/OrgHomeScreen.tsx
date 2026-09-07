@@ -213,7 +213,7 @@ export function OrgHomeScreen() {
         <View style={s.section}>
           <View style={s.sectionRow}>
             <Text style={s.sectionTitle}>{t('nav.messages')}</Text>
-            <Pressable onPress={() => orgId && navigation.navigate('BandChat', { channelId: orgId })}>
+            <Pressable onPress={() => navigation.navigate('MainTabs', { screen: 'Messages' })}>
               <Text style={s.viewAll}>{t('common.view_all')} →</Text>
             </Pressable>
           </View>

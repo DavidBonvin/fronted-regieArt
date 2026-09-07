@@ -30,8 +30,13 @@ export function LoginPage() {
     const debug = localStorage.getItem('__auth_debug');
     if (debug) {
       try {
-        const d = JSON.parse(debug) as { when: string; cause: string; url?: string };
-        setError(`[debug] ${d.cause}${d.url ? ' — ' + d.url : ''} (${d.when})`);
+        const d = JSON.parse(debug) as { when: string; cause: string; url?: string; error?: string };
+        setError(
+          d.cause === 'refresh_token_expired'
+            ? 'Votre session a expiré. Veuillez vous reconnecter.'
+            : 'Votre session a été interrompue. Veuillez vous reconnecter.',
+        );
+        console.warn('[auth]', d.cause, d.error ?? d.url ?? '', d.when);
       } catch { /* ignore */ }
       localStorage.removeItem('__auth_debug');
     }

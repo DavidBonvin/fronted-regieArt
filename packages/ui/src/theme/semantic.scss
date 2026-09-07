@@ -1,43 +1,44 @@
 :root {
-  --surface-app:        var(--color-neutral-50);
+  /* Warm neutrals: the light theme sits on cream, not on blue-gray. */
+  --surface-app:        #F4F2EE;
   --surface-card:       var(--color-base-white);
-  --surface-raised:     var(--color-neutral-100);
-  --surface-overlay:    rgba(246, 248, 249, 0.88);
-  --surface-highlight:  var(--color-neutral-100);
+  --surface-raised:     #ECE9E3;
+  --surface-overlay:    rgba(244, 242, 238, 0.92);
+  --surface-highlight:  #ECE9E3;
 
   --text-heading:       var(--color-neutral-950);
   --text-body:          var(--color-neutral-900);
-  --text-secondary:     var(--color-neutral-600);
-  --text-muted:         var(--color-neutral-400);
+  --text-secondary:     #42484D;
+  --text-muted:         #5F676D;
   --text-on-action:     var(--color-base-white);
 
   --action-brand:       var(--color-brand-500);
   --action-brand-dim:   var(--color-brand-600);
-  --action-secondary:   var(--color-neutral-100);
+  --action-secondary:   #ECE9E3;
   --action-danger:      var(--color-tertiary-600);
 
-  --border-default:     var(--color-neutral-200);
-  --border-subtle:      var(--color-neutral-100);
+  --border-default:     #D5D0C7;
+  --border-subtle:      #E5E1DA;
   --border-focus:       var(--color-brand-500);
   --border-danger:      var(--color-tertiary-600);
 
   --status-ok:          var(--color-brand-600);
   --status-ok-surface:  var(--color-brand-100);
-  --status-pending:     #D97706;
+  --status-pending:     #B45309;
   --status-pending-surface: #FEF3C7;
   --status-error:       var(--color-tertiary-600);
   --status-error-surface: var(--color-tertiary-100);
 
   --nav-background:     var(--color-base-white);
   --nav-icon-active:    var(--color-brand-500);
-  --nav-icon-rest:      var(--color-neutral-400);
-  --nav-border:         var(--color-neutral-100);
+  --nav-icon-rest:      #5F676D;
+  --nav-border:         #E5E1DA;
   --nav-fab:            var(--color-brand-500);
 
   --input-background:   var(--color-base-white);
   --input-text:         var(--color-neutral-950);
-  --input-placeholder:  var(--color-neutral-400);
-  --input-border:       var(--color-neutral-200);
+  --input-placeholder:  #6B7379;
+  --input-border:       #D5D0C7;
   --input-border-focus: var(--color-brand-500);
 }
 

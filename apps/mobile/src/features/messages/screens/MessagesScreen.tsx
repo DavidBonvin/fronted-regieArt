@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { listConversations, listNotifications } from '@regieart/api';
-import type { Conversation, Notification } from '@regieart/types';
+import { listConversations, listNotifications, getMyOrganizations, getOrganizationMembers, getMe } from '@regieart/api';
+import type { Conversation, Notification, OrganizationMember } from '@regieart/types';
 import { useTheme } from '../../../shared/theme';
 import type { ThemeColors } from '@regieart/ui';
 import type { RootStackParamList } from '../../../navigation';
@@ -21,15 +21,9 @@ import type { RootStackParamList } from '../../../navigation';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Tab = 'conversations' | 'notifications';
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60_000);
-  if (m < 1) return 'now';
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
-}
+const ROLE_LABEL: Record<string, string> = {
+  OWNER: 'Propriétaire', ADMIN: 'Administrateur', MEMBER: 'Membre', EXTERNAL_TECH: 'Technicien externe',
+};
 
 function Avatar({
   name,
@@ -52,14 +46,12 @@ function Avatar({
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: theme.surfaceRaised,
+        backgroundColor: theme.actionBrand,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1.5,
-        borderColor: theme.borderSubtle,
       }}
     >
-      <Text style={{ fontSize: size * 0.35, fontWeight: '700', color: theme.actionBrand }}>
+      <Text style={{ fontSize: size * 0.34, fontWeight: '700', color: '#fff' }}>
         {initials}
       </Text>
     </View>
@@ -74,19 +66,42 @@ export function MessagesScreen() {
 
   const [activeTab, setActiveTab] = useState<Tab>('conversations');
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [myId, setMyId] = useState('');
+  const [showMembers, setShowMembers] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const timeAgo = useCallback((iso: string): string => {
+    const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+    if (minutes < 1) return t('messages.time_now');
+    if (minutes < 60) return t('messages.time_min', { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t('messages.time_hour', { count: hours });
+    const days = Math.floor(hours / 24);
+    if (days === 1) return t('messages.time_yesterday');
+    return t('messages.time_days', { count: days });
+  }, [t]);
+
   const loadData = useCallback(async () => {
-    const [convs, notifRes] = await Promise.all([
+    const [convs, notifRes, me] = await Promise.all([
       listConversations(),
       listNotifications({ limit: 30 }),
+      getMe(),
     ]);
     setConversations(convs);
     setNotifications(notifRes.notifications);
     setUnreadNotifs(notifRes.unreadCount);
+    setMyId(me.id);
+  }, []);
+
+  useEffect(() => {
+    getMyOrganizations()
+      .then((orgs) => (orgs[0] ? getOrganizationMembers(orgs[0].id) : []))
+      .then(setMembers)
+      .catch(() => setMembers([]));
   }, []);
 
   useEffect(() => {
@@ -99,7 +114,33 @@ export function MessagesScreen() {
     setRefreshing(false);
   }
 
+  const showMemberList = showMembers || (!loading && conversations.length === 0);
+
+  function renderMember({ item }: { item: OrganizationMember }) {
+    return (
+      <Pressable
+        style={({ pressed }) => [s.row, pressed && s.rowPressed]}
+        onPress={() => {
+          setShowMembers(false);
+          navigation.navigate('DirectMessage', {
+            userId: item.user.id,
+            displayName: item.user.displayName,
+          });
+        }}
+      >
+        <Avatar name={item.user.displayName} size={48} theme={theme} />
+        <View style={s.rowContent}>
+          <Text style={s.rowTitle} numberOfLines={1}>{item.user.displayName}</Text>
+          <Text style={s.rowSubtitle} numberOfLines={1}>
+            {ROLE_LABEL[item.role] ?? item.role}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  }
+
   function renderConversation({ item }: { item: Conversation }) {
+    const unread = item.unreadCount > 0;
     return (
       <Pressable
         style={({ pressed }) => [s.row, pressed && s.rowPressed]}
@@ -120,15 +161,15 @@ export function MessagesScreen() {
               <Text style={s.rowTime}>{timeAgo(item.lastMessage.createdAt)}</Text>
             )}
           </View>
-          {item.lastMessage && (
-            <Text style={s.rowSubtitle} numberOfLines={1}>
-              {item.lastMessage.content}
-            </Text>
-          )}
+          <Text style={[s.rowSubtitle, unread && s.rowSubtitleUnread]} numberOfLines={1}>
+            {item.lastMessage
+              ? `${item.lastMessage.senderId === myId ? t('messages.you_prefix') : ''}${item.lastMessage.content}`
+              : t('messages.no_message')}
+          </Text>
         </View>
-        {item.unreadCount > 0 && (
+        {unread && (
           <View style={s.badge}>
-            <Text style={s.badgeText}>{item.unreadCount}</Text>
+            <Text style={s.badgeText}>{item.unreadCount > 9 ? '9+' : item.unreadCount}</Text>
           </View>
         )}
       </Pressable>
@@ -163,6 +204,18 @@ export function MessagesScreen() {
             <Text style={s.headerBadgeText}>{unreadNotifs}</Text>
           </View>
         )}
+        {activeTab === 'conversations' && (
+          <Pressable
+            style={[s.composeBtn, showMembers && s.composeBtnActive]}
+            onPress={() => setShowMembers((v) => !v)}
+            accessibilityRole="button"
+            accessibilityLabel={t('messages.new_conversation')}
+          >
+            <Text style={[s.composeIcon, showMembers && s.composeIconActive]}>
+              {showMembers ? '✕' : '✎'}
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       <View style={s.tabs}>
@@ -196,24 +249,41 @@ export function MessagesScreen() {
           <ActivityIndicator color={theme.actionBrand} size="large" />
         </View>
       ) : activeTab === 'conversations' ? (
-        <FlatList
-          data={conversations}
-          keyExtractor={(item) => item.userId}
-          renderItem={renderConversation}
-          contentContainerStyle={s.listContent}
-          ItemSeparatorComponent={() => <View style={s.separator} />}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.actionBrand} />
-          }
-          ListEmptyComponent={
-            <View style={s.emptyState}>
-              <Text style={s.emptyTitle}>No conversations yet</Text>
-              <Text style={s.emptySubtitle}>
-                Message a band member to start a conversation.
-              </Text>
-            </View>
-          }
-        />
+        showMemberList ? (
+          <FlatList
+            data={members.filter((m) => m.user.id !== myId)}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMember}
+            contentContainerStyle={s.listContent}
+            ItemSeparatorComponent={() => <View style={s.separator} />}
+            ListHeaderComponent={<Text style={s.listLabel}>{t('messages.band_members')}</Text>}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.actionBrand} />
+            }
+            ListEmptyComponent={
+              <View style={s.emptyState}>
+                <Text style={s.emptySubtitle}>{t('messages.no_members_hint')}</Text>
+              </View>
+            }
+          />
+        ) : (
+          <FlatList
+            data={conversations}
+            keyExtractor={(item) => item.userId}
+            renderItem={renderConversation}
+            contentContainerStyle={s.listContent}
+            ItemSeparatorComponent={() => <View style={s.separator} />}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.actionBrand} />
+            }
+            ListEmptyComponent={
+              <View style={s.emptyState}>
+                <Text style={s.emptyTitle}>{t('messages.no_conversations')}</Text>
+                <Text style={s.emptySubtitle}>{t('messages.no_conversations_hint')}</Text>
+              </View>
+            }
+          />
+        )
       ) : (
         <FlatList
           data={notifications}
@@ -259,6 +329,27 @@ function makeStyles(theme: ThemeColors) {
       paddingVertical: 2,
     },
     headerBadgeText: { fontSize: 12, fontWeight: '700', color: '#fff' },
+    composeBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: theme.borderDefault,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 10,
+    },
+    composeBtnActive: { backgroundColor: theme.actionBrand, borderColor: 'transparent' },
+    composeIcon: { fontSize: 16, color: theme.textBody },
+    composeIconActive: { color: '#fff' },
+    listLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+      color: theme.textMuted,
+      paddingVertical: 8,
+    },
     tabs: {
       flexDirection: 'row',
       paddingHorizontal: 16,
@@ -295,6 +386,7 @@ function makeStyles(theme: ThemeColors) {
     rowTitle: { flex: 1, fontSize: 15, fontWeight: '600', color: theme.textHeading },
     rowTime: { fontSize: 12, color: theme.textMuted },
     rowSubtitle: { fontSize: 13, color: theme.textSecondary },
+    rowSubtitleUnread: { color: theme.textHeading, fontWeight: '600' },
     badge: {
       minWidth: 22,
       height: 22,

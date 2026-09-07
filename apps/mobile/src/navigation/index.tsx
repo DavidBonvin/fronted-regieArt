@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 
 import { OnboardingScreen, LoginScreen, ForgotPasswordScreen, RegisterScreen } from '../features/auth';
 import { TimelineScreen, VenueDetailScreen } from '../features/daysheet';
@@ -8,11 +9,12 @@ import { ScoreViewerScreen, UploadScoreScreen, CreateSongWizardScreen, SongPlaye
 import { FinanceScreen, ExpensesScreen, ReceiptCameraScreen } from '../features/finance';
 import { ConvoyScreen, PassengersScreen } from '../features/convoy';
 import { BacklineScreen, ChecklistScreen, QRScannerScreen } from '../features/inventory';
-import { BandChatScreen, DirectMessageScreen, NotificationsScreen } from '../features/messages';
+import { DirectMessageScreen, NotificationsScreen } from '../features/messages';
 import { BandManagementScreen, InvitationsScreen, OrgSelectorScreen, CreateOrganizationScreen, OrganizationDetailScreen, MembersScreen, InvitationResponseScreen } from '../features/organizations';
 import { WriteSuiteScreen, DevToolsScreen, StorageSuiteScreen } from '../features/dev';
 import { CreateEventWizardScreen, EventDetailScreen } from '../features/events';
 import { MainTabNavigator } from './MainTabNavigator';
+import type { MainTabParamList } from './MainTabNavigator';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -22,7 +24,7 @@ export type RootStackParamList = {
   OrgSelector: undefined;
   CreateOrganization: undefined;
   OrganizationDetail: { organizationId: string };
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Timeline: undefined;
   VenueDetail: { venueId: string };
   MusicianProfile: { userId: string };
@@ -40,7 +42,6 @@ export type RootStackParamList = {
   Backline: undefined;
   Checklist: { daysheetId: string };
   QRScanner: undefined;
-  BandChat: { channelId: string };
   DirectMessage: { userId: string; displayName?: string };
   Notifications: undefined;
   BandManagement: undefined;
@@ -99,7 +100,6 @@ export function RootNavigator() {
       <Stack.Screen name="Backline" component={BacklineScreen} options={{ title: 'Backline' }} />
       <Stack.Screen name="Checklist" component={ChecklistScreen} options={{ title: 'Checklist' }} />
       <Stack.Screen name="QRScanner" component={QRScannerScreen} options={{ presentation: 'modal', title: 'Scan QR' }} />
-      <Stack.Screen name="BandChat" component={BandChatScreen} options={{ title: 'Band Chat' }} />
       <Stack.Screen name="DirectMessage" component={DirectMessageScreen} options={{ title: '' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="BandManagement" component={BandManagementScreen} options={{ title: 'Band Management' }} />

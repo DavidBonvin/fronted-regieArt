@@ -31,14 +31,8 @@ export async function loginWithPassword(email: string, password: string): Promis
     expiresIn: number;
     refreshExpiresIn: number;
   } };
-  const data = body.data;
 
-  const tokens: StoredTokens = {
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    expiresAt: Date.now() + data.expiresIn * 1000,
-    refreshExpiresAt: Date.now() + data.refreshExpiresIn * 1000,
-  };
+  const tokens = toStoredTokens(body.data);
 
   await tokenAdapter.setTokens(tokens);
   return tokens;
@@ -49,6 +43,25 @@ export interface BackendTokens {
   refreshToken: string;
   expiresIn: number;
   refreshExpiresIn: number;
+}
+
+// Keycloak occasionally omits the lifetimes; without a guard they become NaN and
+// every later comparison silently reads as "expired".
+const DEFAULT_EXPIRES_IN = 300;
+const DEFAULT_REFRESH_EXPIRES_IN = 1800;
+
+export function toStoredTokens(data: BackendTokens): StoredTokens {
+  const expiresIn = Number.isFinite(data.expiresIn) && data.expiresIn > 0
+    ? data.expiresIn : DEFAULT_EXPIRES_IN;
+  const refreshExpiresIn = Number.isFinite(data.refreshExpiresIn) && data.refreshExpiresIn > 0
+    ? data.refreshExpiresIn : DEFAULT_REFRESH_EXPIRES_IN;
+
+  return {
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    expiresAt: Date.now() + expiresIn * 1000,
+    refreshExpiresAt: Date.now() + refreshExpiresIn * 1000,
+  };
 }
 
 export async function refreshAccessToken(currentRefreshToken: string): Promise<BackendTokens> {
@@ -70,10 +83,16 @@ export async function refreshAccessToken(currentRefreshToken: string): Promise<B
   }
 
   if (!response.ok) {
-    throw new Error(`Token refresh failed with status ${response.status}`);
+    const detail = await response.text().catch(() => '');
+    throw new Error(
+      `Token refresh failed (HTTP ${response.status})${detail ? `: ${detail.slice(0, 300)}` : ''}`,
+    );
   }
 
   const body = await response.json() as { success: boolean; data: BackendTokens };
+  if (!body?.data?.accessToken || !body?.data?.refreshToken) {
+    throw new Error('Token refresh returned an incomplete payload');
+  }
   return body.data;
 }
 
