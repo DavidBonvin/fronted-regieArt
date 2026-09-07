@@ -484,6 +484,7 @@
 
 /* Mobile compact bar (hidden on desktop) */
 .mobileBar { display: none; }
+.mobileBarActions { display: flex; align-items: center; gap: 8px; }
 
 /* Mobile org pill (hidden on desktop, shown on mobile) */
 .mobileOrgBtn {

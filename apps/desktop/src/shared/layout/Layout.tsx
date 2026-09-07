@@ -11,6 +11,7 @@ import { setActiveOrganization } from '../utils/activeOrganization';
 import { clearProfileMediaCache } from '../utils/profileMediaCache';
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
+import { SignOutConfirmModal } from './SignOutConfirmModal';
 import s from './Layout.module.scss';
 
 const NAV_SECTIONS = [
@@ -67,6 +68,7 @@ export function Layout() {
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [showCreateOrganization, setShowCreateOrganization] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   function handleCreateAction(id: string) {
     setShowGlobalCreate(false);
@@ -128,6 +130,7 @@ export function Layout() {
   }
 
   function handleSignOut() {
+    setShowSignOutConfirm(false);
     localStorage.removeItem('regieart_tokens');
     clearProfileMediaCache();
     clearImageCache();
@@ -386,7 +389,7 @@ export function Layout() {
 
               <button
                 className={`${s.rightNavItem} ${s.signOutBtn}`}
-                onClick={handleSignOut}
+                onClick={() => setShowSignOutConfirm(true)}
                 aria-label="Se déconnecter"
                 title="Se déconnecter"
               >
@@ -408,14 +411,23 @@ export function Layout() {
               <span className={s.mobileOrgName}>{org?.name ?? 'RégieArt'}</span>
               <span className={s.mobileOrgChevron}>▾</span>
             </button>
-            <button
-              className={s.iconBtn}
-              onClick={() => navigate('/notifications')}
-              aria-label="Notifications"
-            >
-              🔔
-              {unread > 0 && <span className={s.badge}>{unread > 9 ? '9+' : unread}</span>}
-            </button>
+            <div className={s.mobileBarActions}>
+              <button
+                className={s.iconBtn}
+                onClick={() => navigate('/notifications')}
+                aria-label="Notifications"
+              >
+                🔔
+                {unread > 0 && <span className={s.badge}>{unread > 9 ? '9+' : unread}</span>}
+              </button>
+              <button
+                className={s.iconBtn}
+                onClick={() => setShowSignOutConfirm(true)}
+                aria-label="Se déconnecter"
+              >
+                ⇥
+              </button>
+            </div>
           </div>
 
         </header>
@@ -503,6 +515,16 @@ export function Layout() {
         <CreateOrganizationModal
           onClose={() => setShowCreateOrganization(false)}
           onCreated={handleOrganizationCreated}
+        />
+      )}
+
+      {showSignOutConfirm && (
+        <SignOutConfirmModal
+          initials={initials}
+          userName={user?.displayName ?? ''}
+          orgName={org?.name}
+          onConfirm={handleSignOut}
+          onCancel={() => setShowSignOutConfirm(false)}
         />
       )}
     </div>
