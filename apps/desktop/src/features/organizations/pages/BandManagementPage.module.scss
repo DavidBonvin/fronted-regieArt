@@ -41,6 +41,23 @@
   margin-bottom: 6px;
 }
 
+.memberToolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.searchInput { flex: 1; min-width: 0; height: 38px; padding: 0 12px; border: 1px solid var(--border-subtle); border-radius: 9px; background: var(--surface-app); color: var(--text-body); font: inherit; font-size: 13px; }
+.searchInput:focus { outline: 2px solid var(--border-focus); outline-offset: 1px; border-color: var(--border-focus); }
+.inviteBtn { border: none; border-radius: 9px; padding: 10px 15px; background: var(--action-brand); color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.inviteBtn:hover { background: var(--action-brand-dim); }
+.inviteBtn:disabled { opacity: .45; cursor: not-allowed; }
+.roleSelect { padding: 5px 8px; border: 1px solid var(--border-subtle); border-radius: 7px; background: var(--surface-raised); color: var(--text-body); font: inherit; font-size: 11px; }
+.roleSelect:focus-visible, .actionBtn:focus-visible, .actionDanger:focus-visible, .linkToggle:focus-visible, .linkAction:focus-visible, .linkActionDanger:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.rowActions { display: flex; flex-wrap: wrap; gap: 6px; }
+.actionBtn, .actionDanger, .linkAction, .linkActionDanger { border: 1px solid var(--border-subtle); border-radius: 7px; padding: 5px 9px; background: transparent; color: var(--text-secondary); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; }
+.actionBtn:hover, .linkAction:hover { border-color: var(--action-brand); color: var(--action-brand); }
+.actionDanger, .linkActionDanger { border-color: transparent; color: var(--status-error); }
+.actionDanger:hover, .linkActionDanger:hover { background: var(--status-error-surface); }
+.linkToggle { margin-top: 10px; border: none; background: none; color: var(--action-brand); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.invitationStatus { color: var(--text-muted); font-size: 11px; }
+.toast { position: fixed; right: 24px; bottom: 24px; z-index: 2000; padding: 12px 16px; border-radius: 10px; background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-body); box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+
 /* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
 @media (max-width: 767px) {
   .grid {
@@ -53,4 +70,7 @@
     width: 100%;
     text-align: center;
   }
+
+  .memberToolbar { align-items: stretch; flex-direction: column; }
+  .inviteBtn { width: 100%; }
 }

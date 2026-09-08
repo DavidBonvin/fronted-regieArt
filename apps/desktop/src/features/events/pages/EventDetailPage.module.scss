@@ -124,15 +124,32 @@
 }
 
 .backLink {
+  appearance: none;
+  -webkit-appearance: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
   font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
   color: var(--text-muted);
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.15s;
 
-  &:hover { color: var(--text-secondary); }
+  &:hover {
+    background: var(--surface-raised);
+    color: var(--text-body);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
 }
 
 /* ── Hero ────────────────────────────────────────────── */

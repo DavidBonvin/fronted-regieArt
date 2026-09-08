@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getOrganization,
   updateOrganization,
+  deleteOrganization,
+  removeMember,
   getInviteLinks,
   revokeInviteLink,
   createInviteLink,
@@ -12,6 +14,8 @@ import {
   getMe,
   searchAssets,
   getDownloadUrl,
+  updateEvent,
+  deleteEvent,
   resolveImageUrls,
 } from '@regieart/api';
 import type { OrganizationDetail, InviteLink, MemberRole, Event, Conversation, Notification } from '@regieart/types';
@@ -26,6 +30,9 @@ import p from '../../../shared/layout/page.module.scss';
 import s from './OrganizationProfileView.module.scss';
 import { InviteModal } from './MembersPage';
 import { EditOrganizationModal } from './EditOrganizationModal';
+import { OrganizationSettingsModal } from './OrganizationSettingsModal';
+import { ProfileMediaViewer } from '../../profile/pages/ProfileMediaViewer';
+import type { ProfileMediaKind } from '../../profile/pages/ProfileMediaViewer';
 
 type TabId = 'about' | 'members' | 'repertoire' | 'finance';
 
@@ -64,6 +71,8 @@ export function OrganizationProfileView() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [viewer, setViewer] = useState<ProfileMediaKind | null>(null);
 
   const [memberAvatarUrls, setMemberAvatarUrls] = useState<Record<string, string | null>>({});
 
@@ -207,6 +216,34 @@ export function OrganizationProfileView() {
     setShowEditModal(false);
   }
 
+  async function handleDeleteOrganization() {
+    const isOwner = org?.members.some((member) => member.user.id === currentUserIdRef.current && member.role === 'OWNER');
+    if (!orgId || !isOwner || events.length > 0) return;
+    await deleteOrganization(orgId);
+    setShowSettingsModal(false);
+    navigate('/');
+  }
+
+  async function handleLeaveOrganization() {
+    if (!orgId || !currentUserIdRef.current) return;
+    await removeMember(orgId, currentUserIdRef.current);
+    setShowSettingsModal(false);
+    navigate('/');
+  }
+
+  async function handleEditEvent(event: Event) {
+    const updated = await updateEvent(event.id, {
+      title: event.title,
+      status: event.status,
+    });
+    setEvents((previous) => previous.map((item) => item.id === updated.id ? updated : item));
+  }
+
+  async function handleDeleteEvent(event: Event) {
+    await deleteEvent(event.id);
+    setEvents((previous) => previous.filter((item) => item.id !== event.id));
+  }
+
   if (loading) return <div className={p.page}><div className={p.spinner} /></div>;
   if (!org) return <div className={p.page}><p>Introuvable</p></div>;
 
@@ -225,20 +262,32 @@ export function OrganizationProfileView() {
     { id: 'finance', label: 'Finances' },
   ];
 
+  function handleLogoClick() {
+    if (logoUrl) setViewer('avatar');
+    else if (isAdmin) setLogoMode('source');
+  }
+
+  function handleBannerClick() {
+    if (bannerUrl) setViewer('banner');
+    else if (isAdmin) setBannerMode('source');
+  }
+
   return (
     <div className={p.pageWide}>
       <div className={s.bannerWrapper}>
-        <div
+        <button
           className={s.banner}
           style={bannerUrl ? { backgroundImage: `url("${bannerUrl}")` } : undefined}
+          onClick={handleBannerClick}
+          aria-label={bannerUrl ? 'Agrandir la bannière' : 'Ajouter une bannière'}
+          type="button"
         />
         <div className={s.bannerOverlay}>
           <button
             className={s.orgLogoBox}
-            onClick={() => isAdmin && setLogoMode('source')}
-            disabled={!isAdmin}
+            onClick={handleLogoClick}
             type="button"
-            title={isAdmin ? 'Changer le logo de l’organisation' : undefined}
+            aria-label={logoUrl ? 'Agrandir le logo' : 'Ajouter un logo'}
           >
             {logoUrl
               ? <img src={logoUrl} alt={org.name} className={s.orgLogoImg} />
@@ -262,7 +311,7 @@ export function OrganizationProfileView() {
         {isAdmin && (
           <button
             className={s.bannerEditBtn}
-            onClick={() => setBannerMode('source')}
+            onClick={(event) => { event.stopPropagation(); setBannerMode('source'); }}
             title="Changer la bannière de l’organisation"
           >
             📷 Changer la bannière
@@ -423,7 +472,9 @@ export function OrganizationProfileView() {
                 Inviter par e-mail
               </button>
               <button className={s.adminBtn}>Importer des ressources</button>
-              <button className={s.adminBtn}>Paramètres du groupe</button>
+              <button className={s.adminBtn} onClick={() => setShowSettingsModal(true)}>
+                Paramètres du groupe
+              </button>
             </div>
           </div>
 
@@ -540,6 +591,40 @@ export function OrganizationProfileView() {
           organization={org}
           onSave={handleOrganizationSave}
           onClose={() => setShowEditModal(false)}
+        />
+      )}
+
+      {showSettingsModal && org && (
+        <OrganizationSettingsModal
+          organizationName={org.name}
+          isOwner={org.members.some((member) => member.user.id === currentUserIdRef.current && member.role === 'OWNER')}
+          futureEventCount={events.length}
+          events={events}
+          onEditEvent={handleEditEvent}
+          onDeleteEvent={handleDeleteEvent}
+          onOpenEvent={(event) => { setShowSettingsModal(false); navigate(`/events/${event.id}`); }}
+          onEditProfile={() => { setShowSettingsModal(false); setShowEditModal(true); }}
+          onManageMembers={() => { setShowSettingsModal(false); navigate(`/organization/${orgId}/members`); }}
+          onInvite={() => { setShowSettingsModal(false); setShowInviteModal(true); }}
+          onDelete={handleDeleteOrganization}
+          onLeave={handleLeaveOrganization}
+          onClose={() => setShowSettingsModal(false)}
+        />
+      )}
+
+      {viewer && (
+        <ProfileMediaViewer
+          src={(viewer === 'avatar' ? logoUrl : bannerUrl)!}
+          kind={viewer}
+          userName={org.name}
+          canEdit={isAdmin}
+          onEdit={() => {
+            const kind = viewer;
+            setViewer(null);
+            if (kind === 'avatar') setLogoMode('source');
+            else setBannerMode('source');
+          }}
+          onClose={() => setViewer(null)}
         />
       )}
     </div>

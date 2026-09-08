@@ -36,6 +36,21 @@
   transition: opacity 150ms;
 
   &:hover { opacity: 0.88; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+.roleSelect {
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-body);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 }
 
 .toolbar {

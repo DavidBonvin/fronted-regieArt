@@ -8,6 +8,8 @@ import {
   revokeEmailInvitation,
   resendEmailInvitation,
   removeMember,
+  updateMemberRole,
+  getMe,
 } from '@regieart/api';
 import type {
   OrganizationDetail,
@@ -196,6 +198,7 @@ export function MembersPage() {
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState<MemberRole | ''>('');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [toast, setToast] = useState('');
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -205,10 +208,12 @@ export function MembersPage() {
       getOrganization(orgId),
       getOrganizationMembers(orgId),
       listEmailInvitations(orgId),
-    ]).then(([o, m, inv]) => {
+      getMe(),
+    ]).then(([o, m, inv, me]) => {
       setOrg(o);
       setMembers(m);
       setInvitations(inv);
+      setCurrentUserId(me.id);
     }).catch((err: unknown) => {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) navigate('/login');
@@ -248,11 +253,22 @@ export function MembersPage() {
   }
 
   async function handleRemoveMember(memberId: string, name: string) {
-    if (!orgId) return;
+    if (!orgId || !canManageMembers) return;
     if (!window.confirm(`Retirer ${name} de l’organisation ?`)) return;
     await removeMember(orgId, memberId);
     setMembers((prev) => prev.filter((m) => m.id !== memberId));
     showToast(`${name} a été retiré.`);
+  }
+
+  const currentMembership = members.find((member) => member.user.id === currentUserId);
+  const canManageMembers = currentMembership?.role === 'OWNER' || currentMembership?.role === 'ADMIN';
+  const isOwner = currentMembership?.role === 'OWNER';
+
+  async function handleRoleChange(memberId: string, role: MemberRole) {
+    if (!orgId || !isOwner) return;
+    await updateMemberRole(orgId, memberId, role);
+    setMembers((previous) => previous.map((member) => member.id === memberId ? { ...member, role } : member));
+    showToast('Rôle mis à jour.');
   }
 
   const filteredMembers = members.filter((m) => {
@@ -291,7 +307,7 @@ export function MembersPage() {
             <h1 className={p.pageTitle}>Gestion de l’équipe</h1>
             <p className={p.pageSubtitle}>{org?.name} · {members.length} membres</p>
           </div>
-          <button className={s.inviteBtn} onClick={() => setShowInviteModal(true)}>
+          <button className={s.inviteBtn} onClick={() => setShowInviteModal(true)} disabled={!canManageMembers}>
             + Inviter un membre
           </button>
         </div>
@@ -375,12 +391,20 @@ export function MembersPage() {
                         </div>
                       </td>
                       <td className={p.td} data-label="Rôle">
-                        <span
-                          className={p.chip}
-                          style={{ background: rm.bg, color: rm.color }}
-                        >
-                          {rm.label}
-                        </span>
+                        {isOwner && m.role !== 'OWNER' ? (
+                          <select
+                            className={s.roleSelect}
+                            value={m.role}
+                            onChange={(event) => void handleRoleChange(m.id, event.target.value as MemberRole)}
+                            aria-label={`Modifier le rôle de ${m.user.displayName}`}
+                          >
+                            <option value="ADMIN">Administrateur</option>
+                            <option value="MEMBER">Membre</option>
+                            <option value="EXTERNAL_TECH">Technicien externe</option>
+                          </select>
+                        ) : (
+                          <span className={p.chip} style={{ background: rm.bg, color: rm.color }}>{rm.label}</span>
+                        )}
                       </td>
                       <td className={p.td} data-label="A rejoint">
                         <span className={s.dateText}>
@@ -395,7 +419,7 @@ export function MembersPage() {
                           >
                             Voir le profil
                           </button>
-                          {m.role !== 'OWNER' && (
+                          {canManageMembers && m.role !== 'OWNER' && m.user.id !== currentUserId && (
                             <button
                               className={`${s.actionBtn} ${s.actionDanger}`}
                               onClick={() => handleRemoveMember(m.id, m.user.displayName)}
