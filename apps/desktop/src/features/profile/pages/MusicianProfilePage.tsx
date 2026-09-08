@@ -113,20 +113,16 @@ export function MusicianProfilePage() {
         const aKey = avatarCacheKey(u.id);
         const bKey = bannerCacheKey(u.id);
 
-        // Show the cache of THIS user only, then revalidate against the server.
+        // Only local data URIs are safe to persist; signed R2 URLs expire.
         const cachedAvatar = readProfileMedia(aKey);
-        if (cachedAvatar) setAvatarUrl(cachedAvatar);
+        if (cachedAvatar?.startsWith('data:')) setAvatarUrl(cachedAvatar);
         const cachedBanner = readProfileMedia(bKey);
-        if (cachedBanner) setBannerUrl(cachedBanner);
+        if (cachedBanner?.startsWith('data:')) setBannerUrl(cachedBanner);
 
         if (urls.avatarUrl) {
           resolveImageUrl(urls.avatarUrl)
-            .then((signedUrl) => fetch(signedUrl!))
-            .then((r) => r.blob())
-            .then(blobToDataUrl)
-            .then((dataUrl) => {
-              writeProfileMedia(aKey, dataUrl);
-              if (!cancelled) setAvatarUrl(dataUrl);
+            .then((resolvedUrl) => {
+              if (!cancelled) setAvatarUrl(resolvedUrl);
             })
             .catch(() => {});
         } else {
@@ -136,12 +132,8 @@ export function MusicianProfilePage() {
 
         if (urls.bannerUrl) {
           resolveImageUrl(urls.bannerUrl)
-            .then((signedUrl) => fetch(signedUrl!))
-            .then((r) => r.blob())
-            .then(blobToDataUrl)
-            .then((dataUrl) => {
-              writeProfileMedia(bKey, dataUrl);
-              if (!cancelled) setBannerUrl(dataUrl);
+            .then((resolvedUrl) => {
+              if (!cancelled) setBannerUrl(resolvedUrl);
             })
             .catch(() => {});
         } else {
@@ -432,9 +424,6 @@ export function MusicianProfilePage() {
         <BannerR2GalleryModal
           onSelect={(url) => {
             setBannerUrl(url);
-            fetch(url).then(r => r.blob()).then(blobToDataUrl)
-              .then(d => { writeProfileMedia(bannerCacheKey(user.id), d); setBannerUrl(d); })
-              .catch(() => {});
             setBannerMode(null);
           }}
           onCancel={() => setBannerMode('source')}
@@ -472,14 +461,6 @@ export function MusicianProfilePage() {
         <R2GalleryModal
           onSelect={(url) => {
             setAvatarUrl(url);
-            fetch(url)
-              .then((r) => r.blob())
-              .then(blobToDataUrl)
-              .then((dataUrl) => {
-                writeProfileMedia(avatarCacheKey(user.id), dataUrl);
-                setAvatarUrl(dataUrl);
-              })
-              .catch(() => {});
             setAvatarMode(null);
           }}
           onCancel={() => setAvatarMode('source')}

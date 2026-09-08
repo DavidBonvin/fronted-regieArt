@@ -101,23 +101,17 @@ export function ProfileScreen() {
     const aKey = avatarCacheKey(u.id);
     const bKey = bannerCacheKey(u.id);
 
-    // Show the cache of THIS user only, then revalidate against the server.
+    // Only local data URIs are safe to persist; signed R2 URLs expire.
     const cached = await readProfileMedia(aKey);
-    setAvatarUrl(cached);
+    if (cached?.startsWith('data:')) setAvatarUrl(cached);
     const cachedBanner = await readProfileMedia(bKey);
-    setBannerUrl(cachedBanner);
+    if (cachedBanner?.startsWith('data:')) setBannerUrl(cachedBanner);
 
     const urls = await getMyProfileUrls().catch(() => ({ avatarUrl: null, bannerUrl: null }));
 
     if (urls.avatarUrl) {
       resolveImageUrl(urls.avatarUrl)
-        .then((signed) => fetch(signed!))
-        .then((r) => r.blob())
-        .then(blobToDataUri)
-        .then((dataUri) => {
-          writeProfileMedia(aKey, dataUri);
-          setAvatarUrl(dataUri);
-        })
+        .then((resolvedUrl) => setAvatarUrl(resolvedUrl))
         .catch(() => {});
     } else {
       await removeProfileMedia(aKey);
@@ -126,13 +120,7 @@ export function ProfileScreen() {
 
     if (urls.bannerUrl) {
       resolveImageUrl(urls.bannerUrl)
-        .then((signed) => fetch(signed!))
-        .then((r) => r.blob())
-        .then(blobToDataUri)
-        .then((dataUri) => {
-          writeProfileMedia(bKey, dataUri);
-          setBannerUrl(dataUri);
-        })
+        .then((resolvedUrl) => setBannerUrl(resolvedUrl))
         .catch(() => {});
     } else {
       await removeProfileMedia(bKey);
@@ -406,13 +394,7 @@ export function ProfileScreen() {
         <R2AssetPickerModal
           theme={theme}
           onSelected={async (url) => {
-            try {
-              const res = await fetch(url);
-              const blob = await res.blob();
-              const dataUri = await blobToDataUri(blob);
-              if (user) await writeProfileMedia(bannerCacheKey(user.id), dataUri);
-              setBannerUrl(dataUri);
-            } catch { setBannerUrl(url); }
+            setBannerUrl(url);
             setBannerPickerMode(null);
           }}
           onBack={() => setBannerPickerMode('main')}

@@ -5,6 +5,23 @@
   background: var(--surface-app);
   overflow: hidden;
   min-width: 0;
+
+.skipLink {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 3000;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--action-brand);
+  color: var(--text-on-action);
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 0.15s ease;
+
+  &:focus { transform: translateY(0); }
+}
 }
 
 /* ── Sidebar (replaced by LinkedIn-style top nav) ── */
@@ -132,6 +149,16 @@
   border-radius: 8px;
   cursor: pointer;
 
+  width: 100%;
+  border: none;
+  font: inherit;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: -2px;
+  }
+
   &:hover { background: var(--surface-raised); }
 }
 
@@ -225,6 +252,11 @@
   cursor: pointer;
   margin-right: 12px;
   transition: border-color 150ms;
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
 
   &:hover { border-color: var(--border-default); }
 }

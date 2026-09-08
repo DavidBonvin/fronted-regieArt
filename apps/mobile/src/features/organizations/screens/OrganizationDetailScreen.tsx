@@ -15,7 +15,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
-import { getOrganization, getInviteLinks, getMe, uploadFile, resolveImageUrls } from '@regieart/api';
+import {
+  getOrganization, getInviteLinks, getMe, uploadFile, resolveImageUrls,
+  searchAssets, getDownloadUrl,
+} from '@regieart/api';
 import type { OrganizationDetail, OrganizationMember, InviteLink, MemberRole } from '@regieart/types';
 import { useTheme } from '../../../shared/theme';
 import type { RootStackParamList } from '../../../navigation';
@@ -61,15 +64,29 @@ export function OrganizationDetailScreen({ route, navigation }: Props) {
         AsyncStorage.getItem(orgLogoKey(organizationId)).catch(() => null),
         AsyncStorage.getItem(orgBannerKey(organizationId)).catch(() => null),
       ]);
-      if (cachedLogo) setLogoUrl(cachedLogo);
-      if (cachedBanner) setBannerUrl(cachedBanner);
+      if (cachedLogo?.startsWith('data:')) setLogoUrl(cachedLogo);
+      if (cachedBanner?.startsWith('data:')) setBannerUrl(cachedBanner);
 
       try {
-        const [data, me] = await Promise.all([
+        const [data, me, assets] = await Promise.all([
           getOrganization(organizationId),
           getMe().catch(() => null),
+          searchAssets({ assetType: 'org-banner', orgId: organizationId, limit: 100 })
+            .catch(() => ({ assets: [] })),
         ]);
         setOrg(data);
+
+        const latestAsset = (prefix: string) => assets.assets
+          .filter((asset) => (asset.displayName ?? asset.originalName).startsWith(prefix))
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+        const logoAsset = latestAsset('org-logo');
+        const bannerAsset = latestAsset('org-banner');
+        const [logoDownload, bannerDownload] = await Promise.all([
+          logoAsset ? getDownloadUrl(logoAsset.id).catch(() => null) : Promise.resolve(null),
+          bannerAsset ? getDownloadUrl(bannerAsset.id).catch(() => null) : Promise.resolve(null),
+        ]);
+        setLogoUrl(logoDownload?.downloadUrl ?? null);
+        setBannerUrl(bannerDownload?.downloadUrl ?? null);
         if (me) {
           const myMember = data.members.find((m) => m.user.id === me.id);
           setIsAdmin(myMember ? ADMIN_ROLES.includes(myMember.role) : false);

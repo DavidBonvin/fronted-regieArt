@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getOrganization,
+  updateOrganization,
   getInviteLinks,
   revokeInviteLink,
   createInviteLink,
@@ -9,6 +10,8 @@ import {
   listConversations,
   listNotifications,
   getMe,
+  searchAssets,
+  getDownloadUrl,
   resolveImageUrls,
 } from '@regieart/api';
 import type { OrganizationDetail, InviteLink, MemberRole, Event, Conversation, Notification } from '@regieart/types';
@@ -22,6 +25,7 @@ import type { OrgLogoFlowMode, OrgBannerFlowMode } from '../../profile/pages/Ava
 import p from '../../../shared/layout/page.module.scss';
 import s from './OrganizationProfileView.module.scss';
 import { InviteModal } from './MembersPage';
+import { EditOrganizationModal } from './EditOrganizationModal';
 
 type TabId = 'about' | 'members' | 'repertoire' | 'finance';
 
@@ -59,14 +63,21 @@ export function OrganizationProfileView() {
   const [tab, setTab] = useState<TabId>('about');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const [memberAvatarUrls, setMemberAvatarUrls] = useState<Record<string, string | null>>({});
 
   const [logoUrl, setLogoUrl] = useState<string | null>(() => {
-    try { return orgId ? localStorage.getItem(orgLogoKey(orgId)) : null; } catch { return null; }
+    try {
+      const cached = orgId ? localStorage.getItem(orgLogoKey(orgId)) : null;
+      return cached?.startsWith('data:') ? cached : null;
+    } catch { return null; }
   });
   const [bannerUrl, setBannerUrl] = useState<string | null>(() => {
-    try { return orgId ? localStorage.getItem(orgBannerKey(orgId)) : null; } catch { return null; }
+    try {
+      const cached = orgId ? localStorage.getItem(orgBannerKey(orgId)) : null;
+      return cached?.startsWith('data:') ? cached : null;
+    } catch { return null; }
   });
 
   const [logoMode, setLogoMode] = useState<OrgLogoFlowMode>(null);
@@ -97,6 +108,22 @@ export function OrganizationProfileView() {
           listNotifications({ limit: 20 }).catch(() => ({ notifications: [] as Notification[] })),
         ]);
         setOrg(data);
+        const orgAssets = await searchAssets({
+          assetType: 'org-banner',
+          orgId: orgId!,
+          limit: 100,
+        }).catch(() => null);
+        const assets = Array.isArray(orgAssets?.assets) ? orgAssets.assets : [];
+        const latestAsset = (prefix: string) => assets
+          .filter((asset) => (asset.displayName ?? asset.originalName).startsWith(prefix))
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+        const [logoAsset, bannerAsset] = [latestAsset('org-logo'), latestAsset('org-banner')];
+        const [logoDownload, bannerDownload] = await Promise.all([
+          logoAsset ? getDownloadUrl(logoAsset.id).catch(() => null) : Promise.resolve(null),
+          bannerAsset ? getDownloadUrl(bannerAsset.id).catch(() => null) : Promise.resolve(null),
+        ]);
+        if (logoDownload?.downloadUrl) setLogoUrl(logoDownload.downloadUrl);
+        if (bannerDownload?.downloadUrl) setBannerUrl(bannerDownload.downloadUrl);
         if (me) {
           currentUserIdRef.current = me.id;
           const myMember = data.members.find((m) => m.user.id === me.id);
@@ -160,6 +187,13 @@ export function OrganizationProfileView() {
     finally { setBannerMode(null); }
   }
 
+  async function handleOrganizationSave(dto: Parameters<typeof updateOrganization>[1]) {
+    if (!orgId) return;
+    const updated = await updateOrganization(orgId, dto);
+    setOrg((previous) => previous ? { ...previous, ...updated } : previous);
+    setShowEditModal(false);
+  }
+
   if (loading) return <div className={p.page}><div className={p.spinner} /></div>;
   if (!org) return <div className={p.page}><p>Introuvable</p></div>;
 
@@ -186,9 +220,11 @@ export function OrganizationProfileView() {
           style={bannerUrl ? { backgroundImage: `url("${bannerUrl}")` } : undefined}
         />
         <div className={s.bannerOverlay}>
-          <div
+          <button
             className={s.orgLogoBox}
             onClick={() => isAdmin && setLogoMode('source')}
+            disabled={!isAdmin}
+            type="button"
             title={isAdmin ? 'Changer le logo de l’organisation' : undefined}
           >
             {logoUrl
@@ -198,7 +234,7 @@ export function OrganizationProfileView() {
                 </span>
             }
             {isAdmin && <span className={s.logoEditOverlay}>📷</span>}
-          </div>
+          </button>
           <div className={s.orgHeading}>
             <h1 className={s.orgName}>{org.name}</h1>
             {org.description && <p className={s.orgTagline}>{org.description}</p>}
@@ -225,7 +261,14 @@ export function OrganizationProfileView() {
         <button className={s.btnPrimary} onClick={() => navigate(`/organization/${orgId}/members`)}>
           Gérer l’équipe
         </button>
-        <button className={s.btnSecondary}>Modifier le profil ✏</button>
+        <button
+          className={s.btnSecondary}
+          onClick={() => setShowEditModal(true)}
+          disabled={!isAdmin}
+          title={isAdmin ? 'Modifier les informations de l’organisation' : 'Réservé aux administrateurs'}
+        >
+          Modifier le profil ✏
+        </button>
         <button className={s.btnSecondary}>Exporter le rider 📄</button>
       </div>
 
@@ -433,9 +476,6 @@ export function OrganizationProfileView() {
           orgId={orgId}
           onSelect={(url) => {
             setLogoUrl(url);
-            fetch(url).then(r => r.blob()).then(blobToDataUrl)
-              .then(d => { try { localStorage.setItem(orgLogoKey(orgId), d); } catch { /* ignore */ } setLogoUrl(d); })
-              .catch(() => {});
             setLogoMode(null);
           }}
           onCancel={() => setLogoMode('source')}
@@ -465,9 +505,6 @@ export function OrganizationProfileView() {
           orgId={orgId}
           onSelect={(url) => {
             setBannerUrl(url);
-            fetch(url).then(r => r.blob()).then(blobToDataUrl)
-              .then(d => { try { localStorage.setItem(orgBannerKey(orgId), d); } catch { /* ignore */ } setBannerUrl(d); })
-              .catch(() => {});
             setBannerMode(null);
           }}
           onCancel={() => setBannerMode('source')}
@@ -482,6 +519,14 @@ export function OrganizationProfileView() {
           orgId={orgId}
           onClose={() => setShowInviteModal(false)}
           onSuccess={() => setShowInviteModal(false)}
+        />
+      )}
+
+      {showEditModal && org && (
+        <EditOrganizationModal
+          organization={org}
+          onSave={handleOrganizationSave}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
@@ -59,6 +59,7 @@ const NAV_MAIN = [
 
 export function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [org, setOrg] = useState<Organization | null>(null);
   const [allOrgs, setAllOrgs] = useState<Organization[]>([]);
@@ -88,6 +89,13 @@ export function Layout() {
   const knownNotifIds = useRef<Set<string> | null>(null);
 
   const unread = notifs.filter((n) => !n.isRead).length;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById('main-content')?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.pathname]);
 
   useEffect(() => {
     Promise.all([getMe(), getMyOrganizations(), listNotifications({ limit: 15 })]).then(([me, orgs, notifsRes]) => {
@@ -220,6 +228,7 @@ export function Layout() {
 
   return (
     <div className={s.appShell}>
+      <a className={s.skipLink} href="#main-content">Aller au contenu principal</a>
       <aside className={s.sidebar}>
         <div className={s.sidebarTop}>
           <div className={s.brand}>
@@ -265,13 +274,17 @@ export function Layout() {
         </nav>
 
         <div className={s.sidebarBottom}>
-          <div className={s.userRow} onClick={() => navigate('/profile/me')}>
+          <button
+            className={s.userRow}
+            onClick={() => navigate('/profile/me')}
+            aria-label="Ouvrir mon profil"
+          >
             <div className={s.userAvatar}>{initials}</div>
             <div className={s.userInfo}>
               <div className={s.userName}>{user?.displayName ?? '…'}</div>
               <div className={s.userRole}>{org?.name ?? ''}</div>
             </div>
-          </div>
+          </button>
         </div>
       </aside>
 
@@ -285,12 +298,25 @@ export function Layout() {
               <div className={s.brandMark}>RA</div>
             </NavLink>
 
-            <div className={s.searchBar} role="search" onClick={() => navigate('/talents')}>
+            <div
+              className={s.searchBar}
+              role="search"
+              tabIndex={0}
+              aria-label="Rechercher des talents"
+              onClick={() => navigate('/talents')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate('/talents');
+                }
+              }}
+            >
               <span className={s.searchBarIcon}>🔍</span>
               <input
                 className={s.searchBarInput}
                 placeholder="Rechercher..."
                 readOnly
+                tabIndex={-1}
                 aria-label="Rechercher"
               />
             </div>
@@ -484,7 +510,7 @@ export function Layout() {
 
         </header>
 
-        <main className={s.appContent}>
+        <main id="main-content" className={s.appContent} tabIndex={-1}>
           <Outlet />
         </main>
 
