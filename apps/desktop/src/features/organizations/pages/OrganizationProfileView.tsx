@@ -113,14 +113,27 @@ export function OrganizationProfileView() {
           orgId: orgId!,
           limit: 100,
         }).catch(() => null);
-        const assets = Array.isArray(orgAssets?.assets) ? orgAssets.assets : [];
-        const latestAsset = (prefix: string) => assets
-          .filter((asset) => (asset.displayName ?? asset.originalName).startsWith(prefix))
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-        const [logoAsset, bannerAsset] = [latestAsset('org-logo'), latestAsset('org-banner')];
+        const assets = Array.isArray(orgAssets?.assets)
+          ? orgAssets.assets.filter((asset) => asset.status !== 'DELETED')
+          : [];
+        const assetLabel = (asset: typeof assets[number]) => [
+          asset.key,
+          asset.displayName,
+          asset.originalName,
+        ].filter(Boolean).join('/').toLowerCase();
+        const newest = (items: typeof assets) => [...items]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const namedLogo = assets.filter((asset) => /(^|[\/_-])org[-_ ]?logo([\/_\-.]|$)/i.test(assetLabel(asset)));
+        const namedBanner = assets.filter((asset) => /(^|[\/_-])org[-_ ]?banner([\/_\-.]|$)/i.test(assetLabel(asset)));
+        const logoAsset = newest(namedLogo)[0];
+        const bannerAsset = newest(namedBanner)[0];
+        // Older uploads may have generic filenames; use the newest remaining asset as a fallback.
+        const fallbackAssets = newest(assets.filter((asset) => asset.id !== logoAsset?.id));
+        const resolvedLogoAsset = logoAsset ?? fallbackAssets[1];
+        const resolvedBannerAsset = bannerAsset ?? fallbackAssets[0];
         const [logoDownload, bannerDownload] = await Promise.all([
-          logoAsset ? getDownloadUrl(logoAsset.id).catch(() => null) : Promise.resolve(null),
-          bannerAsset ? getDownloadUrl(bannerAsset.id).catch(() => null) : Promise.resolve(null),
+          resolvedLogoAsset ? getDownloadUrl(resolvedLogoAsset.id).catch(() => null) : Promise.resolve(null),
+          resolvedBannerAsset ? getDownloadUrl(resolvedBannerAsset.id).catch(() => null) : Promise.resolve(null),
         ]);
         if (logoDownload?.downloadUrl) setLogoUrl(logoDownload.downloadUrl);
         if (bannerDownload?.downloadUrl) setBannerUrl(bannerDownload.downloadUrl);

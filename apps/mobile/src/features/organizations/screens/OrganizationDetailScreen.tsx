@@ -76,14 +76,26 @@ export function OrganizationDetailScreen({ route, navigation }: Props) {
         ]);
         setOrg(data);
 
-        const latestAsset = (prefix: string) => assets.assets
-          .filter((asset) => (asset.displayName ?? asset.originalName).startsWith(prefix))
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-        const logoAsset = latestAsset('org-logo');
-        const bannerAsset = latestAsset('org-banner');
+        const availableAssets = Array.isArray(assets.assets)
+          ? assets.assets.filter((asset) => asset.status !== 'DELETED')
+          : [];
+        const assetLabel = (asset: typeof availableAssets[number]) => [
+          asset.key,
+          asset.displayName,
+          asset.originalName,
+        ].filter(Boolean).join('/').toLowerCase();
+        const newest = (items: typeof availableAssets[number][]) => [...items]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const namedLogo = availableAssets.filter((asset) => /(^|[\/_-])org[-_ ]?logo([\/_\-.]|$)/i.test(assetLabel(asset)));
+        const namedBanner = availableAssets.filter((asset) => /(^|[\/_-])org[-_ ]?banner([\/_\-.]|$)/i.test(assetLabel(asset)));
+        const logoAsset = newest(namedLogo)[0];
+        const bannerAsset = newest(namedBanner)[0];
+        const fallbackAssets = newest(availableAssets.filter((asset) => asset.id !== logoAsset?.id));
+        const resolvedLogoAsset = logoAsset ?? fallbackAssets[1];
+        const resolvedBannerAsset = bannerAsset ?? fallbackAssets[0];
         const [logoDownload, bannerDownload] = await Promise.all([
-          logoAsset ? getDownloadUrl(logoAsset.id).catch(() => null) : Promise.resolve(null),
-          bannerAsset ? getDownloadUrl(bannerAsset.id).catch(() => null) : Promise.resolve(null),
+          resolvedLogoAsset ? getDownloadUrl(resolvedLogoAsset.id).catch(() => null) : Promise.resolve(null),
+          resolvedBannerAsset ? getDownloadUrl(resolvedBannerAsset.id).catch(() => null) : Promise.resolve(null),
         ]);
         setLogoUrl(logoDownload?.downloadUrl ?? null);
         setBannerUrl(bannerDownload?.downloadUrl ?? null);
