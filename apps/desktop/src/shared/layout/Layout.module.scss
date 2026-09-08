@@ -860,10 +860,19 @@
   /* Mobile compact topbar */
   .mobileBar {
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
-    height: 52px;
+    height: calc(52px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    background: var(--nav-background);
+    border-bottom: 1px solid var(--nav-border);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
   }
 
   /* Org pill — shown on mobile */
@@ -927,6 +936,7 @@
   }
 
   .appContent {
+    padding-top: calc(52px + env(safe-area-inset-top, 0px));
     padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
   }
