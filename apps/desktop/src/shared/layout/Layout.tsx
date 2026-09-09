@@ -10,6 +10,7 @@ import type { EmailInvitation } from '@regieart/types';
 import { setActiveOrganization } from '../utils/activeOrganization';
 import { clearProfileMediaCache } from '../utils/profileMediaCache';
 import { notificationTarget } from '../utils/notificationTarget';
+import { getInvitationToken } from '../utils/notificationTarget';
 import { playNotificationChime, isNotificationMuted, setNotificationMuted } from '../utils/notificationSound';
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
@@ -105,8 +106,8 @@ export function Layout() {
       setAllOrgs(orgs);
       setNotifs(notifsRes.notifications);
       knownNotifIds.current = new Set(notifsRes.notifications.map((n) => n.id));
-      const invitationNotif = notifsRes.notifications.find((n) => !n.isRead && n.metadata?.invitationToken);
-      const invitationToken = invitationNotif?.metadata?.invitationToken;
+      const invitationNotif = notifsRes.notifications.find((n) => !n.isRead && getInvitationToken(n));
+      const invitationToken = invitationNotif ? getInvitationToken(invitationNotif) : undefined;
       const shownKey = invitationToken ? `regieart:invitationPrompt:${invitationToken}` : null;
       if (invitationToken && shownKey && !sessionStorage.getItem(shownKey)) {
         getPublicInvitation(invitationToken).then((invitation) => {
@@ -207,7 +208,7 @@ export function Layout() {
   }
 
   async function handleAcceptInvite(notif: Notification) {
-    const token = notif.metadata?.invitationToken;
+    const token = getInvitationToken(notif);
     if (!token) { navigate('/notifications'); return; }
     try {
       const { orgId } = await acceptInvitation(token);
@@ -220,7 +221,7 @@ export function Layout() {
   }
 
   async function handleRejectInvite(notif: Notification) {
-    const token = notif.metadata?.invitationToken;
+    const token = getInvitationToken(notif);
     if (!token) return;
     try {
       await rejectInvitation(token);
@@ -405,8 +406,9 @@ export function Layout() {
                         <div className={s.notifEmpty}>Aucune notification</div>
                       ) : (
                         notifs.slice(0, 8).map((n) => {
-                          const isNewInvite = !!n.metadata?.invitationToken && !n.isRead;
-                          const isOldInvite = !!n.metadata?.invitationToken && n.isRead;
+                          const invitationToken = getInvitationToken(n);
+                          const isNewInvite = !!invitationToken && !n.isRead;
+                          const isOldInvite = !!invitationToken && n.isRead;
                           return (
                             <div
                               key={n.id}
@@ -449,7 +451,7 @@ export function Layout() {
                                 {isOldInvite && (
                                   <button
                                     className={s.notifDetailBtn}
-                                    onClick={(e) => { e.stopPropagation(); setShowNotifPopover(false); navigate(`/invitations/${n.metadata!.invitationToken}`); }}
+                                    onClick={(e) => { e.stopPropagation(); setShowNotifPopover(false); navigate(`/invitations/${invitationToken}`); }}
                                   >
                                     Voir les détails →
                                   </button>

@@ -9,11 +9,21 @@ function pick(meta: Record<string, string> | undefined, ...keys: string[]): stri
   return undefined;
 }
 
+export function getInvitationToken(n: Notification): string | undefined {
+  const meta = n.metadata;
+  const direct = pick(meta, 'invitationToken', 'inviteToken', 'invitation_token', 'invite_token', 'token');
+  if (direct) return direct;
+
+  const url = pick(meta, 'invitationUrl', 'inviteUrl', 'url');
+  const match = url?.match(/\/invitations\/([^/?#]+)/);
+  return match?.[1];
+}
+
 /** Where clicking a notification should take the user. `null` when there is nowhere useful to go. */
 export function notificationTarget(n: Notification): string | null {
   const meta = n.metadata;
 
-  const invitationToken = pick(meta, 'invitationToken', 'token');
+  const invitationToken = getInvitationToken(n);
   if (invitationToken) return `/invitations/${invitationToken}`;
 
   const orgId = pick(meta, 'orgId', 'organizationId');
