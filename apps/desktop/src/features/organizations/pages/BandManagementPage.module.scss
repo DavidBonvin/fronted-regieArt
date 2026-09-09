@@ -58,6 +58,20 @@
 .invitationStatus { color: var(--text-muted); font-size: 11px; }
 .toast { position: fixed; right: 24px; bottom: 24px; z-index: 2000; padding: 12px 16px; border-radius: 10px; background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-body); box-shadow: 0 12px 32px rgba(0,0,0,.25); }
 
+.membersCard { min-width: 0; }
+.membersTableWrap { overflow-x: auto; min-width: 0; }
+.memberName, .memberEmail { display: block; }
+.memberName { color: var(--text-heading); font-size: 14px; font-weight: 600; }
+.memberEmail { margin-top: 2px; color: var(--text-muted); font-size: 11px; }
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .grid { grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; }
+  .pageHeader { gap: 12px; }
+  .viewProfileBtn, .createOrgBtn { padding-left: 12px; padding-right: 12px; }
+  .membersCard { padding: 16px; }
+  .actionBtn, .actionDanger { padding: 5px 7px; }
+}
+
 /* ═══ Responsive: mobile ≤767px ═══════════════════════════════════════════ */
 @media (max-width: 767px) {
   .grid {
@@ -73,4 +87,22 @@
 
   .memberToolbar { align-items: stretch; flex-direction: column; }
   .inviteBtn { width: 100%; }
+  .membersCard { padding: 0; overflow: hidden; }
+  .membersTableWrap { overflow: visible; }
+  .membersTableWrap :global(table),
+  .membersTableWrap :global(tbody),
+  .membersTableWrap :global(tr),
+  .membersTableWrap :global(td) { display: block; width: 100%; }
+  .membersTableWrap :global(thead) { display: none; }
+  .membersTableWrap :global(tr) { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .membersTableWrap :global(tr:last-child) { border-bottom: none; }
+  .membersTableWrap :global(td) { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 0; border: none; }
+  .membersTableWrap :global(td)::before { content: attr(data-label); color: var(--text-muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .membersTableWrap :global(td:first-child) { padding-top: 0; }
+  .membersTableWrap :global(td:last-child) { padding-bottom: 0; }
+  .membersTableWrap .rowActions { justify-content: flex-start; }
+  .membersTableWrap .memberToolbar { padding: 16px; margin-bottom: 0; }
+  .linkRow { flex-wrap: wrap; gap: 7px; }
+  .linkRow code { flex-basis: 100%; order: 3; }
+  .toast { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); left: 12px; text-align: center; }
 }

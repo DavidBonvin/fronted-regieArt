@@ -126,11 +126,12 @@ export function BandManagementPage() {
       <div className={s.grid}>
         <div>
           {loading ? <div className={p.spinner} /> : (
-            <div className={p.card}>
+            <div className={`${p.card} ${s.membersCard}`}>
               <div className={s.memberToolbar}>
                 <input className={s.searchInput} type="search" placeholder="Rechercher un nom ou e-mail…" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Rechercher un membre" />
                 <button className={s.inviteBtn} onClick={() => setShowInviteModal(true)} disabled={!canManage}>+ Inviter par e-mail</button>
               </div>
+              <div className={s.membersTableWrap}>
               <table className={p.table}>
                 <thead><tr>
                   <th className={p.th}>Nom</th>
@@ -140,16 +141,17 @@ export function BandManagementPage() {
                 <tbody>
                   {filteredMembers.map((m) => (
                     <tr key={m.id} className={p.tr}>
-                      <td className={p.td}>{m.user.displayName}</td>
-                      <td className={p.td}>
+                      <td className={p.td} data-label="Nom"><span className={s.memberName}>{m.user.displayName}</span>{m.user.email && <span className={s.memberEmail}>{m.user.email}</span>}</td>
+                      <td className={p.td} data-label="Rôle">
                         {isOwner && m.role !== 'OWNER' ? <select className={s.roleSelect} value={m.role} onChange={(event) => void handleRole(m.id, event.target.value as MemberRole)} aria-label={`Modifier le rôle de ${m.user.displayName}`}><option value="ADMIN">ADMIN</option><option value="MEMBER">MEMBER</option><option value="EXTERNAL_TECH">EXTERNAL TECH</option></select> : <span style={{ fontSize:11, fontWeight:700, color: ROLE_COLOR[m.role] }}>{m.role}</span>}
                       </td>
-                      <td className={p.td}>{new Date(m.joinedAt).toLocaleDateString('fr-FR')}</td>
-                      <td className={p.td}><div className={s.rowActions}><button className={s.actionBtn} onClick={() => navigate(`/profile/${m.user.id}`)}>Profil</button>{canManage && m.role !== 'OWNER' && m.user.id !== currentUserId && <button className={s.actionDanger} onClick={() => void handleRemove(m)}>Retirer</button>}</div></td>
+                      <td className={p.td} data-label="A rejoint">{new Date(m.joinedAt).toLocaleDateString('fr-FR')}</td>
+                      <td className={p.td} data-label="Actions"><div className={s.rowActions}><button className={s.actionBtn} onClick={() => navigate(`/profile/${m.user.id}`)}>Profil</button>{canManage && m.role !== 'OWNER' && m.user.id !== currentUserId && <button className={s.actionDanger} onClick={() => void handleRemove(m)}>Retirer</button>}</div></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </div>
