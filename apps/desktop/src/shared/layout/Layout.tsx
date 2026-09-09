@@ -413,9 +413,9 @@ export function Layout() {
                               className={`${s.notifItem} ${!n.isRead ? s.notifUnread : ''}`}
                               role="button"
                               tabIndex={0}
-                              onClick={() => !isNewInvite && openNotification(n)}
+                              onClick={() => openNotification(n)}
                               onKeyDown={(e) => {
-                                if (!isNewInvite && (e.key === 'Enter' || e.key === ' ')) {
+                                if (e.key === 'Enter' || e.key === ' ') {
                                   e.preventDefault();
                                   openNotification(n);
                                 }
