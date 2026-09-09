@@ -15,7 +15,8 @@ export function getInvitationToken(n: Notification): string | undefined {
   if (direct) return direct;
 
   const url = pick(meta, 'invitationUrl', 'inviteUrl', 'url');
-  const match = url?.match(/\/invitations\/([^/?#]+)/);
+  const sources = [url, n.body, n.title].filter(Boolean).join(' ');
+  const match = sources.match(/(?:\/invitations\/|invitation(?:Token|_token)?[=:]\s*)([A-Za-z0-9_-]+)/i);
   return match?.[1];
 }
 
