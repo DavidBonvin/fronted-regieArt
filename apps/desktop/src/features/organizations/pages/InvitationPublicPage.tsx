@@ -58,7 +58,10 @@ export function InvitationPublicPage() {
     try {
       const { orgId } = await acceptInvitation(token);
       setDone('accepted');
-      setTimeout(() => navigate(`/organization/${orgId}`), 2200);
+      setTimeout(() => {
+        if (orgId) navigate(`/organization/${orgId}`);
+        else navigate('/');
+      }, 2200);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('403') || msg.toLowerCase().includes('email')) {

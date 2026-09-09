@@ -30,7 +30,8 @@ export function InvitationPromptModal({ invitation, token, onClose, onAccepted, 
     setBusy(true); setError('');
     try {
       const { orgId } = await acceptInvitation(token);
-      onAccepted(orgId);
+      if (orgId) onAccepted(orgId);
+      else throw new Error('La invitación fue aceptada, pero no se recibió la organización.');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Impossible d’accepter cette invitation.');
       setBusy(false);

@@ -229,7 +229,7 @@ export function Layout() {
       const { orgId } = await acceptInvitation(token);
       await handleMarkRead(notif.id);
       setShowNotifPopover(false);
-      navigate(`/organization/${orgId}`);
+      navigate(orgId ? `/organization/${orgId}` : '/');
     } catch {
       navigate(`/invitations/${token}`);
     }

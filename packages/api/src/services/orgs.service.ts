@@ -114,15 +114,41 @@ export async function getPublicInvitation(token: string): Promise<InvitationPubl
 export async function getInvitationById(invitationId: string): Promise<InvitationPublic & { token: string }> {
   const res = await getHttpClient()
     .get(`invitations/by-id/${invitationId}`)
-    .json<ApiRes<InvitationPublic & { token: string }>>();
-  return res.data;
+    .json<ApiRes<(InvitationPublic & { token?: string; inviteUrl?: string })>>();
+  const data = res.data;
+  const token = data.token ?? data.inviteUrl?.match(/\/invitations\/([^/?#]+)/)?.[1];
+  if (!token || token === data.id || token === invitationId) {
+    throw new Error('La invitación no devolvió un token válido.');
+  }
+  return { ...data, token };
 }
 
 export async function acceptInvitation(token: string): Promise<{ orgId: string }> {
-  const res = await getHttpClient()
-    .post(`invitations/${token}/accept`)
-    .json<ApiRes<{ orgId: string }>>();
-  return res.data;
+  try {
+    const res = await getHttpClient()
+      .post(`invitations/${token}/accept`)
+      .json<ApiRes<{
+        orgId?: string;
+        organizationId?: string;
+        organization?: { id?: string };
+        org?: { id?: string };
+      }>>();
+    const data = res.data;
+    const orgId = data.orgId ?? data.organizationId ?? data.organization?.id ?? data.org?.id;
+    if (!orgId) throw new Error('La invitación fue aceptada, pero la respuesta no contiene el id de la organización.');
+    return { orgId };
+  } catch (error) {
+    const response = (error as { response?: Response }).response;
+    if (response) {
+      const body = await response.clone().json().catch(() => null) as {
+        error?: { message?: string; details?: string[] };
+      } | null;
+      const message = body?.error?.message;
+      const details = body?.error?.details?.join(' ');
+      if (message || details) throw new Error([message, details].filter(Boolean).join(': '));
+    }
+    throw error;
+  }
 }
 
 export async function rejectInvitation(token: string): Promise<void> {
