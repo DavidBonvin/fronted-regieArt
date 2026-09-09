@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { getMe, getMyOrganizations, listNotifications, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
+import { getMe, getMyOrganizations, listNotifications, getPublicInvitation, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
 import { CreateSongWizard } from '../../features/songs';
@@ -14,6 +14,7 @@ import { playNotificationChime, isNotificationMuted, setNotificationMuted } from
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
 import { SignOutConfirmModal } from './SignOutConfirmModal';
+import { InvitationPromptModal } from './InvitationPromptModal';
 import s from './Layout.module.scss';
 
 const NAV_SECTIONS = [
@@ -72,6 +73,7 @@ export function Layout() {
   const [showCreateOrganization, setShowCreateOrganization] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [pendingInvitation, setPendingInvitation] = useState<{ token: string; invitation: import('@regieart/types').InvitationPublic } | null>(null);
   const [muted, setMuted] = useState(isNotificationMuted);
 
   function handleCreateAction(id: string) {
@@ -103,6 +105,15 @@ export function Layout() {
       setAllOrgs(orgs);
       setNotifs(notifsRes.notifications);
       knownNotifIds.current = new Set(notifsRes.notifications.map((n) => n.id));
+      const invitationNotif = notifsRes.notifications.find((n) => !n.isRead && n.metadata?.invitationToken);
+      const invitationToken = invitationNotif?.metadata?.invitationToken;
+      const shownKey = invitationToken ? `regieart:invitationPrompt:${invitationToken}` : null;
+      if (invitationToken && shownKey && !sessionStorage.getItem(shownKey)) {
+        getPublicInvitation(invitationToken).then((invitation) => {
+          sessionStorage.setItem(shownKey, '1');
+          setPendingInvitation({ token: invitationToken, invitation });
+        }).catch(() => {});
+      }
       const savedId = localStorage.getItem('regieart_active_org_id');
       const active = (savedId ? orgs.find((o) => o.id === savedId) : null) ?? orgs[0] ?? null;
       setOrg(active);
@@ -150,6 +161,10 @@ export function Layout() {
     if (!n.isRead) void handleMarkRead(n.id);
     const target = notificationTarget(n);
     if (target) navigate(target);
+  }
+
+  function closeInvitationPrompt() {
+    setPendingInvitation(null);
   }
 
   function toggleMute() {
@@ -419,13 +434,13 @@ export function Layout() {
                                   <div className={s.notifInviteActions}>
                                     <button
                                       className={s.notifRejectBtn}
-                                      onClick={(e) => { e.stopPropagation(); void handleRejectInvite(n); }}
+                                      onClick={(e) => { e.stopPropagation(); openNotification(n); }}
                                     >
-                                      Refuser
+                                      Voir l’invitation
                                     </button>
                                     <button
                                       className={s.notifAcceptBtn}
-                                      onClick={(e) => { e.stopPropagation(); void handleAcceptInvite(n); }}
+                                      onClick={(e) => { e.stopPropagation(); openNotification(n); }}
                                     >
                                       Accepter →
                                     </button>
@@ -603,6 +618,17 @@ export function Layout() {
           orgName={org?.name}
           onConfirm={handleSignOut}
           onCancel={() => setShowSignOutConfirm(false)}
+        />
+      )}
+
+      {pendingInvitation && (
+        <InvitationPromptModal
+          token={pendingInvitation.token}
+          invitation={pendingInvitation.invitation}
+          onClose={closeInvitationPrompt}
+          onAccepted={(orgId) => { setPendingInvitation(null); navigate(`/organization/${orgId}`); }}
+          onRejected={() => setPendingInvitation(null)}
+          onViewDetails={() => { setPendingInvitation(null); navigate(`/invitations/${pendingInvitation.token}`); }}
         />
       )}
     </div>

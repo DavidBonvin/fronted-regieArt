@@ -1,0 +1,24 @@
+.overlay { position: fixed; inset: 0; z-index: 2300; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(8,10,11,.72); backdrop-filter: blur(8px); animation: fade .2s ease-out; }
+.modal { position: relative; width: min(100%, 450px); padding: 30px; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface-card); box-shadow: 0 28px 80px -24px rgba(0,0,0,.72); animation: rise .32s cubic-bezier(.16,1,.3,1); }
+.close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border: none; border-radius: 50%; background: var(--surface-raised); color: var(--text-secondary); font-size: 20px; cursor: pointer; }
+.close:focus-visible, .reject:focus-visible, .accept:focus-visible, .detailsBtn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+.icon { display: grid; width: 48px; height: 48px; place-items: center; margin-bottom: 16px; border-radius: 14px; background: var(--status-ok-surface); color: var(--action-brand); font-size: 24px; }
+.eyebrow { margin: 0 0 6px; color: var(--action-brand); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.title { margin: 0; color: var(--text-heading); font-size: 23px; letter-spacing: -.03em; }
+.text { margin: 10px 0 18px; color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+.details { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; padding: 14px; border-radius: 12px; background: var(--surface-app); color: var(--text-muted); font-size: 12px; }
+.details strong { color: var(--text-body); font-size: 13px; text-align: right; }
+.message { margin: 14px 0 0; padding: 12px 14px; border-left: 3px solid var(--action-brand); color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.error { margin: 14px 0 0; color: var(--status-error); font-size: 12px; line-height: 1.4; }
+.actions { display: flex; gap: 10px; margin-top: 22px; }
+.reject, .accept { flex: 1; min-height: 42px; border-radius: 10px; padding: 0 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.reject { border: 1px solid var(--border-default); background: transparent; color: var(--text-body); }
+.accept { border: none; background: var(--action-brand); color: #fff; }
+.reject:hover { background: var(--surface-raised); }
+.accept:hover { background: var(--action-brand-dim); }
+.reject:disabled, .accept:disabled, .detailsBtn:disabled { opacity: .5; cursor: default; }
+.detailsBtn { display: block; margin: 14px auto 0; border: none; background: transparent; color: var(--text-muted); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .overlay, .modal { animation: none; } }
+@media (max-width: 480px) { .overlay { align-items: flex-end; padding: 0; } .modal { border-radius: 18px 18px 0 0; padding: 26px 20px 22px; } .actions { flex-direction: column-reverse; } }
