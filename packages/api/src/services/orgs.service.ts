@@ -111,6 +111,13 @@ export async function getPublicInvitation(token: string): Promise<InvitationPubl
   return res.data;
 }
 
+export async function getInvitationById(invitationId: string): Promise<InvitationPublic & { token: string }> {
+  const res = await getHttpClient()
+    .get(`invitations/by-id/${invitationId}`)
+    .json<ApiRes<InvitationPublic & { token: string }>>();
+  return res.data;
+}
+
 export async function acceptInvitation(token: string): Promise<{ orgId: string }> {
   const res = await getHttpClient()
     .post(`invitations/${token}/accept`)

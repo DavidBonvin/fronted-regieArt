@@ -5,15 +5,19 @@ export type NotificationType =
   | 'INSTRUMENT_ASSIGNED'
   | 'INVITE_ACCEPTED'
   | 'ROLE_CHANGED'
-  | 'MESSAGE_RECEIVED';
+  | 'MESSAGE_RECEIVED'
+  | 'ORGANIZATION_INVITE';
 
 export interface Notification {
   id: string;
-  userId: string;
+  userId?: string;
+  recipientId?: string;
   type: NotificationType;
   title: string;
   body?: string;
   isRead: boolean;
   createdAt: string;
   metadata?: Record<string, string>;
+  sourceId?: string;
+  sourceType?: string;
 }

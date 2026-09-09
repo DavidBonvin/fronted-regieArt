@@ -20,12 +20,17 @@ export function getInvitationToken(n: Notification): string | undefined {
   return match?.[1];
 }
 
+export function getInvitationSourceId(n: Notification): string | undefined {
+  return n.sourceType === 'invitation' ? n.sourceId : undefined;
+}
+
 /** Where clicking a notification should take the user. `null` when there is nowhere useful to go. */
 export function notificationTarget(n: Notification): string | null {
   const meta = n.metadata;
 
   const invitationToken = getInvitationToken(n);
   if (invitationToken) return `/invitations/${invitationToken}`;
+  if (n.type === 'ORGANIZATION_INVITE') return null;
 
   const orgId = pick(meta, 'orgId', 'organizationId');
 

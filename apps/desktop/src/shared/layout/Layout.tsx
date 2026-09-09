@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { getMe, getMyOrganizations, listNotifications, getPublicInvitation, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
+import { getMe, getMyOrganizations, listNotifications, getPublicInvitation, getInvitationById, markNotificationRead, markAllNotificationsRead, acceptInvitation, rejectInvitation, clearImageCache } from '@regieart/api';
 import type { User, Organization, Notification } from '@regieart/types';
 import { CreateEventWizard } from '../../features/events';
 import { CreateSongWizard } from '../../features/songs';
@@ -10,7 +10,7 @@ import type { EmailInvitation } from '@regieart/types';
 import { setActiveOrganization } from '../utils/activeOrganization';
 import { clearProfileMediaCache } from '../utils/profileMediaCache';
 import { notificationTarget } from '../utils/notificationTarget';
-import { getInvitationToken } from '../utils/notificationTarget';
+import { getInvitationToken, getInvitationSourceId } from '../utils/notificationTarget';
 import { playNotificationChime, isNotificationMuted, setNotificationMuted } from '../utils/notificationSound';
 import { GlobalCreateModal } from './GlobalCreateModal';
 import { OrgSwitcherModal } from './OrgSwitcherModal';
@@ -108,11 +108,16 @@ export function Layout() {
       knownNotifIds.current = new Set(notifsRes.notifications.map((n) => n.id));
       const invitationNotif = notifsRes.notifications.find((n) => !n.isRead && getInvitationToken(n));
       const invitationToken = invitationNotif ? getInvitationToken(invitationNotif) : undefined;
+      const invitationSourceId = invitationNotif ? getInvitationSourceId(invitationNotif) : undefined;
       const shownKey = invitationToken ? `regieart:invitationPrompt:${invitationToken}` : null;
-      if (invitationToken && shownKey && !sessionStorage.getItem(shownKey)) {
-        getPublicInvitation(invitationToken).then((invitation) => {
-          sessionStorage.setItem(shownKey, '1');
-          setPendingInvitation({ token: invitationToken, invitation });
+      const promptKey = invitationToken ?? invitationSourceId;
+      if (promptKey && !sessionStorage.getItem(`regieart:invitationPrompt:${promptKey}`)) {
+        const detailsPromise = invitationToken
+          ? getPublicInvitation(invitationToken).then((invitation) => ({ ...invitation, token: invitationToken }))
+          : invitationSourceId ? getInvitationById(invitationSourceId) : Promise.reject(new Error('Invitation token missing'));
+        detailsPromise.then(({ token, ...invitation }) => {
+          sessionStorage.setItem(`regieart:invitationPrompt:${promptKey}`, '1');
+          setPendingInvitation({ token, invitation });
         }).catch(() => {});
       }
       const savedId = localStorage.getItem('regieart_active_org_id');
@@ -157,9 +162,19 @@ export function Layout() {
     return () => clearInterval(timer);
   }, []);
 
-  function openNotification(n: Notification) {
+  async function openNotification(n: Notification) {
     setShowNotifPopover(false);
     if (!n.isRead) void handleMarkRead(n.id);
+    const sourceId = getInvitationSourceId(n);
+    if (sourceId) {
+      try {
+        const { token, ...invitation } = await getInvitationById(sourceId);
+        setPendingInvitation({ token, invitation });
+      } catch {
+        navigate('/notifications');
+      }
+      return;
+    }
     const target = notificationTarget(n);
     if (target) navigate(target);
   }
